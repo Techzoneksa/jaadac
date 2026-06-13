@@ -5,11 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "demo:build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "node scripts/hostinger-build.mjs",
+    "start": "npm --prefix apps/web run start",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build:web": "npm --prefix apps/web run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
