@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "build": "node scripts/hostinger-build.mjs",
-    "start": "npm --prefix apps/web run start",
+    "start": "node scripts/hostinger-start.mjs",
     "dev:web": "npm --prefix apps/web run dev",
     "build:web": "npm --prefix apps/web run build"
   },
