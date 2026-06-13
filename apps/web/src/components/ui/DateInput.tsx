@@ -1,0 +1,30 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
+export interface DateInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  error?: string;
+}
+
+const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
+  ({ className, error, ...props }, ref) => {
+    return (
+      <div className="space-y-1">
+        <input
+          type="date"
+          className={cn(
+            "flex h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-[#dc2626]",
+            className,
+          )}
+          ref={ref}
+          dir="ltr"
+          {...props}
+        />
+        {error && <p className="text-sm text-[#dc2626]">{error}</p>}
+      </div>
+    );
+  },
+);
+DateInput.displayName = "DateInput";
+
+export { DateInput };

@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function PurchaseInvoicesPage() {
-  return <PlaceholderPage title="فواتير المشتريات" module="إدارة فواتير المشتريات" />;
+  return (
+    <ModulePageTemplate
+      title="فواتير المشتريات"
+      description="إدارة فواتير الشراء"
+      status="placeholder"
+    />
+  );
 }

@@ -4,11 +4,12 @@
 
 ## Framework
 
-- **Framework:** Next.js
+- **Framework:** Next.js 15 (App Router)
 - **Node version:** 22.x (LTS)
 - **Build command:** `npm run build` (from `apps/web/`)
 - **Start command:** `npm start` (Next.js built-in server)
 - **Output directory:** `.next/` (default)
+- **outputFileTracingRoot:** ✅ Configured — resolves monorepo lockfile conflict
 
 ## Environment Variables (Future)
 

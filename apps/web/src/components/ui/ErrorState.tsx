@@ -1,0 +1,32 @@
+import { cn } from "@/lib/utils";
+import { AlertTriangle } from "lucide-react";
+
+interface ErrorStateProps {
+  title?: string;
+  message?: string;
+  onRetry?: () => void;
+  className?: string;
+}
+
+export function ErrorState({
+  title = "حدث خطأ",
+  message = "تعذر تحميل البيانات. حاول مرة أخرى.",
+  onRetry,
+  className,
+}: ErrorStateProps) {
+  return (
+    <div className={cn("flex flex-col items-center justify-center py-16 text-center", className)}>
+      <AlertTriangle className="h-10 w-10 text-[#dc2626] mb-3" />
+      <h3 className="text-lg font-semibold text-[#334155]">{title}</h3>
+      <p className="mt-1 text-sm text-[#64748b] max-w-sm">{message}</p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="mt-4 text-sm font-medium text-[#2563eb] hover:text-[#1d4ed8]"
+        >
+          إعادة المحاولة
+        </button>
+      )}
+    </div>
+  );
+}

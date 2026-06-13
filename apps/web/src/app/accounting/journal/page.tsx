@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function JournalPage() {
-  return <PlaceholderPage title="قيود اليومية" module="دفتر اليومية" />;
+  return (
+    <ModulePageTemplate
+      title="قيود اليومية"
+      description="دفتر اليومية المحاسبي"
+      status="placeholder"
+    />
+  );
 }

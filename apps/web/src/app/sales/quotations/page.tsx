@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function QuotationsPage() {
-  return <PlaceholderPage title="عروض الأسعار" module="إدارة عروض الأسعار" />;
+  return (
+    <ModulePageTemplate
+      title="عروض الأسعار"
+      description="إدارة عروض الأسعار للمبيعات"
+      status="placeholder"
+    />
+  );
 }

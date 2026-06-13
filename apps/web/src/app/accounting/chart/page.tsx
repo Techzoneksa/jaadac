@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function ChartPage() {
-  return <PlaceholderPage title="شجرة الحسابات" module="دليل الحسابات" />;
+  return (
+    <ModulePageTemplate
+      title="شجرة الحسابات"
+      description="دليل الحسابات المحاسبي الهرمي"
+      status="placeholder"
+    />
+  );
 }

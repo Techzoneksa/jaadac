@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function ItemsPage() {
-  return <PlaceholderPage title="المنتجات والخدمات" module="إدارة الأصناف" />;
+  return (
+    <ModulePageTemplate
+      title="المنتجات والخدمات"
+      description="إدارة الأصناف والمنتجات والخدمات"
+      status="placeholder"
+    />
+  );
 }

@@ -6,11 +6,11 @@ export interface BadgeProps
   variant?: "default" | "secondary" | "outline" | "destructive";
 }
 
-const variants = {
-  default: "bg-blue-100 text-blue-800 border-transparent",
-  secondary: "bg-gray-100 text-gray-800 border-transparent",
-  destructive: "bg-red-100 text-red-800 border-transparent",
-  outline: "text-gray-700 border-gray-300",
+const variants: Record<string, string> = {
+  default: "bg-[#dbeafe] text-[#1d4ed8] border-transparent",
+  secondary: "bg-[#f1f5f9] text-[#475569] border-transparent",
+  destructive: "bg-[#fee2e2] text-[#b91c1c] border-transparent",
+  outline: "text-[#475569] border-[#e2e8f0]",
 };
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(

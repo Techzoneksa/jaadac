@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function TaxesPage() {
-  return <PlaceholderPage title="الضرائب" module="إدارة الضرائب" />;
+  return (
+    <ModulePageTemplate
+      title="الضرائب"
+      description="إدارة نسب ضريبة القيمة المضافة"
+      status="placeholder"
+    />
+  );
 }

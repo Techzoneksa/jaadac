@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function SuppliersPage() {
-  return <PlaceholderPage title="الموردون" module="إدارة الموردين" />;
+  return (
+    <ModulePageTemplate
+      title="الموردون"
+      description="إدارة جهات الاتصال من الموردين"
+      status="placeholder"
+    />
+  );
 }

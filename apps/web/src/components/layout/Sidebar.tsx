@@ -5,25 +5,21 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Users,
   Store,
   Package,
-  FileText,
-  Receipt,
-  ShoppingCart,
-  Banknote,
   Wallet,
-  BookOpen,
   BarChart3,
   Settings,
   ChevronLeft,
-  ChevronDown,
+  FileText,
+  Receipt,
+  Banknote,
   Network,
   Tags,
   ScrollText,
   Building2,
+  Menu,
 } from "lucide-react";
-import { useState } from "react";
 
 interface NavItem {
   label: string;
@@ -32,79 +28,75 @@ interface NavItem {
   children?: NavItem[];
 }
 
-const navItems: NavItem[] = [
-  { label: "لوحة البيانات", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: "الرئيسية",
+    items: [{ label: "لوحة البيانات", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> }],
+  },
   {
     label: "المبيعات",
-    href: "#",
-    icon: <ShoppingCart className="h-5 w-5" />,
-    children: [
-      { label: "عروض الأسعار", href: "/sales/quotations", icon: <FileText className="h-4 w-4" /> },
-      { label: "فواتير المبيعات", href: "/sales/invoices", icon: <Receipt className="h-4 w-4" /> },
+    items: [
+      { label: "عروض الأسعار", href: "/sales/quotations", icon: <FileText className="h-5 w-5" /> },
+      { label: "فواتير المبيعات", href: "/sales/invoices", icon: <Receipt className="h-5 w-5" /> },
     ],
   },
   {
     label: "المشتريات",
-    href: "#",
-    icon: <Store className="h-5 w-5" />,
-    children: [
-      { label: "فواتير المشتريات", href: "/purchases/invoices", icon: <ScrollText className="h-4 w-4" /> },
+    items: [
+      { label: "فواتير المشتريات", href: "/purchases/invoices", icon: <ScrollText className="h-5 w-5" /> },
     ],
   },
   {
-    label: "العملاء والموردون",
-    href: "#",
-    icon: <Users className="h-5 w-5" />,
-    children: [
-      { label: "العملاء", href: "/customers", icon: <Building2 className="h-4 w-4" /> },
-      { label: "الموردون", href: "/suppliers", icon: <Store className="h-4 w-4" /> },
+    label: "جهات الاتصال",
+    items: [
+      { label: "العملاء", href: "/customers", icon: <Building2 className="h-5 w-5" /> },
+      { label: "الموردون", href: "/suppliers", icon: <Store className="h-5 w-5" /> },
+      { label: "المنتجات والخدمات", href: "/items", icon: <Package className="h-5 w-5" /> },
     ],
   },
-  { label: "المنتجات والخدمات", href: "/items", icon: <Package className="h-5 w-5" /> },
   {
     label: "النقد والبنوك",
-    href: "#",
-    icon: <Wallet className="h-5 w-5" />,
-    children: [
-      { label: "سندات القبض", href: "/cash/receipts", icon: <Banknote className="h-4 w-4" /> },
-      { label: "سندات الصرف", href: "/cash/payments", icon: <Wallet className="h-4 w-4" /> },
+    items: [
+      { label: "سندات القبض", href: "/cash/receipts", icon: <Banknote className="h-5 w-5" /> },
+      { label: "سندات الصرف", href: "/cash/payments", icon: <Wallet className="h-5 w-5" /> },
     ],
   },
   {
     label: "المحاسبة",
-    href: "#",
-    icon: <BookOpen className="h-5 w-5" />,
-    children: [
-      { label: "شجرة الحسابات", href: "/accounting/chart", icon: <Network className="h-4 w-4" /> },
-      { label: "قيود اليومية", href: "/accounting/journal", icon: <ScrollText className="h-4 w-4" /> },
-      { label: "الضرائب", href: "/accounting/taxes", icon: <Tags className="h-4 w-4" /> },
+    items: [
+      { label: "شجرة الحسابات", href: "/accounting/chart", icon: <Network className="h-5 w-5" /> },
+      { label: "قيود اليومية", href: "/accounting/journal", icon: <ScrollText className="h-5 w-5" /> },
+      { label: "الضرائب", href: "/accounting/taxes", icon: <Tags className="h-5 w-5" /> },
     ],
   },
-  { label: "التقارير", href: "/reports", icon: <BarChart3 className="h-5 w-5" /> },
-  { label: "الإعدادات", href: "/settings", icon: <Settings className="h-5 w-5" /> },
+  {
+    label: "التقارير",
+    items: [{ label: "مركز التقارير", href: "/reports", icon: <BarChart3 className="h-5 w-5" /> }],
+  },
+  {
+    label: "النظام",
+    items: [{ label: "الإعدادات", href: "/settings", icon: <Settings className="h-5 w-5" /> }],
+  },
 ];
 
-function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
+function NavItemLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const hasChildren = item.children && item.children.length > 0;
-  const isActive = hasChildren
-    ? item.children!.some((c) => pathname === c.href)
-    : pathname === item.href;
-
-  if (collapsed && hasChildren) {
-    return null;
-  }
+  const isActive = pathname === item.href;
 
   if (collapsed) {
     return (
       <Link
         href={item.href}
         className={cn(
-          "flex items-center justify-center p-3 rounded-lg transition-colors",
+          "flex items-center justify-center p-2.5 rounded-lg transition-colors",
           isActive
-            ? "bg-blue-100 text-blue-700"
-            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700",
+            ? "bg-[#dbeafe] text-[#2563eb]"
+            : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#334155]",
         )}
         title={item.label}
       >
@@ -114,84 +106,89 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   }
 
   return (
-    <div>
-      {hasChildren ? (
-        <>
-          <button
-            onClick={() => setOpen(!open)}
-            className={cn(
-              "flex items-center w-full gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-              isActive
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700",
-            )}
-          >
-            {item.icon}
-            <span className="flex-1 text-right">{item.label}</span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-          </button>
-          {open && (
-            <div className="mr-6 mt-1 space-y-1">
-              {item.children!.map((child) => (
-                <Link
-                  key={child.href}
-                  href={child.href}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-                    pathname === child.href
-                      ? "bg-blue-100 text-blue-700"
-                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700",
-                  )}
-                >
-                  {child.icon}
-                  <span>{child.label}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </>
-      ) : (
-        <Link
-          href={item.href}
-          className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-            isActive
-              ? "bg-blue-100 text-blue-700 font-medium"
-              : "text-gray-500 hover:bg-gray-100 hover:text-gray-700",
-          )}
-        >
-          {item.icon}
-          <span>{item.label}</span>
-        </Link>
+    <Link
+      href={item.href}
+      className={cn(
+        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+        isActive
+          ? "bg-[#dbeafe] text-[#2563eb] font-semibold"
+          : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#1e293b]",
       )}
+    >
+      {item.icon}
+      <span>{item.label}</span>
+    </Link>
+  );
+}
+
+function NavGroupSection({ group, collapsed }: { group: NavGroup; collapsed: boolean }) {
+
+  if (collapsed) {
+    return (
+      <div className="space-y-1">
+        {group.items.map((item) => (
+          <NavItemLink key={item.href} item={item} collapsed={true} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="sidebar-group-label">{group.label}</p>
+      <div className="mt-1 space-y-0.5">
+        {group.items.map((item) => (
+          <NavItemLink key={item.href} item={item} collapsed={false} />
+        ))}
+      </div>
     </div>
   );
 }
 
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   return (
-    <aside
-      className={cn(
-        "flex flex-col border-l border-gray-200 bg-white transition-all duration-300",
-        collapsed ? "w-16" : "w-64",
+    <>
+      {collapsed && (
+        <aside className="flex flex-col border-l border-[#e2e8f0] bg-white w-16 shrink-0">
+          <div className="flex items-center justify-center h-14 border-b border-[#e2e8f0]">
+            <button
+              onClick={onToggle}
+              className="p-2 rounded-md text-[#64748b] hover:bg-[#f1f5f9]"
+              title="توسيع القائمة"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
+          <nav className="flex-1 overflow-y-auto p-2 space-y-2">
+            {navGroups.map((group) => (
+              <NavGroupSection key={group.label} group={group} collapsed={true} />
+            ))}
+          </nav>
+        </aside>
       )}
-    >
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        {!collapsed && (
-          <span className="text-lg font-bold text-blue-700">جاد كلاود</span>
-        )}
-        <button
-          onClick={onToggle}
-          className="p-1 rounded-md text-gray-400 hover:bg-gray-100"
-        >
-          <ChevronLeft className={cn("h-5 w-5 transition-transform", collapsed && "rotate-180")} />
-        </button>
-      </div>
-      <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} collapsed={collapsed} />
-        ))}
-      </nav>
-    </aside>
+
+      {!collapsed && (
+        <aside className="flex flex-col border-l border-[#e2e8f0] bg-white w-64 shrink-0">
+          <div className="flex items-center justify-between h-14 px-4 border-b border-[#e2e8f0]">
+            <span className="text-lg font-bold text-[#1d4ed8] tracking-tight">جاد كلاود</span>
+            <button
+              onClick={onToggle}
+              className="p-1.5 rounded-md text-[#64748b] hover:bg-[#f1f5f9]"
+              title="طي القائمة"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          </div>
+          <nav className="flex-1 overflow-y-auto py-3 space-y-4">
+            {navGroups.map((group) => (
+              <NavGroupSection key={group.label} group={group} collapsed={false} />
+            ))}
+          </nav>
+          <div className="p-3 border-t border-[#e2e8f0]">
+            <p className="text-xs text-[#94a3b8] text-center">JAAD CLOUD v0.1.0</p>
+          </div>
+        </aside>
+      )}
+    </>
   );
 }

@@ -1,0 +1,23 @@
+import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+
+interface MoneyDisplayProps {
+  amount: number;
+  className?: string;
+  variant?: "default" | "positive" | "negative";
+}
+
+export function MoneyDisplay({ amount, className, variant = "default" }: MoneyDisplayProps) {
+  return (
+    <span
+      className={cn(
+        "tabular-nums",
+        variant === "positive" && "text-[#16a34a]",
+        variant === "negative" && "text-[#dc2626]",
+        className,
+      )}
+    >
+      {formatCurrency(amount)}
+    </span>
+  );
+}

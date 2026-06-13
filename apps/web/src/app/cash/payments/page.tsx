@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function PaymentsPage() {
-  return <PlaceholderPage title="سندات الصرف" module="إدارة سندات الصرف" />;
+  return (
+    <ModulePageTemplate
+      title="سندات الصرف"
+      description="تسجيل وإدارة سندات الصرف"
+      status="placeholder"
+    />
+  );
 }

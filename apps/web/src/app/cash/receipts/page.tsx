@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function ReceiptsPage() {
-  return <PlaceholderPage title="سندات القبض" module="إدارة سندات القبض" />;
+  return (
+    <ModulePageTemplate
+      title="سندات القبض"
+      description="تسجيل وإدارة سندات القبض"
+      status="placeholder"
+    />
+  );
 }

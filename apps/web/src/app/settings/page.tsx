@@ -1,5 +1,11 @@
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { ModulePageTemplate } from "@/components/shared/ModulePageTemplate";
 
 export default function SettingsPage() {
-  return <PlaceholderPage title="الإعدادات" module="إعدادات النظام" />;
+  return (
+    <ModulePageTemplate
+      title="الإعدادات"
+      description="إعدادات النظام والمستخدم"
+      status="placeholder"
+    />
+  );
 }
