@@ -13,15 +13,15 @@
 | Output directory | `.next` |
 | Node version | 22.x |
 | Package manager | npm |
-| Start command | **`npm run start`** (set in hPanel) |
+| Start command | **`npm run start`** |
 | Application mode | **Node.js** (not PHP) |
-| Entry point (if field exists) | `server.mjs` |
+| Entry point (optional field) | `scripts/hostinger-start.mjs` |
 
 ## How Build Works
 
 1. Hostinger runs `npm install` in `./` (installs old demo deps from root `package.json`)
 2. Hostinger runs `npm run build` (root) → executes `node scripts/hostinger-build.mjs`
-3. The script:
+3. The build script:
    - Runs `npm install` inside `apps/web` (Next.js dependencies)
    - Runs `npm run build` inside `apps/web` (Next.js production build → `apps/web/.next`)
    - Copies `apps/web/.next` → `./.next` (Hostinger detects output at root level)
@@ -29,26 +29,39 @@
 
 ## How Start Works
 
-`npm start` → `node server.mjs` (at root):
+`npm start` → `node scripts/hostinger-start.mjs` (or set Entry point to `scripts/hostinger-start.mjs` directly):
 
 | Step | Logic |
 |------|-------|
 | 1 | Check if `apps/web/.next` exists at runtime |
 | 2 | **If yes:** run `next start` from `apps/web/` (uses `apps/web/.next`) |
-| 3 | **If no (Hostinger scenario):** run `next start` from `./` with `NODE_PATH=apps/web/node_modules` (uses `./.next`) |
+| 3 | **If no (Hostinger scenario after build):** run `next start` from `./` with `NODE_PATH=apps/web/node_modules` (uses `./.next`) |
 | 4 | `PORT` from environment or `3000` |
-| 5 | Uses `process.execPath` (no shell) for security |
+| 5 | Uses `process.execPath` (no shell) |
 
 ### Why NODE_PATH?
 
-The `.next` directory was built inside `apps/web/`. Its server bundles reference `next` internals from `apps/web/node_modules`. When running from root with `./.next`, Node's module resolver cannot find `next` because it's in `apps/web/node_modules`, not in root. Setting `NODE_PATH=apps/web/node_modules` tells Node to look there.
+The `.next` directory was built inside `apps/web/`. Its server bundles reference `next` internals from `apps/web/node_modules`. When running from root with `./.next`, Node.js module resolver cannot find `next` because it's in `apps/web/node_modules`, not in root. Setting `NODE_PATH=apps/web/node_modules` tells Node to look there.
+
+## Environment Variables (hPanel)
+
+Set these in **hPanel → Hosting → Manage → Node.js → Environment variables**:
+
+| Variable | Required? | Value |
+|----------|-----------|-------|
+| `DATABASE_URL` | ⏳ Phase 2.3 | Placeholder until DB provisioned |
+| `NEXT_PUBLIC_APP_URL` | ✅ Now | `https://erp.jaadsa.com` |
+| `SUPABASE_URL` | ✅ Root `.env` | `https://xqyhynilyorvtrfclvuv.supabase.co` |
+| `SUPABASE_ANON_KEY` | ✅ Root `.env` | (from root `.env` file) |
+
+> **Note:** `SUPABASE_URL` and `SUPABASE_ANON_KEY` support the root TanStack Start app (old demo). The Next.js app in `apps/web` does not currently use Supabase.
 
 ## Root Scripts
 
 | Script | Command | Purpose |
 |--------|---------|---------|
 | `npm run build` | `node scripts/hostinger-build.mjs` | Hostinger build |
-| `npm start` | `node server.mjs` | Hostinger start (**use this in hPanel**) |
+| `npm start` | `node scripts/hostinger-start.mjs` | Hostinger start (**use this in hPanel**) |
 | `npm run dev:web` | `npm --prefix apps/web run dev` | Local Next.js dev |
 | `npm run build:web` | `npm --prefix apps/web run build` | Local Next.js build |
 
@@ -56,41 +69,42 @@ The `.next` directory was built inside `apps/web/`. Its server bundles reference
 
 | File | Purpose |
 |------|---------|
-| `server.mjs` (root) | **Primary entry.** Set as Start command (`npm run start`) or Entry point (`server.mjs`) |
-| `scripts/hostinger-start.mjs` | Same logic as `server.mjs`, used when running via npm |
+| `scripts/hostinger-start.mjs` | **Primary entry.** Set as Start command (`npm run start`) or Entry point |
+| `server.mjs` (root) | Legacy — same logic as above, kept for backwards compatibility |
 
-## 403 Diagnosis History
+## 403 Causes & Fixes
 
-The 403 occurred because:
-
-1. **Phase 2.2.3:** Hostinger wasn't starting the Node.js server after build
-2. **Phase 2.2.4:** Start script added but used `apps/web` CWD — worked locally but on Hostinger `apps/web/.next` may not exist at runtime
-3. **Phase 2.2.5 (this fix):** Start script now handles both scenarios:
-   - If only root `.next` exists → uses `NODE_PATH` to resolve modules from `apps/web/node_modules`
-   - Works locally and on Hostinger
+| Phase | Cause | Fix Applied |
+|-------|-------|-------------|
+| 2.2.3 | Build completed, no Node.js server started | Documented Hostinger Node.js mode requirement |
+| 2.2.4 | Start script used `apps/web` CWD — `apps/web/.next` didn't exist at runtime | Added fallback to root `.next` |
+| 2.2.5 | Root `.next` server bundles referenced `next` module from `apps/web/node_modules` — not found when running from root | Added `NODE_PATH=apps/web/node_modules` |
+| **Now** | `package.json` `start` was `node server.mjs` — confusing; `server.mjs` had same logic but name suggested TanStack | Changed to `node scripts/hostinger-start.mjs` |
 
 ## Deployment Checklist
 
-- [x] Branch set to `nextjs-migration`
-- [x] Root directory set to `./`
-- [x] Framework set to Next.js
+- [x] Branch: `nextjs-migration`
+- [x] Root directory: `./`
+- [x] Framework: Next.js
 - [x] Build command: `npm run build`
 - [x] Output directory: `.next`
 - [x] Node version: 22.x
-- [x] **Start command: `npm run start`** ✅
-- [x] **Application mode: Node.js** ✅
-- [x] **server.mjs at root** ✅
-- [ ] Environment variables configured
-- [ ] Database provisioned
-- [ ] Auth configured
+- [x] **Start command: `npm run start`**
+- [x] **Application mode: Node.js**
+- [x] **Entry point: `scripts/hostinger-start.mjs`** (if field exists)
+- [ ] **Environment variables** set in hPanel (see table above)
+- [ ] Restart after configuration
+- [ ] Database provisioned (Phase 2.3)
+- [ ] Auth configured (Phase 2.4)
 - [ ] SSL enabled (auto via Let's Encrypt)
 
-## After Deployment
+## After hPanel Configuration
 
-1. hPanel → Hosting → Manage → Node.js
+1. **hPanel → Hosting → Manage → Node.js**
 2. Application mode = **Node.js**
-3. Start command = **`npm run start`** or Entry point = **`server.mjs`**
-4. **Restart** the application
-5. Visit `https://erp.jaadsa.com/`
+3. Start command = **`npm run start`** (or Entry point = `scripts/hostinger-start.mjs`)
+4. Set environment variables (see table above)
+5. **Restart** the application
+6. Wait 10–30 seconds, visit `https://erp.jaadsa.com/`
 
-If still 403: send Hostinger error logs from hPanel.
+If still 403: check Node.js logs in hPanel and send them here.

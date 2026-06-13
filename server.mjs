@@ -16,6 +16,10 @@ const nextBin = join(appDir, "node_modules/next/dist/bin/next");
 console.log("[JAAD CLOUD] Starting Next.js...");
 console.log(`  Port: ${port}`);
 console.log(`  Build: ${useRootNext ? "root .next" : "apps/web .next"}`);
+console.log(`  NODE_PATH: ${join(appDir, "node_modules")}`);
+if (process.env.SCRIPT_NAME) {
+  console.log("  ⚠ SCRIPT_NAME is set:", process.env.SCRIPT_NAME);
+}
 
 const child = spawn(process.execPath, [nextBin, "start", "-p", port], {
   cwd,

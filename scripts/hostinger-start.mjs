@@ -25,6 +25,11 @@ console.log("  Next.js from:", nextDir);
 console.log("  CWD:", cwd);
 console.log("  Port:", port);
 console.log("  Node:", process.version);
+console.log("  NODE_PATH:", join(appDir, "node_modules"));
+if (process.env.SCRIPT_NAME) {
+  console.log("  ⚠ SCRIPT_NAME is set:", process.env.SCRIPT_NAME);
+  console.log("  This may affect routing. Clear it in hPanel if routes break.");
+}
 console.log("");
 
 const child = spawn(
