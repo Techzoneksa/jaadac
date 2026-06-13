@@ -1,0 +1,230 @@
+import { useStore, docTotals, type Quotation, type Invoice, type Receipt, type Payment } from "@/lib/store";
+import { useI18n, fmtMoney } from "@/lib/i18n";
+import { QRCode } from "@/components/QRCode";
+import { StatusBadge } from "@/components/StatusBadge";
+import { Building2 } from "lucide-react";
+
+function DocHeader({ title, status }: { title: string; status?: string }) {
+  const { t } = useI18n();
+  const company = useStore((s) => s.company);
+  return (
+    <div className="flex items-start justify-between border-b pb-6 gap-4">
+      <div className="flex items-center gap-3">
+        <div className="size-14 rounded-xl bg-primary flex items-center justify-center shrink-0">
+          <Building2 className="size-7 text-primary-foreground" />
+        </div>
+        <div>
+          <div className="font-bold text-lg leading-tight">{company.name}</div>
+          {company.vat && <div className="text-xs text-neutral-600 mt-0.5">{t("vat_number")}: {company.vat}</div>}
+          {company.cr && <div className="text-xs text-neutral-600">{t("cr_number")}: {company.cr}</div>}
+          <div className="text-xs text-neutral-600">{company.city}{company.city && ", "}{company.country}</div>
+        </div>
+      </div>
+      <div className="text-end">
+        <div className="text-2xl font-bold tracking-tight text-primary">{title}</div>
+        {status && <div className="mt-2 inline-block"><StatusBadge status={status} /></div>}
+      </div>
+    </div>
+  );
+}
+
+function DocLayout({
+  title, number, date, secondaryLabel, secondaryDate, customerLabel, customerName, customerVat, customerCity,
+  lines, discount, notes, terms, showQR, qrPayload, status,
+}: {
+  title: string; number: string; date: string;
+  secondaryLabel: string; secondaryDate: string;
+  customerLabel: string; customerName: string; customerVat?: string; customerCity?: string;
+  lines: { description: string; qty: number; unit_price: number; vat_rate: number }[];
+  discount: number; notes?: string; terms?: string;
+  showQR?: boolean; qrPayload?: string; status?: string;
+}) {
+  const { t, lang } = useI18n();
+  const totals = docTotals(lines as any, discount);
+
+  return (
+    <div className="bg-white text-black rounded-lg border print:border-0 print:shadow-none">
+      <div className="p-8">
+        <DocHeader title={title} status={status} />
+
+        <div className="grid grid-cols-2 gap-6 mt-5 text-sm">
+          <div className="space-y-2">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">{customerLabel}</div>
+              <div className="font-semibold">{customerName}</div>
+              {customerVat && <div className="text-xs text-neutral-600">{t("vat_number")}: {customerVat}</div>}
+              {customerCity && <div className="text-xs text-neutral-600">{customerCity}</div>}
+            </div>
+          </div>
+          <div className="text-end space-y-1">
+            <div><span className="text-neutral-500">{t("number")}: </span><span className="font-mono font-medium">{number}</span></div>
+            <div><span className="text-neutral-500">{t("date")}: </span>{date}</div>
+            <div><span className="text-neutral-500">{secondaryLabel}: </span>{secondaryDate}</div>
+          </div>
+        </div>
+
+        <table className="w-full text-sm mt-6 border rounded overflow-hidden">
+          <thead>
+            <tr className="border-b bg-neutral-100">
+              <th className="text-start py-2 px-3 font-semibold w-8">#</th>
+              <th className="text-start py-2 px-3 font-semibold">{t("description")}</th>
+              <th className="text-end py-2 px-3 font-semibold">{t("quantity")}</th>
+              <th className="text-end py-2 px-3 font-semibold">{t("unit_price")}</th>
+              <th className="text-end py-2 px-3 font-semibold">VAT%</th>
+              <th className="text-end py-2 px-3 font-semibold">{t("total")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lines.map((l, i) => (
+              <tr key={i} className="border-b last:border-0">
+                <td className="py-2 px-3 text-neutral-500">{i + 1}</td>
+                <td className="py-2 px-3">{l.description}</td>
+                <td className="py-2 px-3 text-end">{l.qty}</td>
+                <td className="py-2 px-3 text-end font-mono">{fmtMoney(l.unit_price, lang)}</td>
+                <td className="py-2 px-3 text-end">{l.vat_rate}%</td>
+                <td className="py-2 px-3 text-end font-mono">{fmtMoney(l.qty * l.unit_price * (1 + l.vat_rate / 100), lang)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex justify-between items-start mt-6 gap-6">
+          {showQR ? (
+            <div className="shrink-0">
+              <QRCode value={qrPayload || number} size={120} />
+              <div className="text-[10px] text-neutral-500 mt-1 text-center">ZATCA QR</div>
+            </div>
+          ) : <div />}
+          <div className="w-72 space-y-1.5 text-sm">
+            <div className="flex justify-between"><span className="text-neutral-600">{t("subtotal")}</span><span className="font-mono">{fmtMoney(totals.sub, lang)}</span></div>
+            {discount > 0 && <div className="flex justify-between"><span className="text-neutral-600">{t("discount")}</span><span className="font-mono">- {fmtMoney(discount, lang)}</span></div>}
+            <div className="flex justify-between"><span className="text-neutral-600">{t("vat_amount")}</span><span className="font-mono">{fmtMoney(totals.vat, lang)}</span></div>
+            <div className="flex justify-between border-t pt-2 mt-1 font-bold text-base bg-neutral-50 -mx-2 px-2 py-2 rounded">
+              <span>{t("grand_total")}</span><span className="font-mono">{fmtMoney(totals.total, lang)}</span>
+            </div>
+          </div>
+        </div>
+
+        {(notes || terms) && (
+          <div className="grid grid-cols-2 gap-6 mt-8 pt-5 border-t text-sm">
+            {notes && <div><div className="font-semibold mb-1">{t("notes")}</div><p className="text-neutral-600 whitespace-pre-wrap">{notes}</p></div>}
+            {terms && <div><div className="font-semibold mb-1">{t("terms")}</div><p className="text-neutral-600 whitespace-pre-wrap">{terms}</p></div>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function QuotationPrint({ q }: { q: Quotation }) {
+  const { t, lang } = useI18n();
+  const customer = useStore((s) => s.customers.find((c) => c.id === q.customer_id));
+  return (
+    <DocLayout
+      title={t("quotations")}
+      number={q.number} date={q.date}
+      secondaryLabel={t("expiry_date")} secondaryDate={q.expiry}
+      customerLabel={t("customer")}
+      customerName={customer ? (lang === "ar" ? customer.name_ar : customer.name_en) : ""}
+      customerVat={customer?.vat} customerCity={customer?.city}
+      lines={q.lines} discount={q.discount} notes={q.notes} terms={q.terms}
+      status={q.status}
+    />
+  );
+}
+
+export function InvoicePrint({ inv }: { inv: Invoice }) {
+  const { t, lang } = useI18n();
+  const customer = useStore((s) => s.customers.find((c) => c.id === inv.customer_id));
+  const company = useStore((s) => s.company);
+  const tax = useStore((s) => s.tax);
+  const totals = docTotals(inv.lines, inv.discount);
+  const qr = [company.name, company.vat || "", `${inv.date}T00:00:00Z`, totals.total.toFixed(2), totals.vat.toFixed(2)].join("|");
+  return (
+    <DocLayout
+      title={tax.invoice_type === "simplified_tax" ? t("simplified_tax") : t("invoices")}
+      number={inv.number} date={inv.date}
+      secondaryLabel={t("due_date")} secondaryDate={inv.due}
+      customerLabel={t("customer")}
+      customerName={customer ? (lang === "ar" ? customer.name_ar : customer.name_en) : ""}
+      customerVat={customer?.vat} customerCity={customer?.city}
+      lines={inv.lines} discount={inv.discount} notes={inv.notes} terms={inv.terms}
+      showQR={tax.show_qr} qrPayload={qr}
+      status={inv.status}
+    />
+  );
+}
+
+function VoucherLayout({ title, kind, number, date, partyLabel, partyName, amount, method, reference, notes }: {
+  title: string; kind: "receipt" | "payment";
+  number: string; date: string;
+  partyLabel: string; partyName: string;
+  amount: number; method: string; reference?: string; notes?: string;
+}) {
+  const { t, lang } = useI18n();
+  return (
+    <div className="bg-white text-black rounded-lg border print:border-0 print:shadow-none">
+      <div className="p-8">
+        <DocHeader title={title} />
+        <div className="grid grid-cols-2 gap-6 mt-5 text-sm">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-neutral-500 mb-1">{partyLabel}</div>
+            <div className="font-semibold">{partyName}</div>
+          </div>
+          <div className="text-end space-y-1">
+            <div><span className="text-neutral-500">{t("number")}: </span><span className="font-mono font-medium">{number}</span></div>
+            <div><span className="text-neutral-500">{t("date")}: </span>{date}</div>
+            <div><span className="text-neutral-500">{t("payment_method")}: </span>{method}</div>
+            {reference && <div><span className="text-neutral-500">{t("bank_ref")}: </span><span className="font-mono">{reference}</span></div>}
+          </div>
+        </div>
+
+        <div className="mt-8 p-6 border-2 border-dashed rounded-xl">
+          <div className="text-sm text-neutral-600">{kind === "receipt" ? t("received_from") : t("paid_to")}</div>
+          <div className="text-lg font-semibold mt-1">{partyName}</div>
+          <div className="text-sm text-neutral-600 mt-4">{t("the_amount_of")}</div>
+          <div className="text-3xl font-bold mt-1 text-primary font-mono">{fmtMoney(amount, lang)}</div>
+          {notes && <><div className="text-sm text-neutral-600 mt-4">{t("for")}</div><div className="text-sm mt-1 whitespace-pre-wrap">{notes}</div></>}
+        </div>
+
+        <div className="grid grid-cols-2 gap-6 mt-12 text-sm">
+          <div className="text-center">
+            <div className="border-t pt-2 text-neutral-600">{kind === "receipt" ? t("customer") : t("payee")}</div>
+          </div>
+          <div className="text-center">
+            <div className="border-t pt-2 text-neutral-600">{t("accountant")}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ReceiptPrint({ r }: { r: Receipt }) {
+  const { t, lang } = useI18n();
+  const customer = useStore((s) => s.customers.find((c) => c.id === r.customer_id));
+  return (
+    <VoucherLayout
+      title={t("receipt_voucher")} kind="receipt"
+      number={r.number} date={r.date}
+      partyLabel={t("customer")}
+      partyName={customer ? (lang === "ar" ? customer.name_ar : customer.name_en) : "—"}
+      amount={r.amount} method={t(r.method)} reference={r.bank_ref} notes={r.notes}
+    />
+  );
+}
+
+export function PaymentPrint({ p }: { p: Payment }) {
+  const { t, lang } = useI18n();
+  const supplier = useStore((s) => s.suppliers.find((x) => x.id === p.supplier_id));
+  const partyName = supplier ? (lang === "ar" ? supplier.name_ar : supplier.name_en) : (p.payee || "—");
+  return (
+    <VoucherLayout
+      title={t("payment_voucher")} kind="payment"
+      number={p.number} date={p.date}
+      partyLabel={supplier ? t("supplier") : t("payee")}
+      partyName={partyName}
+      amount={p.amount} method={t(p.method)} notes={p.notes || p.category}
+    />
+  );
+}

@@ -1,0 +1,93 @@
+import { useState } from "react";
+import { Plus, Users, Truck, Package, Landmark, Layers, Briefcase, GitBranch } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useI18n } from "@/lib/i18n";
+import { useAuth, type Permission } from "@/lib/auth";
+import { QuickCreateCustomerDialog } from "./QuickCreateCustomerDialog";
+import { QuickCreateSupplierDialog } from "./QuickCreateSupplierDialog";
+import { QuickCreateItemDialog } from "./QuickCreateItemDialog";
+import { QuickCreateBankAccountDialog } from "./QuickCreateBankAccountDialog";
+import { QuickCreateCostCenterDialog } from "./QuickCreateCostCenterDialog";
+import { QuickCreateProjectDialog } from "./QuickCreateProjectDialog";
+import { QuickCreateBranchDialog } from "./QuickCreateBranchDialog";
+
+type Kind = "customer" | "supplier" | "item" | "bank_account" | "cost_center" | "project" | "branch";
+
+interface Entry {
+  kind: Kind;
+  perm: Permission;
+  icon: typeof Users;
+  label_ar: string;
+  label_en: string;
+  group: "contacts" | "catalog" | "finance" | "structure";
+}
+
+const ENTRIES: Entry[] = [
+  { kind: "customer", perm: "customers.manage", icon: Users, label_ar: "عميل", label_en: "Customer", group: "contacts" },
+  { kind: "supplier", perm: "suppliers.manage", icon: Truck, label_ar: "مورد", label_en: "Supplier", group: "contacts" },
+  { kind: "item", perm: "items.manage", icon: Package, label_ar: "منتج / خدمة", label_en: "Product / Service", group: "catalog" },
+  { kind: "bank_account", perm: "bank_accounts.manage", icon: Landmark, label_ar: "حساب بنكي", label_en: "Bank account", group: "finance" },
+  { kind: "cost_center", perm: "cost_centers.manage", icon: Layers, label_ar: "مركز تكلفة", label_en: "Cost center", group: "finance" },
+  { kind: "project", perm: "projects.manage", icon: Briefcase, label_ar: "مشروع", label_en: "Project", group: "structure" },
+  { kind: "branch", perm: "branches.manage", icon: GitBranch, label_ar: "فرع", label_en: "Branch", group: "structure" },
+];
+
+export function QuickCreateMenu() {
+  const { lang } = useI18n();
+  const { can } = useAuth();
+  const ar = lang === "ar";
+  const [active, setActive] = useState<Kind | null>(null);
+
+  const available = ENTRIES.filter((e) => can(e.perm));
+  if (available.length === 0) return null;
+
+  const grouped: Record<string, Entry[]> = { contacts: [], catalog: [], finance: [], structure: [] };
+  for (const e of available) grouped[e.group].push(e);
+
+  const groupTitle: Record<string, { ar: string; en: string }> = {
+    contacts: { ar: "جهات الاتصال", en: "Contacts" },
+    catalog: { ar: "المنتجات والخدمات", en: "Catalog" },
+    finance: { ar: "المالية", en: "Finance" },
+    structure: { ar: "الهيكل التنظيمي", en: "Structure" },
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="sm" variant="outline" className="gap-1.5 h-9">
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">{ar ? "إنشاء سريع" : "Quick Create"}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-60">
+          {Object.entries(grouped).map(([gk, list], idx) =>
+            list.length === 0 ? null : (
+              <div key={gk}>
+                {idx > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {ar ? groupTitle[gk].ar : groupTitle[gk].en}
+                </DropdownMenuLabel>
+                {list.map((e) => (
+                  <DropdownMenuItem key={e.kind} onClick={() => setActive(e.kind)} className="gap-2 text-sm">
+                    <e.icon className="size-4 text-muted-foreground" />
+                    {ar ? e.label_ar : e.label_en}
+                  </DropdownMenuItem>
+                ))}
+              </div>
+            )
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <QuickCreateCustomerDialog open={active === "customer"} onOpenChange={(v) => !v && setActive(null)} />
+      <QuickCreateSupplierDialog open={active === "supplier"} onOpenChange={(v) => !v && setActive(null)} />
+      <QuickCreateItemDialog open={active === "item"} onOpenChange={(v) => !v && setActive(null)} />
+      <QuickCreateBankAccountDialog open={active === "bank_account"} onOpenChange={(v) => !v && setActive(null)} />
+      <QuickCreateCostCenterDialog open={active === "cost_center"} onOpenChange={(v) => !v && setActive(null)} />
+      <QuickCreateProjectDialog open={active === "project"} onOpenChange={(v) => !v && setActive(null)} />
+      <QuickCreateBranchDialog open={active === "branch"} onOpenChange={(v) => !v && setActive(null)} />
+    </>
+  );
+}

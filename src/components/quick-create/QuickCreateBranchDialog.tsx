@@ -1,0 +1,78 @@
+import { useState } from "react";
+import { QuickCreateDialog } from "./QuickCreateDialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
+import { useAudit } from "@/hooks/useAudit";
+import { newId, store, type Branch } from "@/lib/store";
+import { toast } from "sonner";
+
+export function QuickCreateBranchDialog({
+  open, onOpenChange, onCreated,
+}: { open: boolean; onOpenChange: (v: boolean) => void; onCreated?: (b: Branch) => void }) {
+  const { lang } = useI18n();
+  const ar = lang === "ar";
+  const audit = useAudit();
+  const empty: Branch = {
+    id: newId(), name_ar: "", name_en: "", city: "", address: "", phone: "", manager: "", status: "active",
+  };
+  const [form, setForm] = useState<Branch>(empty);
+  const [addAnother, setAddAnother] = useState(false);
+  const reset = () => setForm({ ...empty, id: newId() });
+
+  const handleSave = () => {
+    if (!form.name_ar.trim() && !form.name_en.trim()) {
+      toast.error(ar ? "اسم الفرع مطلوب" : "Branch name is required");
+      return false;
+    }
+    store.set((s) => ({ ...s, branches: [...s.branches, form] }));
+    audit.log("branch.created", "branch",
+      `إضافة فرع ${form.name_ar || form.name_en}`,
+      `Created branch ${form.name_en || form.name_ar}`, form.id);
+    toast.success(ar ? "تم إنشاء الفرع" : "Branch created");
+    onCreated?.(form);
+    reset();
+    return true;
+  };
+
+  return (
+    <QuickCreateDialog
+      open={open}
+      onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}
+      titleAr="إضافة فرع"
+      titleEn="Add branch"
+      onSave={handleSave}
+      showSaveAndAddAnother
+      saveAndAddAnother={addAnother}
+      onSaveAndAddAnotherChange={setAddAnother}
+      size="md"
+    >
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label>{ar ? "الاسم (عربي)" : "Name (AR)"}</Label>
+          <Input value={form.name_ar} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>{ar ? "الاسم (إنجليزي)" : "Name (EN)"}</Label>
+          <Input value={form.name_en} onChange={(e) => setForm({ ...form, name_en: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>{ar ? "المدينة" : "City"}</Label>
+          <Input value={form.city || ""} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>{ar ? "الجوال" : "Phone"}</Label>
+          <Input value={form.phone || ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        </div>
+        <div className="col-span-2 space-y-1.5">
+          <Label>{ar ? "العنوان" : "Address"}</Label>
+          <Input value={form.address || ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>{ar ? "المدير" : "Manager"}</Label>
+          <Input value={form.manager || ""} onChange={(e) => setForm({ ...form, manager: e.target.value })} />
+        </div>
+      </div>
+    </QuickCreateDialog>
+  );
+}

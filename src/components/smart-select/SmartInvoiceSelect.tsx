@@ -1,0 +1,71 @@
+import { useCallback } from "react";
+import { useStore, docTotals, type Invoice } from "@/lib/store";
+import { InvoiceService, CustomerService } from "@/lib/services";
+import { InvoiceSearchService, type InvoiceSearchRow } from "@/lib/services/smart-search";
+import { UsageTrackingService } from "@/lib/usage-tracking";
+import { useI18n, fmtMoney } from "@/lib/i18n";
+import { StatusBadge } from "@/components/StatusBadge";
+import { SmartEntityCombobox, type SmartOption } from "./SmartEntityCombobox";
+
+function toOption(row: InvoiceSearchRow, lang: "ar" | "en"): SmartOption<Invoice> {
+  const inv = row.invoice;
+  const c = CustomerService.getById(inv.customer_id);
+  const customerName = c ? (lang === "ar" ? c.name_ar : c.name_en) : "—";
+  return {
+    id: inv.id,
+    primary: `${inv.number} — ${customerName}`,
+    secondary: `${inv.date} · ${lang === "ar" ? "المتبقي" : "remaining"} ${fmtMoney(row.remaining, lang)}`,
+    trailing: <StatusBadge status={inv.status} />,
+    data: inv,
+  };
+}
+
+export function SmartInvoiceSelect({
+  value, onChange, disabled, customerId, unpaidFirst = true, allowClear = true,
+}: {
+  value: string | undefined;
+  onChange: (id: string | undefined, invoice?: Invoice) => void;
+  disabled?: boolean;
+  customerId?: string;
+  unpaidFirst?: boolean;
+  allowClear?: boolean;
+}) {
+  const { t, lang } = useI18n();
+  useStore((s) => s.invoices);
+
+  const fetcher = useCallback((q: string) => {
+    const r = InvoiceSearchService.searchSmart(q, {
+      limit: q.trim() ? 10 : 6,
+      customerId,
+      unpaidFirst,
+    });
+    return { items: r.items.map((row) => toOption(row, lang)), source: r.meta.source };
+  }, [lang, customerId, unpaidFirst]);
+
+  const resolveLabel = useCallback((id: string) => {
+    const inv = InvoiceService.getById(id);
+    if (!inv) return undefined;
+    const tot = docTotals(inv.lines, inv.discount);
+    return toOption({ invoice: inv, total: tot.total, remaining: tot.total - (inv.paid || 0) }, lang);
+  }, [lang]);
+
+  const handle = (id: string | undefined, data: Invoice | undefined) => {
+    if (id) UsageTrackingService.recordSelection("invoice", id);
+    onChange(id, data);
+  };
+
+  return (
+    <SmartEntityCombobox<Invoice>
+      value={value}
+      onChange={handle}
+      fetcher={fetcher}
+      resolveLabel={resolveLabel}
+      placeholder={t("smart_search_invoice")}
+      searchPlaceholder={t("smart_search_invoice")}
+      emptyText={t("smart_no_results")}
+      suggestionsHeader={unpaidFirst ? t("smart_unpaid_invoices") : t("smart_recent_invoices")}
+      disabled={disabled}
+      allowClear={allowClear}
+    />
+  );
+}

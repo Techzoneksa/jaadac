@@ -1,0 +1,55 @@
+import { useCallback } from "react";
+import { useStore, type Account } from "@/lib/store";
+import { AccountSearchService, AccountService } from "@/lib/services";
+
+import { useI18n } from "@/lib/i18n";
+import { SmartEntityCombobox, type SmartOption } from "./SmartEntityCombobox";
+import { Lock } from "lucide-react";
+
+function toOption(a: Account, lang: "ar" | "en"): SmartOption<Account> {
+  const name = lang === "ar" ? a.name_ar : a.name_en;
+  return {
+    id: a.id,
+    primary: `${a.number} — ${name}`,
+    secondary: [a.type, a.purpose].filter(Boolean).join(" · "),
+    trailing: a.locked ? <Lock className="size-3 text-muted-foreground" /> : undefined,
+    data: a,
+  };
+}
+
+export function SmartAccountSelect({
+  value, onChange, disabled,
+}: {
+  value: string | undefined;
+  onChange: (id: string | undefined, account?: Account) => void;
+  disabled?: boolean;
+}) {
+  const { lang } = useI18n();
+  useStore((s) => s.accounts);
+
+  const fetcher = useCallback((q: string) => {
+    const r = AccountSearchService.searchSmart(q, { limit: q.trim() ? 12 : 8 });
+    return { items: r.items.map((a) => toOption(a, lang)), source: r.meta.source };
+  }, [lang]);
+
+  const resolveLabel = useCallback((id: string) => {
+    const a = AccountService.getById(id);
+    return a ? toOption(a, lang) : undefined;
+  }, [lang]);
+
+
+  return (
+    <SmartEntityCombobox<Account>
+      value={value}
+      onChange={onChange}
+      fetcher={fetcher}
+      resolveLabel={resolveLabel}
+      placeholder={lang === "ar" ? "اختر حساب…" : "Select account…"}
+      searchPlaceholder={lang === "ar" ? "ابحث بالرقم أو الاسم…" : "Search by code or name…"}
+      emptyText={lang === "ar" ? "لا توجد نتائج" : "No matching accounts"}
+      suggestionsHeader={lang === "ar" ? "حسابات شائعة" : "Frequent accounts"}
+      disabled={disabled}
+      allowClear={false}
+    />
+  );
+}
