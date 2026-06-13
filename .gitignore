@@ -22,6 +22,16 @@ dist-ssr
 # Environment (keys)
 .env
 .env.local
+.env.production
+.env.staging
+.env.development
+
+# Future framework (Next.js after migration)
+.next/
+next-env.d.ts
+
+# Keep .env.example tracked (template with placeholders, no real keys)
+!.env.example
 
 # Wrangler / Cloudflare
 .wrangler/
