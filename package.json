@@ -3,6 +3,7 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "engines": { "node": ">=22.0.0" },
   "scripts": {
     "dev": "vite dev",
     "demo:build": "vite build",
