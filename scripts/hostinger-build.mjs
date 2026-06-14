@@ -102,7 +102,7 @@ if (missing.length > 0) {
 }
 
 // Step 4: Write .htaccess to public_html/ on Hostinger server
-const publicHtml = "/home/u633767125/domains/prominentssa.com/public_html";
+const publicHtml = "/home/u633767125/domains/jaadscloud.com/public_html";
 if (existsSync(publicHtml)) {
   const htaccessContent = [
     "Options -Indexes",

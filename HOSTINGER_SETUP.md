@@ -20,7 +20,7 @@ All code is correct. The 403 is caused by **hPanel configuration**, not the buil
 6. Click **Save**
 7. Click **Restart**
 8. Wait **30 seconds**
-9. Open `https://prominentssa.com/`
+9. Open `https://jaadscloud.com/`
 
 ## If still 403
 
@@ -34,5 +34,5 @@ All code is correct. The 403 is caused by **hPanel configuration**, not the buil
 | Application root set to `public_html/` | Change to `./` |
 | Startup file left empty or wrong path | Set to `standalone/server.js` |
 | Node version below 22.x | Change to `22.x` |
-| Domain not bound to Node.js app | In Node.js settings, ensure domain `prominentssa.com` is assigned |
+| Domain not bound to Node.js app | In Node.js settings, ensure domain `jaadscloud.com` is assigned |
 | Old `.htaccess` in `public_html/` blocking requests | Rename or remove it |

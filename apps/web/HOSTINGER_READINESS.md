@@ -70,7 +70,7 @@ Hostinger expects a clear, shallow entry point. `standalone/apps/web/server.js` 
 | Variable | Required? | Value |
 |----------|-----------|-------|
 | `DATABASE_URL` | ⏳ Phase 2.3 | Placeholder |
-| `NEXT_PUBLIC_APP_URL` | ⏳ Phase 2.4 | `https://prominentssa.com` |
+| `NEXT_PUBLIC_APP_URL` | ⏳ Phase 2.4 | `https://jaadscloud.com` |
 | `SUPABASE_URL` | ✅ | From root `.env` |
 | `SUPABASE_ANON_KEY` | ✅ | From root `.env` |
 
@@ -115,6 +115,6 @@ Hostinger expects a clear, shallow entry point. `standalone/apps/web/server.js` 
 4. Start command = **`npm run start`** (or Startup file = `standalone/server.js`)
 5. Set environment variables
 6. **Restart** the application
-7. Visit `https://prominentssa.com/`
+7. Visit `https://jaadscloud.com/`
 
 If still 403: check Node.js logs in hPanel and send them here.

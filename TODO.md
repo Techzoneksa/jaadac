@@ -20,7 +20,7 @@ The build produces `standalone/` (with `server.js` inside). But Hostinger was to
 
 1. hPanel shows Output Directory = `standalone`
 2. Restart
-3. Visit `https://prominentssa.com/` → should return **200 OK**
+3. Visit `https://jaadscloud.com/` → should return **200 OK**
 
 ## No code changes needed
 

@@ -94,6 +94,6 @@
 3. Output directory = **`standalone`**
 4. Start command = **`npm run start`** (أو Entry point = `scripts/hostinger-start.mjs`)
 5. **Restart** the application
-6. Visit `https://prominentssa.com/`
+6. Visit `https://jaadscloud.com/`
 
 If still 403: check Node.js error logs in hPanel and send them here.

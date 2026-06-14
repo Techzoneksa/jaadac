@@ -95,4 +95,4 @@ standalone/
 
 1. hPanel → Node.js → Output: `standalone`, Mode: Node.js, Start: `npm run start`
 2. Restart
-3. Visit `https://prominentssa.com/`
+3. Visit `https://jaadscloud.com/`
