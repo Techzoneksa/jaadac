@@ -101,6 +101,23 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+// Step 4: Write .htaccess to public_html/ on Hostinger server
+const publicHtml = "/home/u633767125/domains/prominentssa.com/public_html";
+if (existsSync(publicHtml)) {
+  const htaccessContent = [
+    "Options -Indexes",
+    "RewriteEngine On",
+    "RewriteCond %{REQUEST_FILENAME} !-f",
+    "RewriteCond %{REQUEST_FILENAME} !-d",
+    "RewriteRule ^(.*)$ http://localhost:3000/$1 [P,L]",
+    "",
+  ].join("\n");
+  writeFileSync(join(publicHtml, ".htaccess"), htaccessContent, "utf-8");
+  console.log("   .htaccess written to public_html/  ✔");
+} else {
+  console.log("   public_html/ not found (local build) — skipping .htaccess");
+}
+
 console.log(`\n✅ Hostinger build complete.`);
 console.log(`   Output: ${outputDir}`);
 for (const [label] of serverFiles) {
