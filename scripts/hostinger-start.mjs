@@ -9,8 +9,8 @@ const port = process.env.PORT || "3000";
 
 const standaloneDir = join(root, "standalone");
 const candidates = [
-  join(standaloneDir, "apps/web/server.js"),
   join(standaloneDir, "server.js"),
+  join(standaloneDir, "apps/web/server.js"),
 ];
 
 const serverFile = candidates.find((f) => existsSync(f));

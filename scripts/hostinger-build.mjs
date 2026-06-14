@@ -61,18 +61,32 @@ try {
   // non-critical
 }
 
-// Locate server.js
-const serverCandidates = [
-  join(destDir, "apps/web/server.js"),
-  join(destDir, "server.js"),
-];
-const serverFile = serverCandidates.find((f) => existsSync(f));
+// Locate real server inside apps/web
+const realServer = join(destDir, "apps/web/server.js");
+
+if (!existsSync(realServer)) {
+  console.error("\n❌ apps/web/server.js not found in standalone output. Check build.");
+  process.exit(1);
+}
+
+// Create standalone/server.js wrapper
+const wrapperPath = join(destDir, "server.js");
+const wrapperContent = [
+  `import { chdir } from "node:process";`,
+  `import { fileURLToPath } from "node:url";`,
+  `import { dirname, join } from "node:path";`,
+  ``,
+  `const __dirname = dirname(fileURLToPath(import.meta.url));`,
+  `const realDir = join(__dirname, "apps/web");`,
+  `chdir(realDir);`,
+  `await import("./apps/web/server.js");`,
+  ``,
+].join("\n");
+
+import { writeFileSync } from "node:fs";
+writeFileSync(wrapperPath, wrapperContent, "utf-8");
 
 console.log(`\n✅ Hostinger build complete.`);
 console.log(`   Output: ${destDir}`);
-console.log(`   Server: ${serverFile || "❌ NOT FOUND"}`);
-
-if (!serverFile) {
-  console.error("\n❌ server.js not found in standalone output. Check build.");
-  process.exit(1);
-}
+console.log(`   Wrapper: ${wrapperPath}`);
+console.log(`   Real server: ${realServer}`);

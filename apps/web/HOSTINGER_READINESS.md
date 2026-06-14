@@ -1,6 +1,6 @@
 # JAAD CLOUD — Hostinger Readiness
 
-> **Status:** Next.js `output: "standalone"` — Build + Start verified locally (200 OK).
+> **Status:** Next.js `output: "standalone"` — wrapper at `standalone/server.js`, verified locally (200 OK).
 
 ## Hostinger Settings (Required)
 
@@ -15,29 +15,35 @@
 | Package manager | npm |
 | Start command | **`npm run start`** |
 | Application mode | **Node.js** (not PHP) |
-| Entry point (optional field) | `scripts/hostinger-start.mjs` |
+| Startup file (if field exists) | `standalone/server.js` |
 
-## How Build Works
-
-1. Hostinger runs `npm install` in `./` (installs old demo deps from root `package.json`)
-2. Hostinger runs `npm run build` (root) → executes `node scripts/hostinger-build.mjs`
-3. The build script:
-   - `npm install` inside `apps/web` (Next.js dependencies)
-   - `npm run build` inside `apps/web` → produces `apps/web/.next/standalone` (Next.js output: "standalone")
-   - Copies `apps/web/.next/standalone` → `./standalone` (Hostinger deployment artifact)
-   - Copies `apps/web/.next/static` → `./standalone/apps/web/.next/static` (static assets)
-   - Copies `apps/web/public` → `./standalone/apps/web/public` (public assets, if exists)
-   - Root `standalone/` is self-contained — includes all required dependencies, no `node_modules` needed at runtime
-
-### Directory structure after build
+## Directory Structure After Build
 
 ```
 ./standalone/
+├── server.js              ← Wrapper entry point (creates this file)
 ├── apps/web/
-│   ├── server.js          ← Node.js entry point (standalone)
-│   └── .next/static/      ← Static chunks
-└── .next/static/          ← Fallback (optional)
+│   ├── server.js          ← Real Next.js standalone server
+│   ├── .next/static/      ← Static chunks
+│   ├── node_modules/      ← Bundled dependencies
+│   └── public/            ← Public assets
+└── .next/static/          ← Fallback
 ```
+
+## How Build Works
+
+1. Hostinger runs `npm install` in `./`
+2. Hostinger runs `npm run build` → `node scripts/hostinger-build.mjs`
+3. Build script:
+   - `npm install` inside `apps/web`
+   - `npm run build` inside `apps/web` → `apps/web/.next/standalone/`
+   - Copies `apps/web/.next/standalone` → `./standalone/`
+   - Copies `apps/web/.next/static` → `./standalone/apps/web/.next/static/`
+   - Copies `apps/web/public` → `./standalone/apps/web/public/`
+   - **Creates `./standalone/server.js`** — wrapper that:
+     1. Changes CWD to `standalone/apps/web/`
+     2. Imports and runs the real server
+4. Root `standalone/` is fully self-contained
 
 ## How Start Works
 
@@ -45,57 +51,47 @@
 
 | Step | Logic |
 |------|-------|
-| 1 | Look for `standalone/apps/web/server.js` or `standalone/server.js` |
-| 2 | **Found:** spawn `node server.js` with `PORT` and `HOSTNAME=0.0.0.0` |
-| 3 | **Not found:** fallback to legacy `next start` with `NODE_PATH` (Phase 2.2.5 method) |
-| 4 | `PORT` from environment or `3000` |
+| 1 | Look for `standalone/server.js` (wrapper) |
+| 2 | **Found:** spawn `node server.js` with CWD=`standalone/`, PORT, HOSTNAME |
+| 3 | **Not found:** look for `standalone/apps/web/server.js` (direct) |
+| 4 | **Not found either:** fallback to legacy `next start` with NODE_PATH |
+| 5 | `PORT` from environment or `3000` |
 
-### Why standalone?
+### Why wrapper at `standalone/server.js`?
 
-| Problem | Solution |
-|---------|----------|
-| Hostinger may not keep `apps/web/node_modules` at runtime | Standalone bundles all dependencies into `standalone/` |
-| `NODE_PATH=apps/web/node_modules` was fragile | No NODE_PATH needed — standalone server.js is self-contained |
-| `.next` server bundles referenced `next` internal modules | Standalone includes `node_modules` inside the bundle |
-| `next start` needed Next.js CLI binary | Standalone runs directly via `node server.js` |
+Hostinger expects a clear, shallow entry point. `standalone/apps/web/server.js` is nested too deep — some Hostinger configurations may not find it. The wrapper at `standalone/server.js`:
+
+- Is a single, discoverable file at the output root
+- Properly sets CWD before loading the real server
+- Handles relative paths correctly
 
 ## Environment Variables (hPanel)
 
-Set these in **hPanel → Hosting → Manage → Node.js → Environment variables**:
-
 | Variable | Required? | Value |
 |----------|-----------|-------|
-| `DATABASE_URL` | ⏳ Phase 2.3 | Placeholder until DB provisioned |
+| `DATABASE_URL` | ⏳ Phase 2.3 | Placeholder |
 | `NEXT_PUBLIC_APP_URL` | ⏳ Phase 2.4 | `https://prominentssa.com` |
-| `SUPABASE_URL` | ✅ Root `.env` | `https://xqyhynilyorvtrfclvuv.supabase.co` |
-| `SUPABASE_ANON_KEY` | ✅ Root `.env` | (from root `.env` file) |
-
-> **Note:** `SUPABASE_URL` and `SUPABASE_ANON_KEY` support the root TanStack Start app (old demo). The Next.js app in `apps/web` does not currently use Supabase.
+| `SUPABASE_URL` | ✅ | From root `.env` |
+| `SUPABASE_ANON_KEY` | ✅ | From root `.env` |
 
 ## Root Scripts
 
 | Script | Command | Purpose |
 |--------|---------|---------|
-| `npm run build` | `node scripts/hostinger-build.mjs` | Hostinger build (standalone) |
-| `npm start` | `node scripts/hostinger-start.mjs` | Hostinger start (standalone server.js) |
+| `npm run build` | `node scripts/hostinger-build.mjs` | Hostinger build (standalone + wrapper) |
+| `npm start` | `node scripts/hostinger-start.mjs` | Hostinger start (wrapper first, fallback) |
 | `npm run dev:web` | `npm --prefix apps/web run dev` | Local Next.js dev |
 | `npm run build:web` | `npm --prefix apps/web run build` | Local Next.js build |
 
-## Entry Point Files
+## 403 History
 
-| File | Purpose |
-|------|---------|
-| `scripts/hostinger-start.mjs` | **Primary entry.** Runs standalone `server.js`, falls back to `next start` |
-| `server.mjs` (root) | Legacy — kept for backwards compatibility |
-
-## 403 Causes & Fixes Summary
-
-| Phase | Cause | Fix Applied |
-|-------|-------|-------------|
-| 2.2.3 | Build completed, no Node.js server started | Documented Hostinger Node.js mode requirement |
-| 2.2.4 | Start script used `apps/web` CWD — `apps/web/.next` didn't exist at runtime | Added fallback to root `.next` |
-| 2.2.5 | Root `.next` server bundles referenced `next` module — NODE_PATH required | Added `NODE_PATH=apps/web/node_modules` |
-| **2.2.6** | Hostinger may strip `apps/web/node_modules` at runtime; `next start` fragile | **Standalone output** — all deps bundled in `standalone/` |
+| Phase | Fix |
+|-------|-----|
+| 2.2.3 | Documented Node.js mode requirement |
+| 2.2.4 | Added root `.next` fallback |
+| 2.2.5 | Added NODE_PATH for module resolution |
+| 2.2.6 | Switched to `output: "standalone"` |
+| **2.2.7** | Added `standalone/server.js` wrapper for clean Hostinger entry point |
 
 ## Deployment Checklist
 
@@ -107,21 +103,18 @@ Set these in **hPanel → Hosting → Manage → Node.js → Environment variabl
 - [x] Node version: 22.x
 - [x] **Start command: `npm run start`**
 - [x] **Application mode: Node.js**
-- [x] **Entry point: `scripts/hostinger-start.mjs`**
-- [ ] **Environment variables** set in hPanel (see table above)
+- [x] **Startup file: `standalone/server.js`** (if field exists)
+- [ ] **Environment variables** set in hPanel
 - [ ] Restart after configuration
-- [ ] Database provisioned (Phase 2.3)
-- [ ] Auth configured (Phase 2.4)
-- [ ] SSL enabled (auto via Let's Encrypt)
 
 ## After hPanel Configuration
 
 1. **hPanel → Hosting → Manage → Node.js**
 2. Application mode = **Node.js**
 3. Output directory = **`standalone`**
-4. Start command = **`npm run start`** (or Entry point = `scripts/hostinger-start.mjs`)
-5. Set environment variables (see table above)
+4. Start command = **`npm run start`** (or Startup file = `standalone/server.js`)
+5. Set environment variables
 6. **Restart** the application
-7. Wait 10–30 seconds, visit `https://prominentssa.com/`
+7. Visit `https://prominentssa.com/`
 
 If still 403: check Node.js logs in hPanel and send them here.
