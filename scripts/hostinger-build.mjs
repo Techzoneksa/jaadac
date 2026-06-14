@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { existsSync, cpSync, rmSync, mkdirSync } from "node:fs";
+import { existsSync, cpSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -83,10 +83,26 @@ const wrapperContent = [
   ``,
 ].join("\n");
 
-import { writeFileSync } from "node:fs";
 writeFileSync(wrapperPath, wrapperContent, "utf-8");
 
+// Validate final output — both files must exist
+const outputDir = destDir;
+const serverFiles = [
+  ["standalone/server.js", wrapperPath],
+  ["standalone/apps/web/server.js", realServer],
+];
+
+const missing = serverFiles.filter(([, p]) => !existsSync(p));
+if (missing.length > 0) {
+  console.error("\n❌ ERROR: No output directory found after build");
+  for (const [label] of missing) {
+    console.error(`   Missing: ${label}`);
+  }
+  process.exit(1);
+}
+
 console.log(`\n✅ Hostinger build complete.`);
-console.log(`   Output: ${destDir}`);
-console.log(`   Wrapper: ${wrapperPath}`);
-console.log(`   Real server: ${realServer}`);
+console.log(`   Output: ${outputDir}`);
+for (const [label] of serverFiles) {
+  console.log(`   ${label}  ✔`);
+}
