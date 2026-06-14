@@ -50,7 +50,7 @@ Set these in **hPanel → Hosting → Manage → Node.js → Environment variabl
 | Variable | Required? | Value |
 |----------|-----------|-------|
 | `DATABASE_URL` | ⏳ Phase 2.3 | Placeholder until DB provisioned |
-| `NEXT_PUBLIC_APP_URL` | ✅ Now | `https://erp.jaadsa.com` |
+| `NEXT_PUBLIC_APP_URL` | ✅ Now | `https://prominentssa.com` |
 | `SUPABASE_URL` | ✅ Root `.env` | `https://xqyhynilyorvtrfclvuv.supabase.co` |
 | `SUPABASE_ANON_KEY` | ✅ Root `.env` | (from root `.env` file) |
 
@@ -105,6 +105,6 @@ Set these in **hPanel → Hosting → Manage → Node.js → Environment variabl
 3. Start command = **`npm run start`** (or Entry point = `scripts/hostinger-start.mjs`)
 4. Set environment variables (see table above)
 5. **Restart** the application
-6. Wait 10–30 seconds, visit `https://erp.jaadsa.com/`
+6. Wait 10–30 seconds, visit `https://prominentssa.com/`
 
 If still 403: check Node.js logs in hPanel and send them here.

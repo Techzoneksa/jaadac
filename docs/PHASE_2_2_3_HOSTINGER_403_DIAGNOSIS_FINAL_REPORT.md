@@ -11,7 +11,7 @@
 | Step | Result |
 |------|--------|
 | Hostinger build | ✅ PASS |
-| Visit `https://erp.jaadsa.com/` | ❌ **403 Forbidden** |
+| Visit `https://prominentssa.com/` | ❌ **403 Forbidden** |
 | Local `npm run build` from root | ✅ PASS |
 | Local `npm run start` from root | ✅ **200 OK** (content served) |
 | `apps/web` lint | ✅ No warnings |

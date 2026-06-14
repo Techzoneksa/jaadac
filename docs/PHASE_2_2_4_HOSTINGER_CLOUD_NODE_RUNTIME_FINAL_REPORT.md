@@ -83,5 +83,5 @@ The previous `--prefix` syntax may not have been properly handled by Hostinger's
 1. Set **Start command** to `npm run start` in Hostinger hPanel
 2. Ensure **Application mode** = **Node.js** (not PHP)
 3. Click **Restart** (not just redeploy)
-4. Visit `https://erp.jaadsa.com/`
+4. Visit `https://prominentssa.com/`
 5. If still 403, send Hostinger error logs

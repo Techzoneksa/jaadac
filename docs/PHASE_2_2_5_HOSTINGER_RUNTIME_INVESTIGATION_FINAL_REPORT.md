@@ -81,6 +81,6 @@ Same logic as `server.mjs`:
 2. Set **Application mode = Node.js**
 3. Set **Start command = `npm run start`**
 4. **Restart** the application
-5. Visit `https://erp.jaadsa.com/`
+5. Visit `https://prominentssa.com/`
 
 If still 403: copy the error log from Hostinger hPanel and send it.
