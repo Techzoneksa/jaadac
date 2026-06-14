@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { existsSync, cpSync, rmSync } from "node:fs";
+import { existsSync, cpSync, rmSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,22 +11,68 @@ console.log("\n━━━━━━━━━━━━━━━━━━━━━�
 console.log("  JAAD CLOUD — Hostinger Build Script");
 console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
+// Step 1: Install
 console.log("[1/3] Installing apps/web dependencies...");
 execSync("npm install", { cwd: appsWeb, stdio: "inherit" });
 
-console.log("\n[2/3] Building Next.js app...");
+// Step 2: Build
+console.log("\n[2/3] Building Next.js app (standalone)...");
 execSync("npm run build", { cwd: appsWeb, stdio: "inherit" });
 
-console.log("\n[3/3] Copying .next to root for Hostinger...");
-const srcNext = join(appsWeb, ".next");
-const destNext = join(root, ".next");
+// Step 3: Prepare standalone folder at root for Hostinger
+console.log("\n[3/3] Preparing standalone folder at root...");
+const nextDir = join(appsWeb, ".next");
+const standaloneSrc = join(nextDir, "standalone");
+const staticSrc = join(nextDir, "static");
+const publicSrc = join(appsWeb, "public");
 
-if (existsSync(destNext)) {
-  rmSync(destNext, { recursive: true, force: true });
+const destDir = join(root, "standalone");
+
+// Clean + create destination
+if (existsSync(destDir)) {
+  rmSync(destDir, { recursive: true, force: true });
 }
 
-cpSync(srcNext, destNext, { recursive: true });
+if (!existsSync(standaloneSrc)) {
+  console.error("\n❌ apps/web/.next/standalone not found. Build may have failed.");
+  process.exit(1);
+}
 
-console.log("\n✅ Hostinger build complete.");
-console.log(`   Source: ${srcNext}`);
-console.log(`   Output: ${destNext}`);
+cpSync(standaloneSrc, destDir, { recursive: true });
+
+// Copy .next/static to standalone/apps/web/.next/static
+const destNextStatic = join(destDir, "apps/web/.next/static");
+mkdirSync(destNextStatic, { recursive: true });
+cpSync(staticSrc, destNextStatic, { recursive: true });
+
+// Copy public/ to standalone/apps/web/public if exists
+if (existsSync(publicSrc)) {
+  const destPublic = join(destDir, "apps/web/public");
+  mkdirSync(destPublic, { recursive: true });
+  cpSync(publicSrc, destPublic, { recursive: true });
+}
+
+// Copy .next/static also to root standalone/.next/static as fallback
+try {
+  const destStaticFallback = join(destDir, ".next/static");
+  mkdirSync(destStaticFallback, { recursive: true });
+  cpSync(staticSrc, destStaticFallback, { recursive: true });
+} catch {
+  // non-critical
+}
+
+// Locate server.js
+const serverCandidates = [
+  join(destDir, "apps/web/server.js"),
+  join(destDir, "server.js"),
+];
+const serverFile = serverCandidates.find((f) => existsSync(f));
+
+console.log(`\n✅ Hostinger build complete.`);
+console.log(`   Output: ${destDir}`);
+console.log(`   Server: ${serverFile || "❌ NOT FOUND"}`);
+
+if (!serverFile) {
+  console.error("\n❌ server.js not found in standalone output. Check build.");
+  process.exit(1);
+}
