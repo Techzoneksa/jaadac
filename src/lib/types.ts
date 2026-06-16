@@ -75,3 +75,55 @@ export interface InvoiceLine {
   vat_rate: number;
   total: number;
 }
+
+export interface Account {
+  id: string;
+  tenant_id: string;
+  number: string;
+  name_ar: string;
+  name_en: string;
+  type: "assets" | "liabilities" | "equity" | "revenue" | "expenses";
+  parent?: string;
+  status: "active" | "inactive";
+  kind?: "header" | "group" | "posting";
+  cash_flow?: string;
+  payment_enabled?: boolean;
+  purpose?: string;
+  locked?: boolean;
+  created_at?: string;
+}
+
+export interface JournalLine {
+  id?: string;
+  journal_id?: string;
+  account_id: string;
+  debit: number;
+  credit: number;
+  description?: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  tenant_id: string;
+  number: string;
+  date: string;
+  description: string;
+  status: "draft" | "posted";
+  source?: string;
+  source_type?: "sales_invoice" | "receipt_voucher" | "payment_voucher" | "manual";
+  source_id?: string;
+  journal_lines?: JournalLine[];
+  created_at?: string;
+}
+
+export interface TaxRate {
+  id: string;
+  tenant_id: string;
+  name_ar: string;
+  name_en: string;
+  tax_type: "sales" | "purchases" | "reverse_charge" | "out_of_scope";
+  rate: number;
+  is_active: boolean;
+  is_system?: boolean;
+  created_at?: string;
+}
