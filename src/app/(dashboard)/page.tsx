@@ -31,19 +31,23 @@ async function fetchRecent(table: string, cols = "id,name_ar,name_en,created_at"
 }
 
 async function getDashboardData() {
-  try {
-    const [customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers] = await Promise.all([
-      fetchCount("customers"),
-      fetchCount("suppliers"),
-      fetchCount("invoices"),
-      fetchCount("invoices").catch(() => 0),
-      fetchRecent("invoices", "id,number,customer_id,date,total,status"),
-      fetchRecent("customers"),
-    ]);
-    return { customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers };
-  } catch {
-    return { customerCount: 0, supplierCount: 0, invoiceCount: 0, purchaseCount: 0, recentInvoices: [], recentCustomers: [] };
-  }
+  const results = await Promise.allSettled([
+    fetchCount("customers"),
+    fetchCount("suppliers"),
+    fetchCount("invoices"),
+    fetchCount("invoices"),
+    fetchRecent("invoices", "id,number,customer_id,date,total,status"),
+    fetchRecent("customers"),
+  ]);
+  const v = (r: PromiseSettledResult<number | RecentRow[]>, def: number | RecentRow[]) => r.status === "fulfilled" ? r.value : def;
+  return {
+    customerCount: v(results[0], 0) as number,
+    supplierCount: v(results[1], 0) as number,
+    invoiceCount: v(results[2], 0) as number,
+    purchaseCount: v(results[3], 0) as number,
+    recentInvoices: v(results[4], []) as RecentRow[],
+    recentCustomers: v(results[5], []) as RecentRow[],
+  };
 }
 
 const statCards = [
