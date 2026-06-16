@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { BarChart3, TrendingUp, Users, Package, Receipt, Wallet } from "lucide-react";
+import { BarChart3, TrendingUp, Users, Receipt, Wallet } from "lucide-react";
 
 const reportCards = [
   { label: "كشف الحساب", icon: Users, href: "#" },

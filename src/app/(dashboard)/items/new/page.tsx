@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -65,7 +64,7 @@ export default function NewItemPage() {
               </div>
               <div className="space-y-1">
                 <Label>النوع *</Label>
-                <Select defaultValue="service" onValueChange={(v) => setValue("type", v as any)}>
+                <Select defaultValue="service" onValueChange={(v) => setValue("type", v as FormData["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="service">خدمة</SelectItem>

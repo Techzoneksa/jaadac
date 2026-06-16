@@ -8,11 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { MoneyDisplay } from "@/components/ui/MoneyDisplay";
 
+type ReceiptData = Record<string, unknown> & {
+  number?: string; date?: string; amount?: number; payment_method?: string; status?: string; notes?: string;
+};
+
 export default function EditReceiptPage() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(true);
-  const [receipt, setReceipt] = useState<any>(null);
+  const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
   useEffect(() => {
     fetch(`/api/receipts?id=${params.id}`)
@@ -33,7 +37,7 @@ export default function EditReceiptPage() {
           <div className="grid gap-4 sm:grid-cols-3 mb-4">
             <div><Label>الرقم</Label><p className="font-medium">{receipt.number}</p></div>
             <div><Label>التاريخ</Label><p className="font-medium">{receipt.date}</p></div>
-            <div><Label>المبلغ</Label><p className="font-medium"><MoneyDisplay amount={receipt.amount} /></p></div>
+            <div><Label>المبلغ</Label><p className="font-medium"><MoneyDisplay amount={receipt.amount ?? 0} /></p></div>
             <div><Label>طريقة الدفع</Label><p className="font-medium">{receipt.payment_method}</p></div>
             <div><Label>الحالة</Label><p className="font-medium">{receipt.status}</p></div>
           </div>

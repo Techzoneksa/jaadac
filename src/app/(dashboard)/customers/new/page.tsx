@@ -34,7 +34,7 @@ interface FormData {
 export default function NewCustomerPage() {
   const router = useRouter();
   const [error, setError] = useState("");
-  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     defaultValues: { type: "individual", status: "active", opening_balance: 0 },
   });
 
@@ -75,7 +75,7 @@ export default function NewCustomerPage() {
               </div>
               <div className="space-y-1">
                 <Label>النوع *</Label>
-                <Select defaultValue="individual" onValueChange={(v) => setValue("type", v as any)}>
+                <Select defaultValue="individual" onValueChange={(v) => setValue("type", v as FormData["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="individual">فرد</SelectItem>
@@ -105,7 +105,7 @@ export default function NewCustomerPage() {
               </div>
               <div className="space-y-1">
                 <Label>الحالة</Label>
-                <Select defaultValue="active" onValueChange={(v) => setValue("status", v as any)}>
+                <Select defaultValue="active" onValueChange={(v) => setValue("status", v as FormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">نشط</SelectItem>

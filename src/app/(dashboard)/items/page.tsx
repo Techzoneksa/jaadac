@@ -1,1 +1,34 @@
-"use client";import { PageHeader } from "@/components/ui/PageHeader";import { DataTable, type Column } from "@/components/ui/DataTable";import { Button } from "@/components/ui/button";import { StatusBadge } from "@/components/ui/StatusBadge";import { useApi } from "@/lib/hooks/use-api";import type { Item } from "@/lib/types";import Link from "next/link";import { useRouter } from "next/navigation";const columns: Column<Item>[] = [  { key: "name_ar", header: "الاسم (عربي)" },  { key: "sku", header: "SKU" },  { key: "type", header: "النوع" },  { key: "sales_price", header: "سعر البيع", render: (r) => `${r.sales_price.toLocaleString()} ر.س` },  { key: "qty", header: "الكمية" },  {    key: "taxable",    header: "خاضع للضريبة",    render: (r) => (r.taxable ? "نعم" : "لا"),  },];export default function ItemsPage() {  const { data, loading } = useApi<Item>("/api/items");  const router = useRouter();  return (    <div>      <PageHeader        title="الأصناف"        description="إدارة الأصناف والخدمات"        action={          <Link href="/items/new">            <Button>إضافة صنف</Button>          </Link>        }      />      <DataTable        columns={columns}        data={data}        keyExtractor={(r) => r.id}        isLoading={loading}        onRowClick={(r) => router.push(`/items/${r.id}`)}        emptyTitle="لا توجد أصناف"        emptyDescription="أضف صنفاً جديداً للبدء"        searchPlaceholder="بحث عن صنف..."      />    </div>  );}
+"use client";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { DataTable, type Column } from "@/components/ui/DataTable";
+import { Button } from "@/components/ui/button";
+import { useApi } from "@/lib/hooks/use-api";
+import type { Item } from "@/lib/types";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const columns: Column<Item>[] = [
+  { key: "name_ar", header: "الاسم (عربي)" },
+  { key: "sku", header: "SKU" },
+  { key: "type", header: "النوع" },
+  { key: "sales_price", header: "سعر البيع", render: (r) => `${r.sales_price.toLocaleString()} ر.س` },
+  { key: "qty", header: "الكمية" },
+  { key: "taxable", header: "خاضع للضريبة", render: (r) => (r.taxable ? "نعم" : "لا") },
+];
+
+export default function ItemsPage() {
+  const { data, loading, error } = useApi<Item>("/api/items");
+  const router = useRouter();
+
+  return (
+    <div>
+      <PageHeader title="الأصناف" description="إدارة الأصناف والخدمات"
+        action={<Link href="/items/new"><Button>إضافة صنف</Button></Link>} />
+      <DataTable columns={columns} data={data} keyExtractor={(r) => r.id}
+        isLoading={loading} error={error}
+        onRowClick={(r) => router.push(`/items/${r.id}`)}
+        emptyTitle="لا توجد أصناف" emptyDescription="أضف صنفاً جديداً للبدء"
+        searchPlaceholder="بحث عن صنف..." />
+    </div>
+  );
+}

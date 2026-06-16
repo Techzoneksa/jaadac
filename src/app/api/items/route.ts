@@ -1,58 +1,69 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+async function handle<T>(fn: () => Promise<Response | T>): Promise<Response> {
+  try { const r = await fn(); if (r instanceof Response) return r; return NextResponse.json(r); }
+  catch (e) { console.error("API Error:", e); return NextResponse.json({ error: e instanceof Error ? e.message : "Internal server error" }, { status: 500 }); }
+}
 
-  const id = req.nextUrl.searchParams.get("id");
-  if (id) {
-    const { data, error } = await supabase.from("items").select("*").eq("id", id).single();
+export async function GET(req: NextRequest) {
+  return handle(async () => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const id = req.nextUrl.searchParams.get("id");
+    if (id) {
+      const { data, error } = await supabase.from("items").select("*").eq("id", id).single();
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(data);
+    }
+
+    const { data, error } = await supabase
+      .from("items")
+      .select("*")
+      .eq("tenant_id", user.id)
+      .order("created_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
-  }
-
-  const { data, error } = await supabase
-    .from("items")
-    .select("*")
-    .eq("tenant_id", user.id)
-    .order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  });
 }
 
 export async function POST(req: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  return handle(async () => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
-  const { data, error } = await supabase
-    .from("items")
-    .insert({ ...body, tenant_id: user.id })
-    .select()
-    .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json(data, { status: 201 });
+    const body = await req.json();
+    const { data, error } = await supabase
+      .from("items")
+      .insert({ ...body, tenant_id: user.id })
+      .select()
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(data, { status: 201 });
+  });
 }
 
 export async function PUT(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  return handle(async () => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const id = req.nextUrl.searchParams.get("id");
-  if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
+    const id = req.nextUrl.searchParams.get("id");
+    if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
-  const body = await req.json();
-  const { data, error } = await supabase
-    .from("items")
-    .update(body)
-    .eq("id", id)
-    .eq("tenant_id", user.id)
-    .select()
-    .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json(data);
+    const body = await req.json();
+    const { data, error } = await supabase
+      .from("items")
+      .update(body)
+      .eq("id", id)
+      .eq("tenant_id", user.id)
+      .select()
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(data);
+  });
 }

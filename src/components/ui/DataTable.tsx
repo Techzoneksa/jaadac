@@ -16,6 +16,7 @@ interface DataTableProps<T> {
   data: T[];
   keyExtractor: (row: T) => string;
   isLoading?: boolean;
+  error?: string;
   emptyTitle?: string;
   emptyDescription?: string;
   searchPlaceholder?: string;
@@ -30,6 +31,7 @@ export function DataTable<T>({
   data,
   keyExtractor,
   isLoading,
+  error,
   emptyTitle = "لا توجد بيانات",
   emptyDescription,
   searchPlaceholder = "بحث...",
@@ -49,6 +51,23 @@ export function DataTable<T>({
         <div className="p-8 text-center">
           <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
           <p className="mt-2 text-sm text-muted">جار التحميل...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn("rounded-xl border border-border bg-card", className)}>
+        <div className="p-8 text-center">
+          <div className="h-12 w-12 rounded-xl bg-danger/10 text-danger flex items-center justify-center mx-auto mb-3">
+            <span className="text-xl font-bold">!</span>
+          </div>
+          <p className="text-sm font-medium text-foreground">خطأ في تحميل البيانات</p>
+          <p className="text-xs text-muted mt-1 mb-4">{error}</p>
+          <button onClick={() => window.location.reload()} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors">
+            إعادة المحاولة
+          </button>
         </div>
       </div>
     );

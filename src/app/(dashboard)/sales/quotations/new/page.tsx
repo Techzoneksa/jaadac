@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+const $$num = (p: string) => p + String(Date.now());
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -46,7 +48,7 @@ export default function NewQuotationPage() {
     setLines(lines.filter((l) => l.key !== key));
   }
 
-  function updateLine(key: string, field: keyof LineItem, value: any) {
+  function updateLine(key: string, field: keyof LineItem, value: string | number) {
     setLines(lines.map((l) => {
       if (l.key !== key) return l;
       const updated = { ...l, [field]: value };
@@ -76,7 +78,7 @@ export default function NewQuotationPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        number: "QTN-" + Date.now(), date,
+        number: $$num("QTN-"), date,
         customer_id: customerId, subtotal, vat_total: vatTotal, total,
         notes, status: "draft",
       }),

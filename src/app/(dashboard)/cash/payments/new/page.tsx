@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Supplier } from "@/lib/types";
 
+const $$num = (p: string) => p + String(Date.now());
+
 interface FormData {
   date: string;
   supplier_id: string;
@@ -29,7 +31,7 @@ export default function NewPaymentPage() {
   const [error, setError] = useState("");
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<FormData>({
     defaultValues: { date: new Date().toISOString().slice(0, 10), payment_method: "cash", status: "draft" },
   });
 
@@ -45,7 +47,7 @@ export default function NewPaymentPage() {
     const res = await fetch("/api/payments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, number: "PAY-" + Date.now() }),
+      body: JSON.stringify({ ...data, number: $$num("PAY-") }),
     });
     const json = await res.json();
     if (!res.ok) { setError(json.error); return; }

@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { Users, Store, Receipt, ShoppingCart, FileText, Plus, ArrowLeft } from "lucide-react";
+import { Users, Store, Receipt, ShoppingCart, FileText, Plus } from "lucide-react";
 import Link from "next/link";
+
+type RecentRow = { id: string; number?: string; name_ar?: string; name_en?: string; customer_id?: string; date?: string; total?: number; created_at?: string; status?: string; [k: string]: unknown };
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +24,25 @@ async function fetchRecent(table: string, cols = "id,name_ar,name_en,created_at"
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
     const { data } = await supabase.from(table).select(cols).eq("tenant_id", user.id).order("created_at", { ascending: false }).limit(5);
-    return data ?? [];
+    return (data ?? []) as unknown as RecentRow[];
   } catch {
     return [];
+  }
+}
+
+async function getDashboardData() {
+  try {
+    const [customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers] = await Promise.all([
+      fetchCount("customers"),
+      fetchCount("suppliers"),
+      fetchCount("invoices"),
+      fetchCount("invoices").catch(() => 0),
+      fetchRecent("invoices", "id,number,customer_id,date,total,status"),
+      fetchRecent("customers"),
+    ]);
+    return { customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers };
+  } catch {
+    return { customerCount: 0, supplierCount: 0, invoiceCount: 0, purchaseCount: 0, recentInvoices: [], recentCustomers: [] };
   }
 }
 
@@ -36,14 +54,7 @@ const statCards = [
 ];
 
 export default async function DashboardPage() {
-  const [customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers] = await Promise.all([
-    fetchCount("customers"),
-    fetchCount("suppliers"),
-    fetchCount("invoices"),
-    fetchCount("purchase_invoices"),
-    fetchRecent("invoices", "id,number,customer_id,date,total,status"),
-    fetchRecent("customers"),
-  ]);
+  const { customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers } = await getDashboardData();
 
   const counts: Record<string, number> = {
     customers: customerCount,
@@ -111,7 +122,7 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {recentInvoices.map((inv: any, idx: number) => (
+              {recentInvoices.map((inv, idx) => (
                 <div key={inv.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-[#f8fafc] transition-colors -mx-3" style={{ animationDelay: `${idx * 50}ms` }}>
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg bg-primary-50 text-primary flex items-center justify-center text-xs font-bold">
@@ -151,7 +162,7 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-1">
-              {recentCustomers.map((c: any, idx: number) => (
+              {recentCustomers.map((c, idx) => (
                 <div key={c.id} className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-[#f8fafc] transition-colors -mx-3" style={{ animationDelay: `${idx * 50}ms` }}>
                   <div className="h-8 w-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold">
                     {(c.name_ar || "?").charAt(0)}

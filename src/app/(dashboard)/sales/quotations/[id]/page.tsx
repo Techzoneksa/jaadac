@@ -7,11 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 
+type QuotationData = Record<string, unknown> & {
+  number?: string; date?: string; status?: string; subtotal?: number;
+  vat_total?: number; total?: number; notes?: string;
+};
+
 export default function EditQuotationPage() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(true);
-  const [quotation, setQuotation] = useState<any>(null);
+  const [quotation, setQuotation] = useState<QuotationData | null>(null);
 
   useEffect(() => {
     fetch(`/api/quotations?id=${params.id}`)

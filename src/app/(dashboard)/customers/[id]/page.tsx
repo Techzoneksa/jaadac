@@ -20,7 +20,7 @@ export default function EditCustomerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm<Customer>();
+  const { register, handleSubmit, setValue, reset, formState: { isSubmitting } } = useForm<Customer>();
 
   useEffect(() => {
     fetch(`/api/customers?id=${params.id}`)
@@ -66,7 +66,7 @@ export default function EditCustomerPage() {
               </div>
               <div className="space-y-1">
                 <Label>النوع</Label>
-                <Select onValueChange={(v) => setValue("type", v as any)}>
+                <Select onValueChange={(v) => setValue("type", v as Customer["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="individual">فرد</SelectItem>
@@ -96,7 +96,7 @@ export default function EditCustomerPage() {
               </div>
               <div className="space-y-1">
                 <Label>الحالة</Label>
-                <Select onValueChange={(v) => setValue("status", v as any)}>
+                <Select onValueChange={(v) => setValue("status", v as Customer["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">نشط</SelectItem>

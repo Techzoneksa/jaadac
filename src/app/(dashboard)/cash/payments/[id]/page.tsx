@@ -8,11 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { MoneyDisplay } from "@/components/ui/MoneyDisplay";
 
+type PaymentData = Record<string, unknown> & {
+  number?: string; date?: string; amount?: number; payment_method?: string; status?: string; notes?: string;
+};
+
 export default function EditPaymentPage() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(true);
-  const [payment, setPayment] = useState<any>(null);
+  const [payment, setPayment] = useState<PaymentData | null>(null);
 
   useEffect(() => {
     fetch(`/api/payments?id=${params.id}`)
@@ -33,7 +37,7 @@ export default function EditPaymentPage() {
           <div className="grid gap-4 sm:grid-cols-3 mb-4">
             <div><Label>الرقم</Label><p className="font-medium">{payment.number}</p></div>
             <div><Label>التاريخ</Label><p className="font-medium">{payment.date}</p></div>
-            <div><Label>المبلغ</Label><p className="font-medium"><MoneyDisplay amount={payment.amount} /></p></div>
+            <div><Label>المبلغ</Label><p className="font-medium"><MoneyDisplay amount={payment.amount ?? 0} /></p></div>
             <div><Label>طريقة الدفع</Label><p className="font-medium">{payment.payment_method}</p></div>
             <div><Label>الحالة</Label><p className="font-medium">{payment.status}</p></div>
           </div>

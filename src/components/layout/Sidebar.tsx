@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Store, Package, Wallet, BarChart3, Settings,
   ChevronLeft, FileText, Receipt, Banknote, Network, Tags,
-  ScrollText, Building2, Menu, Users,
+  ScrollText, Menu, Users,
 } from "lucide-react";
 
 interface NavItem {

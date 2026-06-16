@@ -20,7 +20,7 @@ export default function EditSupplierPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm<Supplier>();
+  const { register, handleSubmit, setValue, reset, formState: { isSubmitting } } = useForm<Supplier>();
 
   useEffect(() => {
     fetch(`/api/suppliers?id=${params.id}`)
@@ -66,7 +66,7 @@ export default function EditSupplierPage() {
               </div>
               <div className="space-y-1">
                 <Label>النوع</Label>
-                <Select onValueChange={(v) => setValue("type", v as any)}>
+                <Select onValueChange={(v) => setValue("type", v as Supplier["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="individual">فرد</SelectItem>
@@ -92,7 +92,7 @@ export default function EditSupplierPage() {
               </div>
               <div className="space-y-1">
                 <Label>الحالة</Label>
-                <Select onValueChange={(v) => setValue("status", v as any)}>
+                <Select onValueChange={(v) => setValue("status", v as Supplier["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">نشط</SelectItem>

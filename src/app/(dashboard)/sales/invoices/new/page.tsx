@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+const $$num = (p: string) => p + String(Date.now());
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -50,7 +52,7 @@ export default function NewSalesInvoicePage() {
     setLines(lines.filter((l) => l.key !== key));
   }
 
-  function updateLine(key: string, field: keyof LineItem, value: any) {
+  function updateLine(key: string, field: keyof LineItem, value: string | number) {
     setLines(lines.map((l) => {
       if (l.key !== key) return l;
       const updated = { ...l, [field]: value };
@@ -81,10 +83,10 @@ export default function NewSalesInvoicePage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "sale", number: "INV-" + Date.now(), date: date,
+        type: "sale", number: $$num("INV-"), date: date,
         customer_id: customerId, subtotal, vat_total: vatTotal, total,
         notes, status: "draft",
-        lines: lines.map(({ key, ...l }) => l),
+        lines: lines.map((l) => { const { key: $k, ...r } = l; void $k; return r; }),
       }),
     });
     const json = await res.json();
@@ -130,7 +132,7 @@ export default function NewSalesInvoicePage() {
               </Button>
             </div>
             <div className="space-y-2">
-              {lines.map((line, i) => (
+              {lines.map((line) => (
                 <div key={line.key} className="flex gap-2 items-start">
                   <div className="flex-1 space-y-1">
                     <Select value={line.item_id} onValueChange={(v) => updateLine(line.key, "item_id", v)}>

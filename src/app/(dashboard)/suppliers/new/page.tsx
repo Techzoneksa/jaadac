@@ -58,7 +58,7 @@ export default function NewSupplierPage() {
               </div>
               <div className="space-y-1">
                 <Label>النوع *</Label>
-                <Select defaultValue="individual" onValueChange={(v) => setValue("type", v as any)}>
+                <Select defaultValue="individual" onValueChange={(v) => setValue("type", v as FormData["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="individual">فرد</SelectItem>
@@ -84,7 +84,7 @@ export default function NewSupplierPage() {
               </div>
               <div className="space-y-1">
                 <Label>الحالة</Label>
-                <Select defaultValue="active" onValueChange={(v) => setValue("status", v as any)}>
+                <Select defaultValue="active" onValueChange={(v) => setValue("status", v as FormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">نشط</SelectItem>

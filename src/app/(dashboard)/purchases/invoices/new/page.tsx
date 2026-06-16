@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+const $$num = (p: string) => p + String(Date.now());
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -46,7 +48,7 @@ export default function NewPurchaseInvoicePage() {
     setLines(lines.filter((l) => l.key !== key));
   }
 
-  function updateLine(key: string, field: keyof LineItem, value: any) {
+  function updateLine(key: string, field: keyof LineItem, value: string | number) {
     setLines(lines.map((l) => {
       if (l.key !== key) return l;
       const updated = { ...l, [field]: value };
@@ -76,10 +78,10 @@ export default function NewPurchaseInvoicePage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "purchase", number: "PINV-" + Date.now(), date,
+        type: "purchase", number: $$num("PINV-"), date,
         supplier_id: supplierId, subtotal, vat_total: vatTotal, total,
         notes, status: "draft",
-        lines: lines.map(({ key, ...l }) => l),
+        lines: lines.map((l) => { const { key: $k, ...r } = l; void $k; return r; }),
       }),
     });
     const json = await res.json();

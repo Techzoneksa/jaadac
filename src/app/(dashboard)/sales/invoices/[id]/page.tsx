@@ -4,16 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+
+type InvoiceData = Record<string, unknown> & {
+  number?: string; date?: string; status?: string; subtotal?: number;
+  vat_total?: number; total?: number; notes?: string;
+  invoice_lines?: Array<{ description?: string; qty?: number; unit_price?: number; total?: number }>;
+};
 
 export default function EditInvoicePage() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(true);
-  const [invoice, setInvoice] = useState<any>(null);
+  const [invoice, setInvoice] = useState<InvoiceData | null>(null);
 
   useEffect(() => {
     fetch(`/api/invoices?id=${params.id}`)
@@ -45,7 +49,7 @@ export default function EditInvoicePage() {
                 <th className="px-4 py-2 text-right">الإجمالي</th>
               </tr></thead>
               <tbody>
-                {(invoice.invoice_lines || []).map((l: any, i: number) => (
+                {(invoice.invoice_lines || []).map((l, i) => (
                   <tr key={i} className="border-b">
                     <td className="px-4 py-2">{l.description}</td>
                     <td className="px-4 py-2">{l.qty}</td>

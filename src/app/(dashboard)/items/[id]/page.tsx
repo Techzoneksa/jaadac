@@ -19,7 +19,7 @@ export default function EditItemPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, setValue, reset, watch, formState: { errors, isSubmitting } } = useForm<Item>();
+  const { register, handleSubmit, setValue, reset, watch, formState: { isSubmitting } } = useForm<Item>();
 
   useEffect(() => {
     fetch(`/api/items?id=${params.id}`)
@@ -71,7 +71,7 @@ export default function EditItemPage() {
               </div>
               <div className="space-y-1">
                 <Label>النوع</Label>
-                <Select onValueChange={(v) => setValue("type", v as any)}>
+                <Select onValueChange={(v) => setValue("type", v as Item["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="service">خدمة</SelectItem>
