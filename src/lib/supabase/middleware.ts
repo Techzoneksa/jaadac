@@ -8,7 +8,7 @@ export async function updateSession(request: NextRequest) {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   const { pathname } = request.nextUrl;
-  const protectedPrefixes = ["/accounting", "/cash", "/customers", "/items", "/purchases", "/reports", "/sales", "/settings", "/suppliers"];
+  const protectedPrefixes = ["/", "/accounting", "/cash", "/customers", "/items", "/purchases", "/reports", "/sales", "/settings", "/suppliers"];
 
   if (supabaseUrl && supabaseKey) {
     const supabase = createServerClient(supabaseUrl, supabaseKey, {
