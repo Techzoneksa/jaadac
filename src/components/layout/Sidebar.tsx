@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Package, BarChart3, Settings,
   ChevronLeft, FileText, Receipt, Banknote, Network, Tags,
-  ScrollText, Menu, Users, Store, ShoppingCart,
+  ScrollText, Menu, Users, Store, ShoppingCart, LogOut,
 } from "lucide-react";
 
 interface NavItem {
@@ -152,6 +152,16 @@ function NavGroupSection({ group, collapsed }: { group: NavGroup; collapsed: boo
 }
 
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+  const router = useRouter();
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+    }
+    router.push("/login");
+  }
+
   return (
     <>
       {collapsed ? (
@@ -179,6 +189,18 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
               <NavGroupSection key={group.label} group={group} collapsed={true} />
             ))}
           </nav>
+          <div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center p-2.5 rounded-lg transition-all duration-150 w-full"
+              style={{ color: mutedText }}
+              title="تسجيل الخروج"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
           <div
             className="p-2"
             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
@@ -228,6 +250,20 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
               <NavGroupSection key={group.label} group={group} collapsed={false} />
             ))}
           </nav>
+          <div
+            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-3 py-2.5 mx-3 rounded-lg text-sm transition-all duration-150 w-[calc(100%-1.5rem)]"
+              style={{ color: mutedText }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <span>تسجيل الخروج</span>
+            </button>
+          </div>
           <div
             className="p-3"
             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
