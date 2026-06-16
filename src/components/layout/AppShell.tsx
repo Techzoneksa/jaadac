@@ -14,18 +14,18 @@ export function AppShell({ children, title, action }: AppShellProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Topbar />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-background">
           <div className="page-container py-6">
             {title && (
               <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">{title}</h1>
+                <h1 className="text-2xl font-bold text-foreground">{title}</h1>
                 {action && <div>{action}</div>}
               </div>
             )}

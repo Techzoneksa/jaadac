@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { Users, Store, Receipt, ShoppingCart, FileText, Plus, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,13 @@ async function fetchRecent(table: string, cols = "id,name_ar,name_en,created_at"
   }
 }
 
+const statCards = [
+  { label: "العملاء", key: "customers", icon: Users, href: "/customers/new", color: "bg-blue-50 text-blue-600", ring: "ring-blue-100" },
+  { label: "الموردون", key: "suppliers", icon: Store, href: "/suppliers/new", color: "bg-emerald-50 text-emerald-600", ring: "ring-emerald-100" },
+  { label: "فواتير المبيعات", key: "invoices", icon: Receipt, href: "/sales/invoices/new", color: "bg-violet-50 text-violet-600", ring: "ring-violet-100" },
+  { label: "فواتير المشتريات", key: "purchases", icon: ShoppingCart, href: "/purchases/invoices/new", color: "bg-amber-50 text-amber-600", ring: "ring-amber-100" },
+];
+
 export default async function DashboardPage() {
   const [customerCount, supplierCount, invoiceCount, purchaseCount, recentInvoices, recentCustomers] = await Promise.all([
     fetchCount("customers"),
@@ -36,57 +45,124 @@ export default async function DashboardPage() {
     fetchRecent("customers"),
   ]);
 
+  const counts: Record<string, number> = {
+    customers: customerCount,
+    suppliers: supplierCount,
+    invoices: invoiceCount,
+    purchases: purchaseCount,
+  };
+
   const f = (n: number) => new Intl.NumberFormat("ar-SA").format(n);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">لوحة التحكم</h1>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "العملاء", value: f(customerCount), color: "bg-blue-500" },
-          { label: "الموردون", value: f(supplierCount), color: "bg-green-500" },
-          { label: "فواتير المبيعات", value: f(invoiceCount), color: "bg-purple-500" },
-          { label: "فواتير المشتريات", value: f(purchaseCount), color: "bg-orange-500" },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${stat.color} flex items-center justify-center`}>
-                <span className="text-lg font-bold text-white">{stat.value}</span>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">لوحة التحكم</h1>
+          <p className="text-sm text-muted mt-1">نظرة عامة على أداء المنشأة</p>
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((stat) => {
+          const Icon = stat.icon;
+          const count = counts[stat.key];
+          return (
+            <Link key={stat.key} href={stat.href} className="stat-card block">
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm h-full">
+                <div className="flex items-start justify-between">
+                  <div className={`h-12 w-12 rounded-xl ${stat.color} flex items-center justify-center ring-1 ${stat.ring}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <span className="text-2xl font-bold text-foreground">{f(count)}</span>
+                </div>
+                <div className="mt-3">
+                  <p className="text-sm font-medium text-foreground">{stat.label}</p>
+                  <p className="text-xs text-muted mt-0.5">
+                    إجمالي {stat.label === "العملاء" ? "العملاء" : stat.label === "الموردون" ? "الموردين" : "الفواتير"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted">{stat.label}</p>
-                <p className="text-xl font-bold">{stat.value}</p>
-              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-semibold text-foreground">آخر الفواتير</h2>
             </div>
           </div>
-        ))}
-      </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold">آخر الفواتير</h2>
           {recentInvoices.length === 0 ? (
-            <p className="text-sm text-muted">لا توجد فواتير بعد</p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <FileText className="h-12 w-12 text-[#cbd5e1] mb-3" />
+              <p className="text-sm font-medium text-foreground">لا توجد فواتير بعد</p>
+              <p className="text-xs text-muted mt-1 mb-4">قم بإنشاء أول فاتورة مبيعات</p>
+              <Link
+                href="/sales/invoices/new"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                إنشاء فاتورة
+              </Link>
+            </div>
           ) : (
-            <ul className="space-y-2">
-              {recentInvoices.map((inv: any) => (
-                <li key={inv.id} className="flex items-center justify-between text-sm">
-                  <span>{inv.number}</span>
-                  <span>{inv.total ? f(inv.total) : "—"}</span>
-                </li>
+            <div className="space-y-2">
+              {recentInvoices.map((inv: any, idx: number) => (
+                <div key={inv.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-[#f8fafc] transition-colors -mx-3" style={{ animationDelay: `${idx * 50}ms` }}>
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-primary-50 text-primary flex items-center justify-center text-xs font-bold">
+                      {inv.number?.slice(-3) || "FT"}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{inv.number || "—"}</p>
+                      <p className="text-xs text-muted">{inv.date || "—"}</p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">{inv.total ? `${f(inv.total)} ر.س` : "—"}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
+
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold">أحدث العملاء</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-emerald-600" />
+              <h2 className="text-base font-semibold text-foreground">أحدث العملاء</h2>
+            </div>
+          </div>
           {recentCustomers.length === 0 ? (
-            <p className="text-sm text-muted">لا يوجد عملاء بعد</p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Users className="h-12 w-12 text-[#cbd5e1] mb-3" />
+              <p className="text-sm font-medium text-foreground">لا يوجد عملاء بعد</p>
+              <p className="text-xs text-muted mt-1 mb-4">قم بإضافة أول عميل</p>
+              <Link
+                href="/customers/new"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                إضافة عميل
+              </Link>
+            </div>
           ) : (
-            <ul className="space-y-2">
-              {recentCustomers.map((c: any) => (
-                <li key={c.id} className="text-sm">{c.name_ar || c.name_en}</li>
+            <div className="space-y-1">
+              {recentCustomers.map((c: any, idx: number) => (
+                <div key={c.id} className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-[#f8fafc] transition-colors -mx-3" style={{ animationDelay: `${idx * 50}ms` }}>
+                  <div className="h-8 w-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold">
+                    {(c.name_ar || "?").charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{c.name_ar || c.name_en}</p>
+                    <p className="text-xs text-muted">{c.created_at ? new Date(c.created_at).toLocaleDateString("ar-SA") : "—"}</p>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>

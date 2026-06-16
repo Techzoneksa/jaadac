@@ -45,10 +45,10 @@ export function DataTable<T>({
 
   if (isLoading) {
     return (
-      <div className={cn("rounded-lg border border-[#e2e8f0] bg-white", className)}>
+      <div className={cn("rounded-xl border border-border bg-card", className)}>
         <div className="p-8 text-center">
-          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[#e2e8f0] border-t-[#2563eb]" />
-          <p className="mt-2 text-sm text-[#64748b]">جار التحميل...</p>
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+          <p className="mt-2 text-sm text-muted">جار التحميل...</p>
         </div>
       </div>
     );
@@ -57,8 +57,8 @@ export function DataTable<T>({
   return (
     <div className={cn("space-y-4", className)}>
       {onSearch && (
-        <div className="relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+        <div className="relative max-w-sm">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-light" />
           <input
             type="text"
             placeholder={searchPlaceholder}
@@ -68,19 +68,19 @@ export function DataTable<T>({
               onSearch(e.target.value);
               setPage(0);
             }}
-            className="h-10 w-full max-w-sm rounded-md border border-[#e2e8f0] bg-white pr-9 pl-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]"
+            className="h-10 w-full rounded-lg border border-border bg-white pr-9 pl-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all"
           />
         </div>
       )}
 
-      <div className="rounded-lg border border-[#e2e8f0] bg-white overflow-x-auto">
+      <div className="rounded-xl border border-border bg-card overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#e2e8f0] bg-[#f8fafc]">
+            <tr className="border-b border-border bg-[#f8fafc]">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={cn("px-4 py-3 text-right font-medium text-[#475569]", col.className)}
+                  className={cn("px-4 py-3.5 text-right font-semibold text-muted text-xs uppercase tracking-wider", col.className)}
                 >
                   {col.header}
                 </th>
@@ -94,12 +94,12 @@ export function DataTable<T>({
                   key={keyExtractor(row)}
                   onClick={() => onRowClick?.(row)}
                   className={cn(
-                    "border-b border-[#e2e8f0] transition-colors",
-                    onRowClick && "cursor-pointer hover:bg-[#f8fafc]"
+                    "border-b border-border transition-colors",
+                    onRowClick && "cursor-pointer hover:bg-[#f8fafc]",
                   )}
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className={cn("px-4 py-3 text-[#334155]", col.className)}>
+                    <td key={col.key} className={cn("px-4 py-3 text-foreground", col.className)}>
                       {col.render ? col.render(row) : (row as any)[col.key] ?? "—"}
                     </td>
                   ))}
@@ -107,10 +107,10 @@ export function DataTable<T>({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center">
-                  <p className="text-[#64748b] font-medium">{emptyTitle}</p>
+                <td colSpan={columns.length} className="px-4 py-16 text-center">
+                  <p className="text-muted font-medium">{emptyTitle}</p>
                   {emptyDescription && (
-                    <p className="mt-1 text-sm text-[#94a3b8]">{emptyDescription}</p>
+                    <p className="mt-1 text-sm text-muted-light">{emptyDescription}</p>
                   )}
                 </td>
               </tr>
@@ -121,21 +121,21 @@ export function DataTable<T>({
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-[#64748b]">
+          <p className="text-sm text-muted">
             الصفحة {page + 1} من {totalPages}
           </p>
           <div className="flex gap-1">
             <button
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
-              className="flex h-8 w-8 items-center justify-center rounded-md border border-[#e2e8f0] text-[#475569] disabled:opacity-30"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted disabled:opacity-30 hover:bg-[#f1f5f9] transition-colors"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
             <button
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
               disabled={page >= totalPages - 1}
-              className="flex h-8 w-8 items-center justify-center rounded-md border border-[#e2e8f0] text-[#475569] disabled:opacity-30"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted disabled:opacity-30 hover:bg-[#f1f5f9] transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
