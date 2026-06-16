@@ -38,7 +38,7 @@ export default function NewPaymentPage() {
   useEffect(() => {
     fetch("/api/suppliers")
       .then((r) => r.json())
-      .then(setSuppliers)
+      .then((d) => { if (Array.isArray(d)) setSuppliers(d); })
       .catch(() => {});
   }, []);
 

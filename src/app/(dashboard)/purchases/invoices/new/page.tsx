@@ -35,8 +35,8 @@ export default function NewPurchaseInvoicePage() {
   ]);
 
   useEffect(() => {
-    fetch("/api/suppliers").then((r) => r.json()).then(setSuppliers).catch(() => {});
-    fetch("/api/items").then((r) => r.json()).then(setItems).catch(() => {});
+    fetch("/api/suppliers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setSuppliers(d); }).catch(() => {});
+    fetch("/api/items").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setItems(d); }).catch(() => {});
   }, []);
 
   function addLine() {

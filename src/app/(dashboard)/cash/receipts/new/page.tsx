@@ -38,7 +38,7 @@ export default function NewReceiptPage() {
   useEffect(() => {
     fetch("/api/customers")
       .then((r) => r.json())
-      .then(setCustomers)
+      .then((d) => { if (Array.isArray(d)) setCustomers(d); })
       .catch(() => {});
   }, []);
 

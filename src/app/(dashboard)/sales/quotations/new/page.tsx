@@ -35,8 +35,8 @@ export default function NewQuotationPage() {
   ]);
 
   useEffect(() => {
-    fetch("/api/customers").then((r) => r.json()).then(setCustomers).catch(() => {});
-    fetch("/api/items").then((r) => r.json()).then(setItems).catch(() => {});
+    fetch("/api/customers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setCustomers(d); }).catch(() => {});
+    fetch("/api/items").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setItems(d); }).catch(() => {});
   }, []);
 
   function addLine() {
