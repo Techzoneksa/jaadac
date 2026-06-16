@@ -275,3 +275,24 @@ CREATE TABLE IF NOT EXISTS tax_rates (
 ALTER TABLE tax_rates ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can manage own tax_rates" ON tax_rates
   FOR ALL USING (tenant_id = auth.uid()) WITH CHECK (tenant_id = auth.uid());
+
+-- ====================== COMPANY SETTINGS ======================
+CREATE TABLE IF NOT EXISTS company_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID UNIQUE NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name_ar TEXT NOT NULL DEFAULT '',
+  name_en TEXT NOT NULL DEFAULT '',
+  vat TEXT DEFAULT '',
+  cr TEXT DEFAULT '',
+  phone TEXT DEFAULT '',
+  email TEXT DEFAULT '',
+  city TEXT DEFAULT '',
+  address TEXT DEFAULT '',
+  logo_url TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE company_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own company_settings" ON company_settings
+  FOR ALL USING (tenant_id = auth.uid()) WITH CHECK (tenant_id = auth.uid());
