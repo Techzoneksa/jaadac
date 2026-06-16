@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { useI18n, fmtMoney } from "@/lib/i18n";
 import { useStore, newId, type JournalEntry, type JournalLine } from "@/lib/store";
@@ -64,7 +65,7 @@ function toEditorLine(l: JournalLine): EditorLine {
 export function JournalEditor({ mode, initial }: { mode: EditorMode; initial?: JournalEntry }) {
   const { lang, dir } = useI18n();
   const audit = useAudit();
-  const navigate = useNavigate();
+  const router = useRouter();
   const journal = useStore((s) => s.journal);
   const accountsState = useStore((s) => s.accounts);
 
@@ -144,7 +145,7 @@ export function JournalEditor({ mode, initial }: { mode: EditorMode; initial?: J
       audit.log("journal.created", "journal_entry", `إنشاء قيد ${entry.number}`, `Created journal ${entry.number}`, entry.id);
     }
     toast.success(lang === "ar" ? "تم حفظ المسودة" : "Draft saved");
-    navigate({ to: "/accounting/journal" });
+    router.push("/accounting/journal");
   };
 
   const postEntry = () => {
@@ -156,7 +157,7 @@ export function JournalEditor({ mode, initial }: { mode: EditorMode; initial?: J
     JournalService.postManual(entry);
     audit.log("journal.posted", "journal_entry", `ترحيل قيد ${entry.number}`, `Posted journal ${entry.number}`, entry.id);
     toast.success(lang === "ar" ? "تم ترحيل القيد" : "Journal posted");
-    navigate({ to: "/accounting/journal" });
+    router.push("/accounting/journal");
   };
 
   const BackIcon = dir === "rtl" ? ArrowRight : ArrowLeft;
@@ -178,7 +179,7 @@ export function JournalEditor({ mode, initial }: { mode: EditorMode; initial?: J
           <Button variant="outline" size="sm" disabled>
             <MoreHorizontal className="size-4" />
           </Button>
-          <Link to="/accounting/journal">
+          <Link href="/accounting/journal">
             <Button variant="ghost" size="sm"><X className="size-4 me-1" />{lang === "ar" ? "إغلاق" : "Close"}</Button>
           </Link>
         </div>
@@ -186,7 +187,7 @@ export function JournalEditor({ mode, initial }: { mode: EditorMode; initial?: J
     >
       {/* Sticky sub-header */}
       <div className="sticky top-0 z-10 -mx-4 sm:-mx-5 md:-mx-6 px-4 sm:px-5 md:px-6 py-3 bg-background/95 backdrop-blur border-b mb-4 flex items-center justify-between gap-3">
-        <Link to="/accounting/journal" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <Link href="/accounting/journal" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <BackIcon className="size-4" />
           {lang === "ar" ? "العودة لقائمة القيود" : "Back to journals"}
         </Link>

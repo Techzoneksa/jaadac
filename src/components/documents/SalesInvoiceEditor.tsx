@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DocumentEditorLayout, DocumentSection } from "@/components/documents/DocumentEditorLayout";
 import { LineItemsEditor } from "@/components/LineItemsEditor";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import { Save, Send, Stamp, Printer, ArrowDownCircle } from "lucide-react";
 
 export function SalesInvoiceEditor({ editing }: { editing: Invoice | null }) {
   const { t, lang } = useI18n();
-  const navigate = useNavigate();
+  const router = useRouter();
   const audit = useAudit();
   const customers = useStore((s) => s.customers);
 
@@ -51,7 +52,7 @@ export function SalesInvoiceEditor({ editing }: { editing: Invoice | null }) {
       audit.log("invoice.created", "sales_invoice", `إنشاء فاتورة ${form.number}`, `Created invoice ${form.number}`, form.id);
     }
     toast.success(t("saved"));
-    navigate({ to: "/invoices/sales" });
+    router.push("/invoices/sales");
     return true;
   };
 
@@ -88,7 +89,7 @@ export function SalesInvoiceEditor({ editing }: { editing: Invoice | null }) {
       )}
       {editing && (form.status === "official" || form.status === "partially_paid") && (
         <Button size="sm" variant="outline" asChild>
-          <Link to="/receipts"><ArrowDownCircle className="size-4 me-1" />{t("record_payment")}</Link>
+          <Link href="/receipts"><ArrowDownCircle className="size-4 me-1" />{t("record_payment")}</Link>
         </Button>
       )}
       {editing && (

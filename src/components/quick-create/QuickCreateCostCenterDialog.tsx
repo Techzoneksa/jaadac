@@ -26,11 +26,10 @@ export function QuickCreateCostCenterDialog({
     const all: CostCenter[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const created: CostCenter = { id: crypto.randomUUID(), code: form.code, name_ar: form.name_ar, name_en: form.name_en, active: true };
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...all, created]));
-    audit.log("cost_center.created", "cost_center", `إضافة مركز تكلفة ${form.code}`, `Created cost center ${form.code}`, created.id);
+    audit.log("cost_center.created", "cost_center", `اضافة مركز تكلفة ${form.code}`, `Created cost center ${form.code}`, created.id);
     toast.success(ar ? "تم إنشاء مركز التكلفة" : "Cost center created");
     onCreated?.(created);
     reset();
-    // Force route component refresh by reloading state on next render
     window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
     return true;
   };

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
@@ -37,7 +37,7 @@ export function ReportShell({ titleAr, titleEn, descAr, descEn, filters, childre
       <div className="space-y-5">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link to="/reports" className="hover:text-foreground inline-flex items-center gap-1">
+          <Link href="/reports" className="hover:text-foreground inline-flex items-center gap-1">
             <ArrowBack className="size-4" />
             <FileText className="size-3.5" />
             {lang === "ar" ? "التقارير" : "Reports"}

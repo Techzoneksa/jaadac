@@ -1,7 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 
 export function AccessDenied({ title, description }: { title?: string; description?: string }) {
   const { lang } = useI18n();
@@ -33,7 +33,7 @@ export function AccessDenied({ title, description }: { title?: string; descripti
           </div>
         )}
         <Link
-          to="/"
+          href="/dashboard"
           className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           {tr.back}

@@ -1,49 +1,42 @@
-# Logs
-logs
-*.log
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.pnpm-debug.log*
 
-node_modules
-dist
-dist-ssr
-.output
-.vinxi
-.tanstack/**
-.nitro
-*.local
+# env files (can opt-in for committing if needed)
+.env*
 
-# Workspace / Lovable
-.workspace/
+# vercel
+.vercel
 
-# Environment (keys)
-.env
-.env.local
-.env.production
-.env.staging
-.env.development
-
-# Future framework (Next.js after migration)
-.next/
+# typescript
+*.tsbuildinfo
 next-env.d.ts
-
-# Keep .env.example tracked (template with placeholders, no real keys)
-!.env.example
-
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?

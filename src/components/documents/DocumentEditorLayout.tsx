@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -29,7 +29,7 @@ export function DocumentEditorLayout({
   const action = (
     <div className="flex flex-wrap items-center gap-2">
       <Button asChild variant="outline" size="sm">
-        <Link to={backTo as never}>
+        <Link href={backTo}>
           <BackIcon className="size-4 me-1" />
           {t("back")}
         </Link>

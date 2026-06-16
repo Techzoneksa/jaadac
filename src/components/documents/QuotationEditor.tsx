@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DocumentEditorLayout, DocumentSection } from "@/components/documents/DocumentEditorLayout";
 import { LineItemsEditor } from "@/components/LineItemsEditor";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import { Save, Send, FileCheck, ArrowRight, Printer, Eye } from "lucide-react";
 
 export function QuotationEditor({ editing }: { editing: Quotation | null }) {
   const { t, lang } = useI18n();
-  const navigate = useNavigate();
+  const router = useRouter();
   const audit = useAudit();
   const customers = useStore((s) => s.customers);
 
@@ -46,7 +47,7 @@ export function QuotationEditor({ editing }: { editing: Quotation | null }) {
     }
     toast.success(t("saved"));
     if (afterSave) afterSave();
-    else navigate({ to: "/quotations" });
+    else router.push("/quotations");
     return true;
   };
 
@@ -67,7 +68,7 @@ export function QuotationEditor({ editing }: { editing: Quotation | null }) {
     audit.log("quotation.converted", "quotation", `تحويل العرض ${form.number} إلى فاتورة ${inv.number}`, `Converted quotation ${form.number} → invoice ${inv.number}`, form.id);
     audit.log("invoice.created", "sales_invoice", `إنشاء فاتورة ${inv.number} من عرض`, `Created invoice ${inv.number} from quotation`, inv.id);
     toast.success(`${t("convert_to_invoice")}: ${inv.number}`);
-    navigate({ to: "/invoices/sales/$id/edit", params: { id: inv.id } });
+    router.push("/invoices/sales/" + inv.id + "/edit");
   };
 
   const actions = (
@@ -90,7 +91,7 @@ export function QuotationEditor({ editing }: { editing: Quotation | null }) {
       {editing && (
         <>
           <Button size="sm" variant="outline" asChild>
-            <Link to="/quotations" onClick={() => setTimeout(() => window.print(), 200)}>
+            <Link href="/quotations" onClick={() => setTimeout(() => window.print(), 200)}>
               <Eye className="size-4 me-1" />{t("preview")}
             </Link>
           </Button>

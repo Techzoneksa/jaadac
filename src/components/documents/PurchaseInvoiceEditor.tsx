@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DocumentEditorLayout, DocumentSection } from "@/components/documents/DocumentEditorLayout";
 import { PurchaseLineItemsEditor } from "@/components/documents/PurchaseLineItemsEditor";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import { Save, FileCheck, ArrowUpCircle, Printer } from "lucide-react";
 
 export function PurchaseInvoiceEditor({ editing }: { editing: PurchaseInvoice | null }) {
   const { t, lang } = useI18n();
-  const navigate = useNavigate();
+  const router = useRouter();
   const audit = useAudit();
   const suppliers = useStore((s) => s.suppliers);
 
@@ -54,7 +55,7 @@ export function PurchaseInvoiceEditor({ editing }: { editing: PurchaseInvoice | 
       audit.log("purchase_invoice.created", "purchase_invoice", `إنشاء فاتورة مشتريات ${form.number}`, `Created purchase invoice ${form.number}`, form.id);
     }
     toast.success(t("saved"));
-    navigate({ to: "/invoices/purchases" });
+    router.push("/invoices/purchases");
     return true;
   };
 

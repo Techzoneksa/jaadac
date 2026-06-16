@@ -5,7 +5,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useAuth, type Permission } from "@/lib/auth";
 import { useStore } from "@/lib/store";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 
 type Action = { id: string; ar: string; en: string; to: string; perm: Permission };
 
@@ -23,7 +23,7 @@ const ACTIONS: Action[] = [
 export function CommandPalette() {
   const { lang } = useI18n();
   const { can } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const s = useStore((x) => x);
 
@@ -38,7 +38,7 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const go = (to: string) => { setOpen(false); navigate({ to: to as never }); };
+  const go = (to: string) => { setOpen(false); router.push(to); };
 
   const actions = ACTIONS.filter((a) => can(a.perm));
 
