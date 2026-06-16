@@ -1,6 +1,6 @@
 "use client";
-
 import { useState, useEffect } from "react";
+import { classifyDbError, type DbError } from "@/lib/supabase/errors";
 
 export function useApi<T>(url: string) {
   const [data, setData] = useState<T[]>([]);
@@ -9,12 +9,19 @@ export function useApi<T>(url: string) {
 
   useEffect(() => {
     fetch(url)
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.error) setError(json.error);
-        else setData(json);
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.error) {
+          const cls = classifyDbError(json.error);
+          setError(cls.message);
+        } else {
+          setData(json);
+        }
       })
-      .catch(() => setError("فشل تحميل البيانات"))
+      .catch((e) => {
+        const cls = classifyDbError(e);
+        setError(cls.message);
+      })
       .finally(() => setLoading(false));
   }, [url]);
 
