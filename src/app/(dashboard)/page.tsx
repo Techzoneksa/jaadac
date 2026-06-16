@@ -63,7 +63,7 @@ export default async function DashboardPage() {
     purchases: purchaseCount,
   };
 
-  const f = (n: number) => new Intl.NumberFormat("ar-SA").format(n);
+  const f = (n: number) => { try { return new Intl.NumberFormat("ar-SA").format(n); } catch { return String(n ?? 0); } };
 
   return (
     <div className="space-y-6 animate-fade-in">
