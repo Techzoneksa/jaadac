@@ -32,7 +32,7 @@ export function ConfirmDialog({
         <p className="text-sm text-[#475569] mb-6">{message}</p>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{cancelLabel}</Button>
-          <Button variant={variant === "danger" ? "destructive" : "default"} onClick={onConfirm}>{confirmLabel}</Button>
+          <Button variant={variant} onClick={onConfirm}>{confirmLabel}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

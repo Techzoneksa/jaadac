@@ -148,7 +148,7 @@ function NavGroupSection({ group, collapsed }: { group: NavGroup; collapsed: boo
   return (
     <div>
       <p
-        className="px-3 mb-1.5 text-xs font-semibold tracking-wider uppercase"
+        className="px-3 mb-1.5 text-[11px] font-semibold tracking-wider"
         style={{ color: "var(--sidebar-muted)" }}
       >
         {group.label}
@@ -162,7 +162,14 @@ function NavGroupSection({ group, collapsed }: { group: NavGroup; collapsed: boo
   );
 }
 
-export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+interface SidebarProps {
+  collapsed: boolean;
+  onToggle: () => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -173,25 +180,17 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
     router.push("/login");
   }
 
-  return (
+  const sidebarContent = (isCollapsed: boolean) => (
     <>
-      {collapsed ? (
-        <aside
-          className="flex flex-col w-16 shrink-0 z-30 border-l"
-          style={{ backgroundColor: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)" }}
-        >
+      {isCollapsed ? (
+        <>
           <div
-            className="flex items-center justify-center h-16"
+            className="flex items-center justify-center h-16 shrink-0"
             style={{ borderBottom: "1px solid var(--sidebar-border)" }}
           >
-            <button
-              onClick={onToggle}
-              className="p-2 rounded-xl transition-colors"
-              style={{ color: "var(--sidebar-muted)" }}
+            <button onClick={onToggle} className="p-2 rounded-xl transition-colors" style={{ color: "var(--sidebar-muted)" }}
               onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-              title="توسيع القائمة"
-            >
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} title="توسيع القائمة">
               <Menu className="h-5 w-5" />
             </button>
           </div>
@@ -200,95 +199,111 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
               <NavGroupSection key={group.label} group={group} collapsed={true} />
             ))}
           </nav>
-          <div
-            className="py-2"
-            style={{ borderTop: "1px solid var(--sidebar-border)" }}
-          >
-            <button
-              onClick={handleLogout}
+          <div className="py-2 shrink-0" style={{ borderTop: "1px solid var(--sidebar-border)" }}>
+            <button onClick={handleLogout}
               className="flex items-center justify-center p-2.5 rounded-xl transition-all duration-150 w-full"
-              style={{ color: "var(--sidebar-muted)" }}
-              title="تسجيل الخروج"
+              style={{ color: "var(--sidebar-muted)" }} title="تسجيل الخروج"
               onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-            >
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
               <LogOut className="h-5 w-5" />
             </button>
           </div>
-          <div className="p-2 pb-3">
+          <div className="p-2 pb-3 shrink-0">
             <p className="text-[10px] text-center" style={{ color: "var(--sidebar-muted)" }}>v0.1</p>
           </div>
-        </aside>
+        </>
       ) : (
-        <aside
-          className="flex flex-col w-64 shrink-0 z-30 border-l"
-          style={{ backgroundColor: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)" }}
-        >
-          {/* Logo */}
-          <div
-            className="flex items-center justify-between h-16 px-4"
-            style={{ borderBottom: "1px solid var(--sidebar-border)" }}
-          >
+        <>
+          <div className="flex items-center justify-between h-16 px-4 shrink-0" style={{ borderBottom: "1px solid var(--sidebar-border)" }}>
             <div className="flex items-center gap-2.5">
-              <div
-                className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm"
-                style={{
-                  background: "var(--sidebar-active)",
-                  color: "#ffffff",
-                }}
-              >
-                ج
-              </div>
+              <div className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm" style={{ background: "var(--sidebar-active)", color: "#ffffff" }}>ج</div>
               <div>
-                <span
-                  className="text-base font-bold tracking-tight block"
-                  style={{ color: "var(--sidebar-text)" }}
-                >
-                  جاد كلاود
-                </span>
-                <span className="text-[10px]" style={{ color: "var(--sidebar-muted)" }}>
-                  نظام المحاسبة السحابي
-                </span>
+                <span className="text-base font-bold tracking-tight block" style={{ color: "var(--sidebar-text)" }}>جاد كلاود</span>
+                <span className="text-[10px]" style={{ color: "var(--sidebar-muted)" }}>نظام المحاسبة السحابي</span>
               </div>
             </div>
-            <button
-              onClick={onToggle}
-              className="p-1.5 rounded-lg transition-colors"
-              style={{ color: "var(--sidebar-muted)" }}
+            <button onClick={onToggle} className="p-1.5 rounded-lg transition-colors hidden lg:block" style={{ color: "var(--sidebar-muted)" }}
               onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-              title="طي القائمة"
-            >
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} title="طي القائمة">
               <ChevronLeft className="h-4 w-4" />
             </button>
           </div>
-
-          {/* Navigation */}
           <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
             {navGroups.map((group) => (
               <NavGroupSection key={group.label} group={group} collapsed={false} />
             ))}
           </nav>
-
-          {/* Bottom */}
-          <div style={{ borderTop: "1px solid var(--sidebar-border)" }}>
-            <button
-              onClick={handleLogout}
+          <div className="shrink-0" style={{ borderTop: "1px solid var(--sidebar-border)" }}>
+            <button onClick={handleLogout}
               className="flex items-center gap-3 px-3 py-2.5 mx-3 my-2 rounded-xl text-sm transition-all duration-150 w-[calc(100%-1.5rem)]"
               style={{ color: "var(--sidebar-muted)" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--sidebar-hover)"; e.currentTarget.style.color = "var(--sidebar-text)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--sidebar-muted)"; }}
-            >
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--sidebar-muted)"; }}>
               <LogOut className="h-5 w-5 shrink-0" />
               <span>تسجيل الخروج</span>
             </button>
           </div>
-          <div className="p-3 pb-4">
-            <p className="text-xs text-center" style={{ color: "var(--sidebar-muted)" }}>
-              JAAD CLOUD v0.1.0
-            </p>
+          <div className="p-3 pb-4 shrink-0">
+            <p className="text-xs text-center" style={{ color: "var(--sidebar-muted)" }}>JAAD CLOUD v0.1.0</p>
           </div>
-        </aside>
+        </>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside
+        className={`${collapsed ? "w-16" : "w-64"} shrink-0 border-l hidden lg:flex flex-col`}
+        style={{ backgroundColor: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)" }}
+      >
+        {sidebarContent(collapsed)}
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+            onClick={onMobileClose}
+          />
+          <aside
+            className="absolute top-0 right-0 bottom-0 w-72 flex flex-col z-10 animate-fade-in"
+            style={{ backgroundColor: "var(--sidebar-bg)", borderLeft: "1px solid var(--sidebar-border)" }}
+          >
+            <div className="flex items-center justify-between h-16 px-4 shrink-0" style={{ borderBottom: "1px solid var(--sidebar-border)" }}>
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm" style={{ background: "var(--sidebar-active)", color: "#ffffff" }}>ج</div>
+                <div>
+                  <span className="text-base font-bold tracking-tight block" style={{ color: "var(--sidebar-text)" }}>جاد كلاود</span>
+                  <span className="text-[10px]" style={{ color: "var(--sidebar-muted)" }}>نظام المحاسبة السحابي</span>
+                </div>
+              </div>
+              <button onClick={onMobileClose} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--sidebar-muted)" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
+              {navGroups.map((group) => (
+                <NavGroupSection key={group.label} group={group} collapsed={false} />
+              ))}
+            </nav>
+            <div className="shrink-0" style={{ borderTop: "1px solid var(--sidebar-border)" }}>
+              <button onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2.5 mx-3 my-2 rounded-xl text-sm transition-all duration-150 w-[calc(100%-1.5rem)]"
+                style={{ color: "var(--sidebar-muted)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--sidebar-hover)"; e.currentTarget.style.color = "var(--sidebar-text)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--sidebar-muted)"; }}>
+                <LogOut className="h-5 w-5 shrink-0" />
+                <span>تسجيل الخروج</span>
+              </button>
+            </div>
+          </aside>
+        </div>
       )}
     </>
   );
