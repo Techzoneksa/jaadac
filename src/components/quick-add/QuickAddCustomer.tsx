@@ -9,7 +9,7 @@ import { toast } from "sonner";
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onCreated: (c: Record<string, unknown>) => void;
+  onCreated: (c: { id: string; name_ar: string }) => void;
 }
 
 export function QuickAddCustomer({ open, onOpenChange, onCreated }: Props) {

@@ -203,11 +203,10 @@ export default function NewQuotationPage() {
         </div>
       </form>
       <QuickAddCustomer open={showAddCustomer} onOpenChange={setShowAddCustomer}
-        onCreated={(c) => { setCustomers((prev) => [...prev, c as Customer]); setCustomerId(c.id as string); }} />
+        onCreated={(c) => { setCustomers((prev) => [...prev, c as unknown as Customer]); setCustomerId(c.id); }} />
       <QuickAddItem open={showAddItem} onOpenChange={setShowAddItem}
-        onCreated={(i) => {
-          const item = i as Item;
-          setItems((prev) => [...prev, item]);
+        onCreated={(item) => {
+          setItems((prev) => [...prev, item as unknown as Item]);
           if (lines.length > 0) {
             const lastLine = lines[lines.length - 1];
             updateLine(lastLine.key, "item_id", item.id);

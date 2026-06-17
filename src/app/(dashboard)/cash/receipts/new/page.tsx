@@ -126,7 +126,7 @@ export default function NewReceiptPage() {
         </CardContent>
       </Card>
       <QuickAddCustomer open={showAddCustomer} onOpenChange={setShowAddCustomer}
-        onCreated={(c) => { setCustomers((prev) => [...prev, c as Customer]); setValue("customer_id", c.id as string); }} />
+        onCreated={(c) => { setCustomers((prev) => [...prev, c as unknown as Customer]); setValue("customer_id", c.id); }} />
     </div>
   );
 }

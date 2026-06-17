@@ -126,7 +126,7 @@ export default function NewPaymentPage() {
         </CardContent>
       </Card>
       <QuickAddSupplier open={showAddSupplier} onOpenChange={setShowAddSupplier}
-        onCreated={(s) => { setSuppliers((prev) => [...prev, s as Supplier]); setValue("supplier_id", s.id as string); }} />
+        onCreated={(s) => { setSuppliers((prev) => [...prev, s as unknown as Supplier]); setValue("supplier_id", s.id); }} />
     </div>
   );
 }

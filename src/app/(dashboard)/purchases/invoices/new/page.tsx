@@ -204,11 +204,10 @@ export default function NewPurchaseInvoicePage() {
         </div>
       </form>
       <QuickAddSupplier open={showAddSupplier} onOpenChange={setShowAddSupplier}
-        onCreated={(s) => { setSuppliers((prev) => [...prev, s as Supplier]); setSupplierId(s.id as string); }} />
+        onCreated={(s) => { setSuppliers((prev) => [...prev, s as unknown as Supplier]); setSupplierId(s.id); }} />
       <QuickAddItem open={showAddItem} onOpenChange={setShowAddItem}
-        onCreated={(i) => {
-          const item = i as Item;
-          setItems((prev) => [...prev, item]);
+        onCreated={(item) => {
+          setItems((prev) => [...prev, item as unknown as Item]);
           if (lines.length > 0) {
             const lastLine = lines[lines.length - 1];
             updateLine(lastLine.key, "item_id", item.id);
