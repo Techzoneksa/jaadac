@@ -76,15 +76,11 @@ export function RecordActionsMenu({
     return (
       <>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-              style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--surface)"}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
+          <DropdownMenuTrigger
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface)]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[160px]">
             {actions.map((action, i) => (
@@ -157,15 +153,11 @@ export function RecordActionsMenu({
       ))}
       {actions.length > 3 && (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-              style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--surface)"}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
+          <DropdownMenuTrigger
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface)]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[160px]">
             {actions.slice(3).map((action, i) => (
