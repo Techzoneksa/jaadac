@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2, Plus } from "lucide-react";
 import type { Customer, Item } from "@/lib/types";
+import { QuickAddCustomer } from "@/components/quick-add/QuickAddCustomer";
+import { QuickAddItem } from "@/components/quick-add/QuickAddItem";
 
 interface LineItem {
   key: string;
@@ -32,6 +34,8 @@ export default function NewSalesInvoicePage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [customerId, setCustomerId] = useState("");
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [showAddItem, setShowAddItem] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineItem[]>([
@@ -110,12 +114,15 @@ export default function NewSalesInvoicePage() {
               </div>
               <div className="space-y-1">
                 <Label>العميل *</Label>
-                <Select onValueChange={setCustomerId}>
+                <Select onValueChange={(v) => { if (v === "__new__") setShowAddCustomer(true); else setCustomerId(v); }}>
                   <SelectTrigger><SelectValue placeholder="اختر عميلاً" /></SelectTrigger>
                   <SelectContent>
                     {customers.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.name_ar}</SelectItem>
                     ))}
+                    <SelectItem value="__new__" className="text-[#2563eb] font-medium border-t border-[#e2e8f0]">
+                      + إنشاء عميل جديد
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -135,12 +142,15 @@ export default function NewSalesInvoicePage() {
               {lines.map((line) => (
                 <div key={line.key} className="flex gap-2 items-start">
                   <div className="flex-1 space-y-1">
-                    <Select value={line.item_id} onValueChange={(v) => updateLine(line.key, "item_id", v)}>
+                    <Select value={line.item_id} onValueChange={(v) => { if (v === "__new__") setShowAddItem(true); else updateLine(line.key, "item_id", v); }}>
                       <SelectTrigger><SelectValue placeholder="اختر صنفاً" /></SelectTrigger>
                       <SelectContent>
                         {items.map((item) => (
                           <SelectItem key={item.id} value={item.id}>{item.name_ar}</SelectItem>
                         ))}
+                        <SelectItem value="__new__" className="text-[#2563eb] font-medium border-t border-[#e2e8f0]">
+                          + إضافة منتج/خدمة
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -198,6 +208,17 @@ export default function NewSalesInvoicePage() {
           <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
         </div>
       </form>
+      <QuickAddCustomer open={showAddCustomer} onOpenChange={setShowAddCustomer}
+        onCreated={(c) => { setCustomers((prev) => [...prev, c as Customer]); setCustomerId(c.id as string); }} />
+      <QuickAddItem open={showAddItem} onOpenChange={setShowAddItem}
+        onCreated={(i) => {
+          const item = i as Item;
+          setItems((prev) => [...prev, item]);
+          if (lines.length > 0) {
+            const lastLine = lines[lines.length - 1];
+            updateLine(lastLine.key, "item_id", item.id);
+          }
+        }} />
     </div>
   );
 }

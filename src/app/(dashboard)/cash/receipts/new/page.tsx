@@ -13,6 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Customer } from "@/lib/types";
+import { QuickAddCustomer } from "@/components/quick-add/QuickAddCustomer";
 
 const $$num = (p: string) => p + String(Date.now());
 
@@ -30,6 +31,7 @@ export default function NewReceiptPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
 
   const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<FormData>({
     defaultValues: { date: new Date().toISOString().slice(0, 10), payment_method: "cash", status: "draft" },
@@ -69,12 +71,15 @@ export default function NewReceiptPage() {
               </div>
               <div className="space-y-1">
                 <Label>العميل *</Label>
-                <Select onValueChange={(v) => setValue("customer_id", v)}>
+                <Select onValueChange={(v) => { if (v === "__new__") setShowAddCustomer(true); else setValue("customer_id", v); }}>
                   <SelectTrigger><SelectValue placeholder="اختر عميلاً" /></SelectTrigger>
                   <SelectContent>
                     {customers.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.name_ar}</SelectItem>
                     ))}
+                    <SelectItem value="__new__" className="text-[#2563eb] font-medium border-t border-[#e2e8f0]">
+                      + إنشاء عميل جديد
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -120,6 +125,8 @@ export default function NewReceiptPage() {
           </form>
         </CardContent>
       </Card>
+      <QuickAddCustomer open={showAddCustomer} onOpenChange={setShowAddCustomer}
+        onCreated={(c) => { setCustomers((prev) => [...prev, c as Customer]); setValue("customer_id", c.id as string); }} />
     </div>
   );
 }

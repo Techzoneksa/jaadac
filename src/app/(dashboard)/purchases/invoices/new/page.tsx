@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2, Plus } from "lucide-react";
 import type { Supplier, Item } from "@/lib/types";
+import { QuickAddSupplier } from "@/components/quick-add/QuickAddSupplier";
+import { QuickAddItem } from "@/components/quick-add/QuickAddItem";
 
 interface LineItem {
   key: string; item_id: string; description: string;
@@ -28,6 +30,8 @@ export default function NewPurchaseInvoicePage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [supplierId, setSupplierId] = useState("");
+  const [showAddSupplier, setShowAddSupplier] = useState(false);
+  const [showAddItem, setShowAddItem] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineItem[]>([
@@ -105,12 +109,15 @@ export default function NewPurchaseInvoicePage() {
               </div>
               <div className="space-y-1">
                 <Label>المورد *</Label>
-                <Select onValueChange={setSupplierId}>
+                <Select onValueChange={(v) => { if (v === "__new__") setShowAddSupplier(true); else setSupplierId(v); }}>
                   <SelectTrigger><SelectValue placeholder="اختر مورداً" /></SelectTrigger>
                   <SelectContent>
                     {suppliers.map((s) => (
                       <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>
                     ))}
+                    <SelectItem value="__new__" className="text-[#2563eb] font-medium border-t border-[#e2e8f0]">
+                      + إضافة مورد جديد
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -130,12 +137,15 @@ export default function NewPurchaseInvoicePage() {
               {lines.map((line) => (
                 <div key={line.key} className="flex gap-2 items-start">
                   <div className="flex-1 space-y-1">
-                    <Select value={line.item_id} onValueChange={(v) => updateLine(line.key, "item_id", v)}>
+                    <Select value={line.item_id} onValueChange={(v) => { if (v === "__new__") setShowAddItem(true); else updateLine(line.key, "item_id", v); }}>
                       <SelectTrigger><SelectValue placeholder="اختر صنفاً" /></SelectTrigger>
                       <SelectContent>
                         {items.map((item) => (
                           <SelectItem key={item.id} value={item.id}>{item.name_ar}</SelectItem>
                         ))}
+                        <SelectItem value="__new__" className="text-[#2563eb] font-medium border-t border-[#e2e8f0]">
+                          + إضافة منتج/خدمة
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -193,6 +203,17 @@ export default function NewPurchaseInvoicePage() {
           <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
         </div>
       </form>
+      <QuickAddSupplier open={showAddSupplier} onOpenChange={setShowAddSupplier}
+        onCreated={(s) => { setSuppliers((prev) => [...prev, s as Supplier]); setSupplierId(s.id as string); }} />
+      <QuickAddItem open={showAddItem} onOpenChange={setShowAddItem}
+        onCreated={(i) => {
+          const item = i as Item;
+          setItems((prev) => [...prev, item]);
+          if (lines.length > 0) {
+            const lastLine = lines[lines.length - 1];
+            updateLine(lastLine.key, "item_id", item.id);
+          }
+        }} />
     </div>
   );
 }
