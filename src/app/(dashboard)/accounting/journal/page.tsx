@@ -4,8 +4,8 @@ import { DataTable, type Column } from "@/components/ui/DataTable";
 import { useApi } from "@/lib/hooks/use-api";
 import type { JournalEntry } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { RecordActionsMenu, viewLinkAction, printLinkAction, downloadCsvAction, futureAction } from "@/components/ui/RecordActionsMenu";
-import { Pencil, ArrowLeftRight, Trash2 } from "lucide-react";
+import { RecordActionsMenu, viewLinkAction, printLinkAction, pdfLinkAction, downloadCsvAction, futureAction, excelPlaceholderAction, disabledAction } from "@/components/ui/RecordActionsMenu";
+import { Pencil, ArrowLeftRight } from "lucide-react";
 
 export default function JournalPage() {
   const { data, loading } = useApi<JournalEntry>("/api/journal");
@@ -25,9 +25,11 @@ export default function JournalPage() {
             viewLinkAction(`/accounting/journal/${r.id}`, router),
             futureAction("تحرير", <Pencil className="h-4 w-4" />),
             printLinkAction(`/accounting/journal/${r.id}/print`, router),
+            pdfLinkAction(`/accounting/journal/${r.id}/print`),
+            excelPlaceholderAction(),
             downloadCsvAction(data, "journal", ["الرقم", "التاريخ", "البيان", "الحالة"], (row) => [row.number, row.date, row.description, row.status === "posted" ? "مرحّل" : "مسودة"]),
             futureAction("ترحيل", <ArrowLeftRight className="h-4 w-4" />),
-            { label: "حذف", icon: <Trash2 className="h-4 w-4" />, onClick: () => {}, disabled: true, variant: "danger" },
+            disabledAction("حذف", <ArrowLeftRight className="h-4 w-4" />, "الحذف غير متاح للقيود المرحّلة"),
           ]}
           compact
         />

@@ -7,8 +7,8 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useApi } from "@/lib/hooks/use-api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction } from "@/components/ui/RecordActionsMenu";
-import { FileText, Ban } from "lucide-react";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction, pdfLinkAction, excelPlaceholderAction, cancelAction } from "@/components/ui/RecordActionsMenu";
+import { FileText } from "lucide-react";
 
 interface InvoiceRec {
   id: string;
@@ -35,6 +35,8 @@ function ActionsCell({ record }: { record: InvoiceRec }) {
     viewLinkAction(`/sales/invoices/${record.id}`, router),
     editLinkAction(`/sales/invoices/${record.id}/edit`, router),
     printLinkAction(`/sales/invoices/${record.id}/print`, router),
+    pdfLinkAction(`/sales/invoices/${record.id}/print`),
+    excelPlaceholderAction(),
     downloadCsvAction(
       [record],
       `invoice-${record.number}`,
@@ -42,7 +44,7 @@ function ActionsCell({ record }: { record: InvoiceRec }) {
       (r) => [r.number, r.date, r.customer_name, String(r.total), r.status],
     ),
     futureAction("تسجيل قبض", <FileText className="h-4 w-4" />),
-    { label: "إلغاء", icon: <Ban className="h-4 w-4" />, onClick: () => {}, disabled: true },
+    cancelAction(),
     deleteConfig.action,
   ];
   return <RecordActionsMenu actions={actions} onDelete={deleteConfig.onDelete} compact />;

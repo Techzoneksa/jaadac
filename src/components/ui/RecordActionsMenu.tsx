@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Eye, Pencil, Printer, FileDown, FileSpreadsheet, Trash2, XCircle,
-  Copy, ArrowLeftRight, FileText, MoreHorizontal, Download, Plus,
-  Ban,
+  Eye, Pencil, Printer, FileDown, FileSpreadsheet, Trash2,
+  MoreHorizontal, Ban,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -15,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Button } from "@/components/ui/button";
 
 export interface ActionItem {
   label: string;
@@ -43,34 +41,24 @@ export function RecordActionsMenu({
 }: RecordActionsProps) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<(() => void) | null>(null);
-  const [deleteError, setDeleteError] = useState("");
 
   const handleAction = (action: ActionItem) => {
-    if (action.disabled) {
-      return;
-    }
+    if (action.disabled) return;
     action.onClick();
   };
 
   const confirmDelete = async () => {
     if (!onDelete) return;
-    setDeleteError("");
     try {
       const ok = await onDelete();
       if (ok) {
         setConfirmOpen(false);
         router.refresh();
-      } else {
-        setDeleteError("فشلت عملية الحذف");
       }
     } catch {
-      setDeleteError("حدث خطأ أثناء الحذف");
+      // silent
     }
   };
-
-  const deleteAction = actions.find((a) => a.icon && a.label === "حذف" || a.label === "إلغاء");
-  const otherActions = actions.filter((a) => a !== deleteAction);
 
   if (compact) {
     return (
@@ -94,7 +82,6 @@ export function RecordActionsMenu({
                       onClick={() => {
                         if (action.disabled) return;
                         if (onDelete) {
-                          setPendingDelete(() => action.onClick);
                           setConfirmOpen(true);
                         } else {
                           action.onClick();
@@ -123,7 +110,7 @@ export function RecordActionsMenu({
 
         <ConfirmDialog
           open={confirmOpen}
-          onClose={() => { setConfirmOpen(false); setDeleteError(""); }}
+           onClose={() => setConfirmOpen(false)}
           onConfirm={confirmDelete}
           title={deleteConfirmTitle}
           message={deleteConfirmMessage}
@@ -180,7 +167,7 @@ export function RecordActionsMenu({
 
       <ConfirmDialog
         open={confirmOpen}
-        onClose={() => { setConfirmOpen(false); setDeleteError(""); }}
+        onClose={() => setConfirmOpen(false)}
         onConfirm={confirmDelete}
         title={deleteConfirmTitle}
         message={deleteConfirmMessage}
@@ -216,7 +203,7 @@ export function editLinkAction(href: string, router: ReturnType<typeof useRouter
   };
 }
 
-export function printLinkAction(href: string, router: ReturnType<typeof useRouter>): ActionItem {
+export function printLinkAction(href: string, _router?: ReturnType<typeof useRouter>): ActionItem {
   return {
     label: "طباعة",
     icon: <Printer className="h-4 w-4" />,
@@ -251,6 +238,44 @@ export function downloadCsvAction<T>(
       a.click();
       URL.revokeObjectURL(url);
     },
+  };
+}
+
+export function pdfLinkAction(href: string): ActionItem {
+  return {
+    label: "تنزيل PDF",
+    icon: <FileDown className="h-4 w-4" />,
+    onClick: () => window.open(href, "_blank"),
+  };
+}
+
+export function excelPlaceholderAction(): ActionItem {
+  return {
+    label: "تنزيل Excel",
+    icon: <FileSpreadsheet className="h-4 w-4" />,
+    onClick: () => alert("تصدير Excel سيتم تفعيله قريبًا"),
+    disabled: true,
+    disabledReason: "تصدير Excel سيتم تفعيله قريبًا",
+  };
+}
+
+export function cancelAction(disabledReason?: string): ActionItem {
+  return {
+    label: "إلغاء",
+    icon: <Ban className="h-4 w-4" />,
+    onClick: () => {},
+    disabled: true,
+    disabledReason: disabledReason || "سيتم تفعيله قريبًا",
+  };
+}
+
+export function disabledAction(label: string, icon: React.ReactNode, reason?: string): ActionItem {
+  return {
+    label,
+    icon,
+    onClick: () => {},
+    disabled: true,
+    disabledReason: reason || "سيتم تفعيله قريبًا",
   };
 }
 

@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   BarChart3, PieChart, TrendingUp, Users, Store,
   Receipt, ShoppingCart, DollarSign, Landmark, Search, Star,
-  Download, ArrowLeft,
+  Printer, Link2,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Button } from "@/components/ui/button";
+import { RecordActionsMenu, pdfLinkAction, excelPlaceholderAction, toastAction, disabledAction } from "@/components/ui/RecordActionsMenu";
 
 interface ReportCard {
   title: string;
@@ -16,7 +15,6 @@ interface ReportCard {
   icon: React.ReactNode;
   category: string;
   gradient: string;
-  href: string;
   popular?: boolean;
 }
 
@@ -33,47 +31,47 @@ const reports: ReportCard[] = [
   {
     title: "ملخص الإيرادات", description: "تحليل شامل للإيرادات والمبيعات خلال الفترة",
     icon: <DollarSign className="h-6 w-6" />, category: "مالية",
-    gradient: "linear-gradient(135deg, #7c3aed, #a855f7)", href: "#",
+    gradient: "linear-gradient(135deg, #7c3aed, #a855f7)",
   },
   {
     title: "المبيعات اليومية", description: "تقرير تفصيلي للمبيعات اليومية والفواتير",
     icon: <Receipt className="h-6 w-6" />, category: "مبيعات",
-    gradient: "linear-gradient(135deg, #10b981, #34d399)", href: "#",
+    gradient: "linear-gradient(135deg, #10b981, #34d399)",
   },
   {
     title: "تقارير ضريبة VAT", description: "ملخص ضريبة القيمة المضافة والفواتير الضريبية",
     icon: <PieChart className="h-6 w-6" />, category: "ضرائب",
-    gradient: "linear-gradient(135deg, #f59e0b, #fbbf24)", href: "#",
+    gradient: "linear-gradient(135deg, #f59e0b, #fbbf24)",
   },
   {
     title: "التقارير المالية", description: "الميزانية والأرباح والخسائر والتدفقات النقدية",
     icon: <BarChart3 className="h-6 w-6" />, category: "مالية",
-    gradient: "linear-gradient(135deg, #06b6d4, #22d3ee)", href: "#",
+    gradient: "linear-gradient(135deg, #06b6d4, #22d3ee)",
   },
   {
     title: "تقارير العملاء", description: "تحليل قاعدة العملاء وأكبر العملاء والمبيعات لكل عميل",
     icon: <Users className="h-6 w-6" />, category: "عملاء",
-    gradient: "linear-gradient(135deg, #ec4899, #f472b6)", href: "#",
+    gradient: "linear-gradient(135deg, #ec4899, #f472b6)",
   },
   {
     title: "تقارير الموردين", description: "تحليل الموردين والمشتريات لكل مورد",
     icon: <Store className="h-6 w-6" />, category: "عملاء",
-    gradient: "linear-gradient(135deg, #8b5cf6, #a78bfa)", href: "#",
+    gradient: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
   },
   {
     title: "المشتريات", description: "تقرير المشتريات وأوامر الشراء",
     icon: <ShoppingCart className="h-6 w-6" />, category: "مشتريات",
-    gradient: "linear-gradient(135deg, #ef4444, #f87171)", href: "#",
+    gradient: "linear-gradient(135deg, #ef4444, #f87171)",
   },
   {
     title: "المقبوضات والمدفوعات", description: "ملخص الحركات النقدية والبنكية",
     icon: <Landmark className="h-6 w-6" />, category: "مالية",
-    gradient: "linear-gradient(135deg, #6366f1, #818cf8)", href: "#",
+    gradient: "linear-gradient(135deg, #6366f1, #818cf8)",
   },
   {
     title: "تقارير الأرباح", description: "الأرباح التقديرية وصافي الربح",
     icon: <TrendingUp className="h-6 w-6" />, category: "مالية",
-    gradient: "linear-gradient(135deg, #14b8a6, #2dd4bf)", href: "#",
+    gradient: "linear-gradient(135deg, #14b8a6, #2dd4bf)",
   },
 ];
 
@@ -103,12 +101,6 @@ export default function ReportsPage() {
         title="مركز التقارير"
         description="التقارير المالية والتشغيلية للمنشأة"
         count={reports.length}
-        action={
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <Download className="h-4 w-4" />
-            تصدير
-          </Button>
-        }
       />
 
       {/* Favorites */}
@@ -123,9 +115,9 @@ export default function ReportsPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {reports.filter((r) => favorites.has(r.title)).map((r) => (
-              <Link
+              <button
                 key={r.title}
-                href={r.href}
+                onClick={() => toggleFav(r.title)}
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
                 style={{
                   backgroundColor: "var(--surface)",
@@ -137,7 +129,7 @@ export default function ReportsPage() {
                   {r.icon}
                 </div>
                 {r.title}
-              </Link>
+              </button>
             ))}
           </div>
         </div>
@@ -235,13 +227,16 @@ export default function ReportsPage() {
                     >
                       {r.category}
                     </span>
-                    <Link
-                      href={r.href}
-                      className="inline-flex items-center gap-1 text-xs font-semibold transition-colors"
-                      style={{ color: "var(--primary)" }}
-                    >
-                      فتح التقرير <ArrowLeft className="h-3 w-3" />
-                    </Link>
+                    <RecordActionsMenu
+                      actions={[
+                        disabledAction("فتح التقرير", <BarChart3 className="h-4 w-4" />, "التقارير قيد التطوير"),
+                        pdfLinkAction("#"),
+                        excelPlaceholderAction(),
+                        toastAction("طباعة", <Printer className="h-4 w-4" />, "طباعة التقرير سيتم تفعيلها قريبًا"),
+                        toastAction("نسخ الرابط", <Link2 className="h-4 w-4" />, `تم نسخ رابط ${r.title}`),
+                      ]}
+                      compact
+                    />
                   </div>
                 </div>
               </div>

@@ -4,7 +4,7 @@ import { DataTable, type Column } from "@/components/ui/DataTable";
 import { useApi } from "@/lib/hooks/use-api";
 import type { Account } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { RecordActionsMenu, downloadCsvAction, futureAction } from "@/components/ui/RecordActionsMenu";
+import { RecordActionsMenu, downloadCsvAction, futureAction, excelPlaceholderAction } from "@/components/ui/RecordActionsMenu";
 import { Eye, Pencil } from "lucide-react";
 
 export default function ChartOfAccountsPage() {
@@ -24,6 +24,7 @@ export default function ChartOfAccountsPage() {
           actions={[
             futureAction("عرض", <Eye className="h-4 w-4" />),
             futureAction("تحرير", <Pencil className="h-4 w-4" />),
+            excelPlaceholderAction(),
             downloadCsvAction(data, "accounts", ["الرمز", "اسم الحساب", "النوع", "الحالة"], (row) => [row.number, row.name_ar, row.type, row.status === "active" ? "نشط" : "غير نشط"]),
           ]}
           compact

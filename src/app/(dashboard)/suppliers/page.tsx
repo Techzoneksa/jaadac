@@ -7,7 +7,7 @@ import { useApi } from "@/lib/hooks/use-api";
 import type { Supplier } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RecordActionsMenu, viewLinkAction, editLinkAction, downloadCsvAction, confirmDeleteAction } from "@/components/ui/RecordActionsMenu";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, downloadCsvAction, confirmDeleteAction, pdfLinkAction, excelPlaceholderAction } from "@/components/ui/RecordActionsMenu";
 import { FileText, ScrollText, HandCoins, ShoppingCart } from "lucide-react";
 
 export default function SuppliersPage() {
@@ -36,6 +36,8 @@ export default function SuppliersPage() {
               { label: "إنشاء أمر شراء", icon: <ShoppingCart className="h-4 w-4" />, onClick: () => router.push(`/purchases/orders/new?supplierId=${r.id}`) },
               { label: "سند صرف", icon: <HandCoins className="h-4 w-4" />, onClick: () => router.push(`/cash/payments/new?supplierId=${r.id}`) },
               { label: "كشف حساب", icon: <ScrollText className="h-4 w-4" />, onClick: () => router.push(`/suppliers/${r.id}/statement`) },
+              pdfLinkAction(`/suppliers/${r.id}`),
+              excelPlaceholderAction(),
               downloadCsvAction(data, "suppliers", ["الاسم (عربي)", "الاسم (إنجليزي)", "النوع", "الجوال", "البريد الإلكتروني", "المدينة", "الحالة"], (row) => [row.name_ar, row.name_en, row.type, row.mobile || "", row.email || "", row.city || "", row.status]),
               deleteAction,
             ]}

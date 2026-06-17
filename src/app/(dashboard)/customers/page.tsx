@@ -7,7 +7,7 @@ import { useApi } from "@/lib/hooks/use-api";
 import type { Customer } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RecordActionsMenu, viewLinkAction, editLinkAction, downloadCsvAction, confirmDeleteAction } from "@/components/ui/RecordActionsMenu";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, downloadCsvAction, confirmDeleteAction, pdfLinkAction, excelPlaceholderAction } from "@/components/ui/RecordActionsMenu";
 import { FileText, ScrollText, HandCoins } from "lucide-react";
 
 export default function CustomersPage() {
@@ -36,6 +36,8 @@ export default function CustomersPage() {
               { label: "إنشاء عرض سعر", icon: <FileText className="h-4 w-4" />, onClick: () => router.push(`/sales/quotations/new?customerId=${r.id}`) },
               { label: "سند قبض", icon: <HandCoins className="h-4 w-4" />, onClick: () => router.push(`/cash/receipts/new?customerId=${r.id}`) },
               { label: "كشف حساب", icon: <ScrollText className="h-4 w-4" />, onClick: () => router.push(`/customers/${r.id}/statement`) },
+              pdfLinkAction(`/customers/${r.id}`),
+              excelPlaceholderAction(),
               downloadCsvAction(data, "customers", ["الاسم (عربي)", "الاسم (إنجليزي)", "النوع", "الجوال", "البريد الإلكتروني", "المدينة", "الحالة"], (row) => [row.name_ar, row.name_en, row.type, row.mobile || "", row.email || "", row.city || "", row.status]),
               deleteAction,
             ]}

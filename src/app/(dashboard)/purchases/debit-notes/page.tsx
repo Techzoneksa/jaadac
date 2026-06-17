@@ -1,1 +1,80 @@
-"use client";import { PageHeader } from "@/components/ui/PageHeader";import { DataTable, type Column } from "@/components/ui/DataTable";import { Button } from "@/components/ui/button";import { MoneyDisplay } from "@/components/ui/MoneyDisplay";import { StatusBadge } from "@/components/ui/StatusBadge";import { useApi } from "@/lib/hooks/use-api";import { useRouter } from "next/navigation";import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction } from "@/components/ui/RecordActionsMenu";import Link from "next/link";import { Ban, XCircle } from "lucide-react";interface DNRec { id: string; number: string; date: string; supplier_name: string; total: number; status: string;}export default function DebitNotesPage() {  const { data, loading, error } = useApi<DNRec>("/api/debit-notes");  const router = useRouter();  const columns: Column<DNRec>[] = [    { key: "number", header: "الرقم" },    { key: "date", header: "التاريخ" },    { key: "supplier_name", header: "المورد" },    { key: "status", header: "الحالة", render: (r) => <StatusBadge status={r.status} /> },    { key: "total", header: "الإجمالي", render: (r) => <MoneyDisplay amount={r.total} /> },    { key: "actions", header: "إجراءات", render: (r) => {      const { action: deleteAction, onDelete } = confirmDeleteAction(r.id, "/api/debit-notes", router);      return (        <RecordActionsMenu          actions={[            viewLinkAction(`/purchases/debit-notes/${r.id}`, router),            editLinkAction(`/purchases/debit-notes/${r.id}/edit`, router),            printLinkAction(`/purchases/debit-notes/${r.id}/print`, router),            downloadCsvAction(data, "debit-notes", ["الرقم","التاريخ","المورد","الحالة","الإجمالي"], (row: DNRec) => [row.number,row.date,row.supplier_name,row.status,String(row.total)]),            futureAction("إصدار", <Ban className="h-4 w-4" />),            { label: "إلغاء", icon: <XCircle className="h-4 w-4" />, onClick: () => {}, disabled: true },            deleteAction,          ]}          onDelete={onDelete}          deleteConfirmTitle="تأكيد الحذف"          deleteConfirmMessage="هل أنت متأكد من حذف إشعار المدين هذا؟"          compact        />      );    } },  ];  return (    <div>      <PageHeader title="إشعارات مدينة"        action={<Link href="/purchases/debit-notes/new"><Button>إشعار مدين جديد</Button></Link>} />      <DataTable columns={columns} data={data} keyExtractor={(r) => r.id}        isLoading={loading} error={error}        emptyTitle="لا توجد إشعارات مدينة" />    </div>  );}
+"use client";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { DataTable, type Column } from "@/components/ui/DataTable";
+import { Button } from "@/components/ui/button";
+import { MoneyDisplay } from "@/components/ui/MoneyDisplay";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { useApi } from "@/lib/hooks/use-api";
+import { useRouter } from "next/navigation";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, pdfLinkAction, excelPlaceholderAction, downloadCsvAction, confirmDeleteAction, futureAction, cancelAction } from "@/components/ui/RecordActionsMenu";
+import Link from "next/link";
+import { Ban } from "lucide-react";
+
+interface DNRec {
+  id: string;
+  number: string;
+  date: string;
+  supplier_name: string;
+  total: number;
+  status: string;
+}
+
+export default function DebitNotesPage() {
+  const { data, loading, error } = useApi<DNRec>("/api/debit-notes");
+  const router = useRouter();
+
+  const columns: Column<DNRec>[] = [
+    { key: "number", header: "الرقم" },
+    { key: "date", header: "التاريخ" },
+    { key: "supplier_name", header: "المورد" },
+    { key: "status", header: "الحالة", render: (r) => <StatusBadge status={r.status} /> },
+    { key: "total", header: "الإجمالي", render: (r) => <MoneyDisplay amount={r.total} /> },
+    {
+      key: "actions",
+      header: "إجراءات",
+      render: (r) => {
+        const { action: deleteAction, onDelete } = confirmDeleteAction(r.id, "/api/debit-notes", router);
+        return (
+          <RecordActionsMenu
+            actions={[
+              viewLinkAction(`/purchases/debit-notes/${r.id}`, router),
+              editLinkAction(`/purchases/debit-notes/${r.id}/edit`, router),
+              printLinkAction(`/purchases/debit-notes/${r.id}/print`, router),
+              pdfLinkAction(`/purchases/debit-notes/${r.id}/print`),
+              excelPlaceholderAction(),
+              downloadCsvAction(data, "debit-notes", ["الرقم","التاريخ","المورد","الحالة","الإجمالي"], (row: DNRec) => [row.number,row.date,row.supplier_name,row.status,String(row.total)]),
+              futureAction("إصدار", <Ban className="h-4 w-4" />),
+              cancelAction(),
+              deleteAction,
+            ]}
+            onDelete={onDelete}
+            deleteConfirmTitle="تأكيد الحذف"
+            deleteConfirmMessage="هل أنت متأكد من حذف الإشعار المدين؟"
+            compact
+          />
+        );
+      },
+    },
+  ];
+
+  return (
+    <div>
+      <PageHeader
+        title="إشعارات مدينة"
+        action={
+          <Link href="/purchases/debit-notes/new">
+            <Button>إشعار مدين جديد</Button>
+          </Link>
+        }
+      />
+      <DataTable
+        columns={columns}
+        data={data}
+        keyExtractor={(r) => r.id}
+        isLoading={loading}
+        error={error}
+        emptyTitle="لا توجد إشعارات مدينة"
+      />
+    </div>
+  );
+}

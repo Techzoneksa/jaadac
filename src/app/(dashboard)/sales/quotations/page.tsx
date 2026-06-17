@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useApi } from "@/lib/hooks/use-api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction, toastAction } from "@/components/ui/RecordActionsMenu";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction, toastAction, pdfLinkAction, excelPlaceholderAction } from "@/components/ui/RecordActionsMenu";
 import { Copy, ArrowLeftRight } from "lucide-react";
 
 interface Quotation {
@@ -35,6 +35,8 @@ function ActionsCell({ record }: { record: Quotation }) {
     viewLinkAction(`/sales/quotations/${record.id}`, router),
     editLinkAction(`/sales/quotations/${record.id}/edit`, router),
     printLinkAction(`/sales/quotations/${record.id}/print`, router),
+    pdfLinkAction(`/sales/quotations/${record.id}/print`),
+    excelPlaceholderAction(),
     downloadCsvAction(
       [record],
       `quotation-${record.number}`,

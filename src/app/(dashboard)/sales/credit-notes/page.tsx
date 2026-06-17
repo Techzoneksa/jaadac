@@ -7,8 +7,8 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useApi } from "@/lib/hooks/use-api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction } from "@/components/ui/RecordActionsMenu";
-import { CheckCircle, Ban } from "lucide-react";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, printLinkAction, downloadCsvAction, confirmDeleteAction, futureAction, pdfLinkAction, excelPlaceholderAction, cancelAction } from "@/components/ui/RecordActionsMenu";
+import { CheckCircle } from "lucide-react";
 
 interface CNRec {
   id: string;
@@ -35,6 +35,8 @@ function ActionsCell({ record }: { record: CNRec }) {
     viewLinkAction(`/sales/credit-notes/${record.id}`, router),
     editLinkAction(`/sales/credit-notes/${record.id}/edit`, router),
     printLinkAction(`/sales/credit-notes/${record.id}/print`, router),
+    pdfLinkAction(`/sales/credit-notes/${record.id}/print`),
+    excelPlaceholderAction(),
     downloadCsvAction(
       [record],
       `credit-note-${record.number}`,
@@ -42,7 +44,7 @@ function ActionsCell({ record }: { record: CNRec }) {
       (r) => [r.number, r.date, r.customer_name, String(r.total), r.status],
     ),
     futureAction("إصدار", <CheckCircle className="h-4 w-4" />),
-    { label: "إلغاء", icon: <Ban className="h-4 w-4" />, onClick: () => {}, disabled: true },
+    cancelAction(),
     deleteConfig.action,
   ];
   return <RecordActionsMenu actions={actions} onDelete={deleteConfig.onDelete} compact />;

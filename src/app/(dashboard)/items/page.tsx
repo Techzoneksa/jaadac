@@ -6,7 +6,7 @@ import { useApi } from "@/lib/hooks/use-api";
 import type { Item } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RecordActionsMenu, viewLinkAction, editLinkAction, downloadCsvAction, confirmDeleteAction, futureAction } from "@/components/ui/RecordActionsMenu";
+import { RecordActionsMenu, viewLinkAction, editLinkAction, downloadCsvAction, confirmDeleteAction, futureAction, pdfLinkAction, excelPlaceholderAction } from "@/components/ui/RecordActionsMenu";
 import { ArrowLeftRight, FileText } from "lucide-react";
 
 export default function ItemsPage() {
@@ -31,6 +31,8 @@ export default function ItemsPage() {
               viewLinkAction(`/items/${r.id}`, router),
               editLinkAction(`/items/${r.id}`, router),
               { label: "حركة الصنف", icon: <ArrowLeftRight className="h-4 w-4" />, onClick: () => router.push(`/items/${r.id}/movements`) },
+              pdfLinkAction(`/items/${r.id}`),
+              excelPlaceholderAction(),
               futureAction("إنشاء فاتورة بهذا الصنف", <FileText className="h-4 w-4" />),
               downloadCsvAction(data, "items", ["الاسم (عربي)", "SKU", "النوع", "سعر البيع", "الكمية", "خاضع للضريبة"], (row) => [row.name_ar, row.sku || "", row.type, String(row.sales_price), String(row.qty ?? 0), row.taxable ? "نعم" : "لا"]),
               deleteAction,

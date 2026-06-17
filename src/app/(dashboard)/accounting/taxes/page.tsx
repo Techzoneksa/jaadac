@@ -4,7 +4,7 @@ import { DataTable, type Column } from "@/components/ui/DataTable";
 import { useApi } from "@/lib/hooks/use-api";
 import type { TaxRate } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { RecordActionsMenu, downloadCsvAction } from "@/components/ui/RecordActionsMenu";
+import { RecordActionsMenu, downloadCsvAction, excelPlaceholderAction, disabledAction } from "@/components/ui/RecordActionsMenu";
 import { Eye, Pencil } from "lucide-react";
 
 export default function TaxesPage() {
@@ -22,8 +22,9 @@ export default function TaxesPage() {
       render: () => (
         <RecordActionsMenu
           actions={[
-            { label: "عرض", icon: <Eye className="h-4 w-4" />, onClick: () => {}, disabled: true },
-            { label: "تحرير", icon: <Pencil className="h-4 w-4" />, onClick: () => {}, disabled: true },
+            disabledAction("عرض", <Eye className="h-4 w-4" />),
+            disabledAction("تحرير", <Pencil className="h-4 w-4" />),
+            excelPlaceholderAction(),
             downloadCsvAction(data, "taxes", ["الاسم", "النسبة", "النوع", "الحالة"], (row) => [row.name_ar, String(row.rate), row.tax_type, row.is_active ? "نشط" : "غير نشط"]),
           ]}
           compact
