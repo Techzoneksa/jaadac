@@ -127,3 +127,100 @@ export interface TaxRate {
   is_system?: boolean;
   created_at?: string;
 }
+
+export interface PurchaseOrder {
+  id: string;
+  tenant_id: string;
+  number: string;
+  date: string;
+  supplier_id?: string;
+  supplier_name?: string;
+  subtotal: number;
+  vat_total: number;
+  total: number;
+  status: "draft" | "sent" | "approved" | "converted" | "cancelled";
+  notes?: string;
+  lines?: PurchaseOrderLine[];
+  created_at?: string;
+}
+
+export interface PurchaseOrderLine {
+  id?: string;
+  purchase_order_id?: string;
+  item_id: string;
+  description: string;
+  qty: number;
+  unit_price: number;
+  vat_rate: number;
+  total: number;
+}
+
+export interface CreditNote {
+  id: string;
+  tenant_id: string;
+  number: string;
+  date: string;
+  customer_id?: string;
+  customer_name?: string;
+  invoice_id?: string;
+  subtotal: number;
+  vat_total: number;
+  total: number;
+  status: "draft" | "issued" | "cancelled";
+  notes?: string;
+  lines?: CreditNoteLine[];
+  created_at?: string;
+}
+
+export interface CreditNoteLine {
+  id?: string;
+  credit_note_id?: string;
+  item_id: string;
+  description: string;
+  qty: number;
+  unit_price: number;
+  vat_rate: number;
+  total: number;
+}
+
+export interface DebitNote {
+  id: string;
+  tenant_id: string;
+  number: string;
+  date: string;
+  supplier_id?: string;
+  supplier_name?: string;
+  invoice_id?: string;
+  subtotal: number;
+  vat_total: number;
+  total: number;
+  status: "draft" | "issued" | "cancelled";
+  notes?: string;
+  lines?: DebitNoteLine[];
+  created_at?: string;
+}
+
+export interface DebitNoteLine {
+  id?: string;
+  debit_note_id?: string;
+  item_id: string;
+  description: string;
+  qty: number;
+  unit_price: number;
+  vat_rate: number;
+  total: number;
+}
+
+export interface CompanySettings {
+  id: string;
+  tenant_id: string;
+  name_ar: string;
+  name_en: string;
+  vat: string;
+  cr?: string;
+  phone?: string;
+  email?: string;
+  city?: string;
+  address?: string;
+  logo_url?: string;
+}

@@ -32,7 +32,7 @@ export default function EditInvoicePage() {
   return (
     <div>
       <PageHeader title={`فاتورة #${invoice.number}`} description={`تاريخ: ${invoice.date}`}
-        action={<Button variant="outline" onClick={() => router.back()}>رجوع</Button>} />
+        action={<div className="flex gap-2"><Button variant="outline" onClick={() => router.push(`/sales/invoices/${params.id}/print`)}>طباعة</Button><Button variant="outline" onClick={() => router.back()}>رجوع</Button></div>} />
       <Card>
         <CardContent className="p-6">
           <div className="grid gap-4 sm:grid-cols-3 mb-4">
