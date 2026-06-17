@@ -52,8 +52,8 @@ export default async function DashboardPage() {
   }
 
   const [cc, sc, si, pi, ri, rc, rs, ps] = await Promise.all([
-    safeCount(uid ? supabase!.from("customers").select("*", { count: "exact", head: true }).eq("tenant_id", uid) : null),
-    safeCount(uid ? supabase!.from("suppliers").select("*", { count: "exact", head: true }).eq("tenant_id", uid) : null),
+    safeCount(uid ? supabase!.from("customers").select("*", { count: "exact", head: false }).eq("tenant_id", uid) : null),
+    safeCount(uid ? supabase!.from("suppliers").select("*", { count: "exact", head: false }).eq("tenant_id", uid) : null),
     safeSum(uid ? supabase!.from("invoices").select("total,vat_total", { count: "exact", head: false }).eq("tenant_id", uid).eq("type", "sale") : null),
     safeSum(uid ? supabase!.from("invoices").select("total", { count: "exact", head: false }).eq("tenant_id", uid).eq("type", "purchase") : null),
     safeList<Array<Record<string, unknown>>>(

@@ -39,19 +39,24 @@ export default function DashboardError({ error, reset }: { error: Error; reset: 
   const cls = classifyDbError(error);
   const c = CONFIG[cls.type] || CONFIG.UNKNOWN_DB_ERROR;
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="h-16 w-16 rounded-2xl bg-danger/10 flex items-center justify-center mb-4">
-        <span className="text-3xl font-bold text-danger">!</span>
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div
+        className="h-16 w-16 rounded-2xl flex items-center justify-center mb-4"
+        style={{ backgroundColor: "var(--danger-soft)" }}
+      >
+        <span className="text-3xl font-bold" style={{ color: "var(--danger)" }}>!</span>
       </div>
-      <h1 className="text-xl font-bold text-foreground mb-2">{c.title}</h1>
-      <p className="text-muted max-w-sm mb-6">{c.desc}</p>
+      <h1 className="text-xl font-bold mb-2" style={{ color: "var(--fg)" }}>{c.title}</h1>
+      <p className="max-w-sm mb-6" style={{ color: "var(--text-muted)" }}>{c.desc}</p>
       <div className="flex gap-3">
         {c.btnHref ? (
-          <a href={c.btnHref} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-dark transition-colors">
+          <a href={c.btnHref} className="rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)" }}>
             {c.btn}
           </a>
         ) : (
-          <button onClick={() => reset()} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-dark transition-colors">
+          <button onClick={() => reset()} className="rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)" }}>
             {c.btn}
           </button>
         )}

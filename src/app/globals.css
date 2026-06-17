@@ -78,12 +78,12 @@
   --danger-soft: #fef2f2;
   --info-soft: #ecfeff;
 
-  --sidebar-bg: #faf9fe;
+  --sidebar-bg: linear-gradient(180deg, #f3e8ff 0%, #ede9fe 40%, #fdf4ff 100%);
   --sidebar-active: linear-gradient(135deg, #7c3aed, #a855f7);
-  --sidebar-hover: #f0eaff;
-  --sidebar-text: #1e1b2e;
-  --sidebar-muted: #8a84a8;
-  --sidebar-border: #e4e0ee;
+  --sidebar-hover: rgba(124, 58, 237, 0.1);
+  --sidebar-text: #2d2350;
+  --sidebar-muted: #7c6ca0;
+  --sidebar-border: #dcd0f0;
 
   --topbar-bg: rgba(255, 255, 255, 0.82);
 }

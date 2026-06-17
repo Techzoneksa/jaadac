@@ -8,7 +8,7 @@ interface TopbarProps {
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
 
   const handleCommandPalette = () => {
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }));
@@ -69,11 +69,10 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           style={{ color: "var(--text-muted)" }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--surface)"}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-          aria-label={theme === "light" ? "الوضع الليلي" : "الوضع النهاري"}
+          aria-label="الوضع الليلي"
         >
-          <div className="transition-transform duration-300" style={{ transform: theme === "dark" ? "rotate(180deg)" : "none" }}>
-            {theme === "light" ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
-          </div>
+          <Moon className="h-[18px] w-[18px] dark:hidden" />
+          <Sun className="h-[18px] w-[18px] hidden dark:block" />
         </button>
 
         {/* Notifications */}
@@ -89,7 +88,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             className="absolute top-2 right-2 h-2 w-2 rounded-full border-2"
             style={{
               backgroundColor: "var(--danger)",
-              borderColor: theme === "dark" ? "var(--sidebar-bg)" : "white",
+              borderColor: "var(--card)",
             }}
           />
         </button>

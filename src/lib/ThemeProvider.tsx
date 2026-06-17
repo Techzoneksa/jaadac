@@ -21,18 +21,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("jaad-theme") as Theme | null;
-    if (stored === "dark" || stored === "light") {
-      setThemeState(stored);
+    try {
+      const stored = localStorage.getItem("jaad-theme") as Theme | null;
+      if (stored === "dark" || stored === "light") {
+        setThemeState(stored);
+      }
+    } catch {
+      // localStorage not available (SSR / private browsing)
     }
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("jaad-theme", theme);
-  }, [theme, mounted]);
+    try {
+      localStorage.setItem("jaad-theme", theme);
+    } catch {
+      // localStorage not available
+    }
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
     setThemeState((prev) => (prev === "light" ? "dark" : "light"));
@@ -41,10 +48,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
   }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
