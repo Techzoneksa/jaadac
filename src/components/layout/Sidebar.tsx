@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Package, BarChart3, Settings,
   ChevronLeft, FileText, Receipt, Banknote, Network, Tags,
   ScrollText, Menu, Users, Store, ShoppingCart, LogOut,
+  CreditCard, ArrowLeftRight, Building2,
 } from "lucide-react";
 
 interface NavItem {
@@ -30,6 +31,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "عروض الأسعار", href: "/sales/quotations", icon: <FileText className="h-5 w-5" /> },
       { label: "فواتير المبيعات", href: "/sales/invoices", icon: <Receipt className="h-5 w-5" /> },
+      { label: "إشعارات دائنة", href: "/sales/credit-notes", icon: <CreditCard className="h-5 w-5" /> },
       { label: "سندات القبض", href: "/cash/receipts", icon: <Banknote className="h-5 w-5" /> },
       { label: "العملاء", href: "/customers", icon: <Users className="h-5 w-5" /> },
     ],
@@ -38,7 +40,9 @@ const navGroups: NavGroup[] = [
     label: "المشتريات",
     items: [
       { label: "فواتير المشتريات", href: "/purchases/invoices", icon: <ScrollText className="h-5 w-5" /> },
-      { label: "سندات الصرف", href: "/cash/payments", icon: <ShoppingCart className="h-5 w-5" /> },
+      { label: "أوامر الشراء", href: "/purchases/orders", icon: <ShoppingCart className="h-5 w-5" /> },
+      { label: "إشعارات مدينة", href: "/purchases/debit-notes", icon: <ArrowLeftRight className="h-5 w-5" /> },
+      { label: "سندات الصرف", href: "/cash/payments", icon: <Building2 className="h-5 w-5" /> },
       { label: "الموردون", href: "/suppliers", icon: <Store className="h-5 w-5" /> },
     ],
   },
@@ -70,12 +74,6 @@ const navGroups: NavGroup[] = [
   },
 ];
 
-const sidebarBg = "#0f172a";
-const activeBg = "rgba(255,255,255,0.14)";
-const hoverBg = "rgba(255,255,255,0.08)";
-const textColor = "#ffffff";
-const mutedText = "rgba(255,255,255,0.6)";
-
 function NavItemLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const pathname = usePathname();
   const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
@@ -85,19 +83,24 @@ function NavItemLink({ item, collapsed }: { item: NavItem; collapsed: boolean })
       <Link
         href={item.href}
         className={cn(
-          "flex items-center justify-center p-2.5 rounded-lg transition-all duration-150",
-          isActive
-            ? "shadow-sm"
-            : "",
+          "flex items-center justify-center p-2.5 rounded-xl transition-all duration-150 relative group",
+          isActive && "",
         )}
         style={{
-          color: isActive ? textColor : mutedText,
-          backgroundColor: isActive ? activeBg : "transparent",
+          background: isActive ? "var(--sidebar-active)" : "transparent",
+          color: isActive ? "#ffffff" : "var(--sidebar-muted)",
         }}
         title={item.label}
-        onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = hoverBg; }}
-        onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
+        onMouseEnter={(e) => {
+          if (!isActive) e.currentTarget.style.background = "var(--sidebar-hover)";
+        }}
+        onMouseLeave={(e) => {
+          if (!isActive) e.currentTarget.style.background = "transparent";
+        }}
       >
+        {isActive && (
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-white/60" />
+        )}
         {item.icon}
       </Link>
     );
@@ -107,17 +110,25 @@ function NavItemLink({ item, collapsed }: { item: NavItem; collapsed: boolean })
     <Link
       href={item.href}
       className={cn(
-        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
+        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 group relative",
         isActive ? "font-medium" : "",
       )}
       style={{
-        color: isActive ? textColor : mutedText,
-        backgroundColor: isActive ? activeBg : "transparent",
+        background: isActive ? "var(--sidebar-active)" : "transparent",
+        color: isActive ? "#ffffff" : "var(--sidebar-muted)",
       }}
-      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = hoverBg; }}
-      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
+      onMouseEnter={(e) => {
+        if (!isActive) e.currentTarget.style.background = "var(--sidebar-hover)";
+        if (!isActive) e.currentTarget.style.color = "var(--sidebar-text)";
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--sidebar-muted)"; }
+      }}
     >
-      <span className="shrink-0" style={{ color: isActive ? textColor : mutedText }}>{item.icon}</span>
+      {isActive && (
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-white/60" />
+      )}
+      <span className="shrink-0">{item.icon}</span>
       <span>{item.label}</span>
     </Link>
   );
@@ -137,8 +148,8 @@ function NavGroupSection({ group, collapsed }: { group: NavGroup; collapsed: boo
   return (
     <div>
       <p
-        className="px-3 mb-1 text-xs font-medium tracking-wide"
-        style={{ color: mutedText }}
+        className="px-3 mb-1.5 text-xs font-semibold tracking-wider uppercase"
+        style={{ color: "var(--sidebar-muted)" }}
       >
         {group.label}
       </p>
@@ -166,112 +177,114 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
     <>
       {collapsed ? (
         <aside
-          className="flex flex-col w-16 shrink-0 z-20"
-          style={{ backgroundColor: sidebarBg }}
+          className="flex flex-col w-16 shrink-0 z-30 border-l"
+          style={{ backgroundColor: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)" }}
         >
           <div
-            className="flex items-center justify-center h-14"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+            className="flex items-center justify-center h-16"
+            style={{ borderBottom: "1px solid var(--sidebar-border)" }}
           >
             <button
               onClick={onToggle}
-              className="p-2 rounded-md transition-colors"
-              style={{ color: mutedText }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+              className="p-2 rounded-xl transition-colors"
+              style={{ color: "var(--sidebar-muted)" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               title="توسيع القائمة"
             >
               <Menu className="h-5 w-5" />
             </button>
           </div>
-          <nav className="flex-1 overflow-y-auto p-2 space-y-3 py-3">
+          <nav className="flex-1 overflow-y-auto p-2 space-y-3 py-4">
             {navGroups.map((group) => (
               <NavGroupSection key={group.label} group={group} collapsed={true} />
             ))}
           </nav>
-          <div>
+          <div
+            className="py-2"
+            style={{ borderTop: "1px solid var(--sidebar-border)" }}
+          >
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center p-2.5 rounded-lg transition-all duration-150 w-full"
-              style={{ color: mutedText }}
+              className="flex items-center justify-center p-2.5 rounded-xl transition-all duration-150 w-full"
+              style={{ color: "var(--sidebar-muted)" }}
               title="تسجيل الخروج"
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
               <LogOut className="h-5 w-5" />
             </button>
           </div>
-          <div
-            className="p-2"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <p className="text-[10px] text-center" style={{ color: mutedText }}>v0.1</p>
+          <div className="p-2 pb-3">
+            <p className="text-[10px] text-center" style={{ color: "var(--sidebar-muted)" }}>v0.1</p>
           </div>
         </aside>
       ) : (
         <aside
-          className="flex flex-col w-64 shrink-0 z-20"
-          style={{ backgroundColor: sidebarBg }}
+          className="flex flex-col w-64 shrink-0 z-30 border-l"
+          style={{ backgroundColor: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)" }}
         >
+          {/* Logo */}
           <div
-            className="flex items-center justify-between h-14 px-4"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+            className="flex items-center justify-between h-16 px-4"
+            style={{ borderBottom: "1px solid var(--sidebar-border)" }}
           >
             <div className="flex items-center gap-2.5">
               <div
-                className="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm"
+                className="h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm"
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.15)",
-                  color: textColor,
+                  background: "var(--sidebar-active)",
+                  color: "#ffffff",
                 }}
               >
                 ج
               </div>
-              <span
-                className="text-lg font-bold tracking-tight"
-                style={{ color: textColor }}
-              >
-                جاد كلاود
-              </span>
+              <div>
+                <span
+                  className="text-base font-bold tracking-tight block"
+                  style={{ color: "var(--sidebar-text)" }}
+                >
+                  جاد كلاود
+                </span>
+                <span className="text-[10px]" style={{ color: "var(--sidebar-muted)" }}>
+                  نظام المحاسبة السحابي
+                </span>
+              </div>
             </div>
             <button
               onClick={onToggle}
-              className="p-1.5 rounded-md transition-colors"
-              style={{ color: mutedText }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ color: "var(--sidebar-muted)" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--sidebar-hover)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               title="طي القائمة"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
           </div>
-          <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
+
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
             {navGroups.map((group) => (
               <NavGroupSection key={group.label} group={group} collapsed={false} />
             ))}
           </nav>
-          <div
-            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
-          >
+
+          {/* Bottom */}
+          <div style={{ borderTop: "1px solid var(--sidebar-border)" }}>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 mx-3 rounded-lg text-sm transition-all duration-150 w-[calc(100%-1.5rem)]"
-              style={{ color: mutedText }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBg}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+              className="flex items-center gap-3 px-3 py-2.5 mx-3 my-2 rounded-xl text-sm transition-all duration-150 w-[calc(100%-1.5rem)]"
+              style={{ color: "var(--sidebar-muted)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--sidebar-hover)"; e.currentTarget.style.color = "var(--sidebar-text)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--sidebar-muted)"; }}
             >
               <LogOut className="h-5 w-5 shrink-0" />
               <span>تسجيل الخروج</span>
             </button>
           </div>
-          <div
-            className="p-3"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <p
-              className="text-xs text-center"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-            >
+          <div className="p-3 pb-4">
+            <p className="text-xs text-center" style={{ color: "var(--sidebar-muted)" }}>
               JAAD CLOUD v0.1.0
             </p>
           </div>

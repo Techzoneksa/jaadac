@@ -1,1 +1,44 @@
-import { cn } from "@/lib/utils";const statusStyles: Record<string, string> = {  draft: "bg-gray-100 text-gray-700 border-gray-200",  posted: "bg-blue-100 text-blue-700 border-blue-200",  confirmed: "bg-blue-100 text-blue-700 border-blue-200",  paid: "bg-green-100 text-green-700 border-green-200",  overdue: "bg-red-100 text-red-700 border-red-200",  sent: "bg-yellow-100 text-yellow-700 border-yellow-200",  accepted: "bg-green-100 text-green-700 border-green-200",  rejected: "bg-red-100 text-red-700 border-red-200",  cancelled: "bg-gray-100 text-gray-500 border-gray-200 line-through",  active: "bg-green-100 text-green-700 border-green-200",  inactive: "bg-gray-100 text-gray-500 border-gray-200",};const statusLabels: Record<string, string> = {  draft: "مسودة",  posted: "مرحّل",  confirmed: "مؤكد",  paid: "مدفوع",  overdue: "متأخر",  sent: "مرسل",  accepted: "مقبول",  rejected: "مرفوض",  cancelled: "ملغي",  active: "نشط",  inactive: "غير نشط",};interface StatusBadgeProps {  status: string;  label?: string;  className?: string;}export function StatusBadge({ status, label, className }: StatusBadgeProps) {  return (    <span      className={cn(        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",        statusStyles[status],        className,      )}    >      {label || statusLabels[status]}    </span>  );}
+import { cn } from "@/lib/utils";
+
+const statusConfig: Record<string, { label: string; dot: string; bg: string }> = {
+  draft:     { label: "مسودة",     dot: "#94a3b8", bg: "bg-surface text-muted" },
+  issued:    { label: "صادر",       dot: "#7c3aed", bg: "bg-primary-soft text-primary" },
+  sent:      { label: "مرسل",       dot: "#f59e0b", bg: "bg-warning-soft text-warning" },
+  paid:      { label: "مدفوع",      dot: "#10b981", bg: "bg-success-soft text-success" },
+  partial:   { label: "مدفوع جزئي", dot: "#f59e0b", bg: "bg-warning-soft text-warning" },
+  overdue:   { label: "متأخر",      dot: "#ef4444", bg: "bg-danger-soft text-danger" },
+  cancelled: { label: "ملغي",       dot: "#94a3b8", bg: "bg-surface text-muted" },
+  approved:  { label: "معتمد",      dot: "#10b981", bg: "bg-success-soft text-success" },
+  converted: { label: "محوّل",      dot: "#06b6d4", bg: "bg-info-soft text-info" },
+  unpaid:    { label: "غير مدفوع",  dot: "#ef4444", bg: "bg-danger-soft text-danger" },
+  active:    { label: "نشط",        dot: "#10b981", bg: "bg-success-soft text-success" },
+  inactive:  { label: "غير نشط",    dot: "#94a3b8", bg: "bg-surface text-muted" },
+};
+
+interface StatusBadgeProps {
+  status: string;
+  label?: string;
+  dot?: boolean;
+  className?: string;
+}
+
+export function StatusBadge({ status, label, dot = true, className }: StatusBadgeProps) {
+  const config = statusConfig[status] || { label: status, dot: "#94a3b8", bg: "bg-surface text-muted" };
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+        config.bg,
+        className,
+      )}
+    >
+      {dot && <span className="status-dot" style={{ backgroundColor: config.dot }} />}
+      {label || config.label}
+    </span>
+  );
+}
+
+export function getStatusLabel(status: string): string {
+  return statusConfig[status]?.label || status;
+}
