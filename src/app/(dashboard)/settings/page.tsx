@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Save, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface CompanySettings {
@@ -15,20 +14,34 @@ interface CompanySettings {
   phone: string; email: string; city: string; address: string;
 }
 
+const DEFAULTS: CompanySettings = {
+  name_ar: "", name_en: "", vat: "", cr: "",
+  phone: "", email: "", city: "", address: "",
+};
+
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const { register, handleSubmit, reset } = useForm<CompanySettings>();
+  const { register, handleSubmit, reset } = useForm<CompanySettings>({ defaultValues: DEFAULTS });
 
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then((data) => { reset(data); setLoading(false); })
-      .catch(() => setLoading(false));
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      if (res.ok && data && !data.error) {
+        reset({ ...DEFAULTS, ...data });
+      }
+    } catch {
+      // API unavailable — show empty form
+    } finally {
+      setLoading(false);
+    }
   }, [reset]);
+
+  useEffect(() => { fetchSettings(); }, [fetchSettings]);
 
   async function onSubmit(data: CompanySettings) {
     setSaving(true); setError(""); setSuccess("");
@@ -39,11 +52,10 @@ export default function SettingsPage() {
         body: JSON.stringify(data),
       });
       const json = await res.json();
-      if (!res.ok) { setError(json.error); return; }
+      if (!res.ok) { setError(json.error || "فشل حفظ الإعدادات"); return; }
       setSuccess("تم حفظ الإعدادات بنجاح");
-      setTimeout(() => setSuccess(""), 3000);
     } catch {
-      setError("حدث خطأ في حفظ الإعدادات");
+      setError("تعذر الاتصال بالخادم. تأكد من اتصالك ثم حاول مرة أخرى.");
     } finally {
       setSaving(false);
     }
