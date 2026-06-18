@@ -254,7 +254,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
   return (
     <>
       {/* Desktop sidebar */}
-      <aside
+      <aside data-sidebar
         className={`${collapsed ? "w-16" : "w-64"} shrink-0 border-l hidden lg:flex flex-col`}
         style={{ background: "var(--sidebar-bg)", borderColor: "var(--sidebar-border)" }}
       >
@@ -269,7 +269,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
             style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
             onClick={onMobileClose}
           />
-          <aside
+          <aside data-sidebar
             className="absolute top-0 right-0 bottom-0 w-72 flex flex-col z-10 animate-fade-in"
             style={{ background: "var(--sidebar-bg)", borderLeft: "1px solid var(--sidebar-border)" }}
           >

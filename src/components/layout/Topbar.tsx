@@ -15,9 +15,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   };
 
   return (
-    <header
-      className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b px-4 sm:px-6 glass shrink-0"
-      style={{ borderColor: "var(--border)" }}
+      <header data-topbar
+        className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b px-4 sm:px-6 glass shrink-0"
+        style={{ borderColor: "var(--border)" }}
     >
       {/* Mobile menu trigger */}
       <button

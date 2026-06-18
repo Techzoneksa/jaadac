@@ -19,7 +19,7 @@ export function AppShell({ children, title, action }: AppShellProps) {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "var(--bg)" }}>
+    <div data-app-shell className="flex h-screen overflow-hidden" style={{ backgroundColor: "var(--bg)" }}>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={toggleSidebar}

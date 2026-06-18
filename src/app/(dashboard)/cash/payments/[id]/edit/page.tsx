@@ -2,51 +2,70 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { MoneyDisplay } from "@/components/ui/MoneyDisplay";
+import { Loader2, Save, AlertCircle, ArrowRight } from "lucide-react";
 
-type PaymentData = Record<string, unknown> & {
-  number?: string; date?: string; amount?: number; payment_method?: string; status?: string; notes?: string;
-};
+interface FormData { date: string; amount: number; payment_method: string; status: string; notes: string; }
 
 export default function EditPaymentPage() {
-  const router = useRouter();
-  const params = useParams();
-  const [loading, setLoading] = useState(true);
-  const [payment, setPayment] = useState<PaymentData | null>(null);
+  const router = useRouter(); const params = useParams();
+  const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(""); const [doc, setDoc] = useState<Record<string, unknown> | null>(null);
+  const { register, handleSubmit, reset } = useForm<FormData>({ defaultValues: { date: "", amount: 0, payment_method: "cash", status: "draft", notes: "" } });
 
   useEffect(() => {
-    fetch(`/api/payments?id=${params.id}`)
-      .then((r) => r.json())
-      .then((data) => { setPayment(data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [params.id]);
+    fetch(`/api/payments?id=${params.id}`).then((r) => r.json()).then((data) => {
+      if (data.error) { setError(data.error); setLoading(false); return; }
+      setDoc(data); reset({ date: data.date || "", amount: data.amount || 0, payment_method: data.payment_method || "cash", status: data.status || "draft", notes: data.notes || "" }); setLoading(false);
+    }).catch(() => { setError("فشل تحميل البيانات"); setLoading(false); });
+  }, [params.id, reset]);
 
-  if (loading) return <p className="text-center py-8 text-[#64748b]">جار التحميل...</p>;
-  if (!payment) return <p className="text-center py-8 text-[#dc2626]">لم يتم العثور على السند</p>;
+  async function onSubmit(data: FormData) {
+    setSaving(true); setError("");
+    try {
+      const res = await fetch(`/api/payments?id=${params.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const json = await res.json();
+      if (!res.ok) { setError(json.error || "فشل الحفظ"); return; }
+      router.push(`/cash/payments/${params.id}`);
+    } catch { setError("تعذر الاتصال بالخادم"); } finally { setSaving(false); }
+  }
+
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--text-muted)" }} /></div>;
+  if (error && !doc) return <div className="flex flex-col items-center justify-center py-20 text-center"><AlertCircle className="h-8 w-8 mb-3" style={{ color: "var(--danger)" }} /><p style={{ color: "var(--danger)" }}>{error}</p><Button variant="outline" className="mt-4" onClick={() => router.back()}>رجوع</Button></div>;
 
   return (
-    <div>
-      <PageHeader title={`تعديل سند صرف #${payment.number}`}
-        action={<Button variant="outline" onClick={() => router.back()}>رجوع</Button>} />
-      <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-4 mb-4 text-center">
-        تحرير قيد التطوير
-      </div>
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid gap-4 sm:grid-cols-3 mb-4">
-            <div><Label>الرقم</Label><p className="font-medium">{payment.number}</p></div>
-            <div><Label>التاريخ</Label><p className="font-medium">{payment.date}</p></div>
-            <div><Label>المبلغ</Label><p className="font-medium"><MoneyDisplay amount={payment.amount ?? 0} /></p></div>
-            <div><Label>طريقة الدفع</Label><p className="font-medium">{payment.payment_method}</p></div>
-            <div><Label>الحالة</Label><p className="font-medium">{payment.status}</p></div>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader title={doc?.number ? `تعديل سند صرف #${doc.number}` : "تعديل سند صرف"} action={<Button variant="outline" onClick={() => router.back()}><ArrowRight className="h-4 w-4 ml-1" /> رجوع</Button>} />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--fg)" }}>معلومات السند</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5"><Label className="text-xs font-medium">التاريخ</Label><Input type="date" {...register("date")} className="h-10 rounded-xl" /></div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium">المبلغ</Label><Input type="number" step="0.01" {...register("amount", { valueAsNumber: true })} className="h-10 rounded-xl" /></div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium">طريقة الدفع</Label>
+              <select {...register("payment_method")} className="flex h-10 w-full rounded-xl border px-3 text-sm" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--fg)" }}>
+                <option value="cash">نقداً</option><option value="bank_transfer">تحويل بنكي</option><option value="check">شيك</option><option value="credit_card">بطاقة ائتمان</option>
+              </select>
+            </div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium">الحالة</Label>
+              <select {...register("status")} className="flex h-10 w-full rounded-xl border px-3 text-sm" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--fg)" }}>
+                <option value="draft">مسودة</option><option value="posted">مرحّل</option><option value="cancelled">ملغي</option>
+              </select>
+            </div>
           </div>
-          {payment.notes && <p className="text-sm text-[#64748b]">{payment.notes}</p>}
-        </CardContent>
-      </Card>
+          <div className="space-y-1.5 mt-4"><Label className="text-xs font-medium">ملاحظات</Label><Textarea {...register("notes")} className="rounded-xl" rows={3} /></div>
+        </div>
+        {error && <div className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: "var(--danger-soft)", color: "var(--danger)" }}><AlertCircle className="h-4 w-4 shrink-0" />{error}</div>}
+        <div className="flex justify-end gap-3">
+          <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
+          <Button type="submit" disabled={saving} className="h-11 px-6 rounded-2xl">{saving ? <><Loader2 className="h-4 w-4 animate-spin ml-2" />جار الحفظ...</> : <><Save className="h-4 w-4 ml-2" />حفظ التعديلات</>}</Button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -252,3 +252,72 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.3; }
     padding-right: 0.75rem;
   }
 }
+
+/* Print layout – hide all dashboard chrome when printing */
+.no-print {
+  display: none !important;
+}
+
+@media print {
+  html, body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body > *,
+  .app-shell,
+  [data-app-shell],
+  [data-sidebar],
+  [data-topbar],
+  aside,
+  nav,
+  header,
+  .sidebar,
+  .topbar,
+  .page-container {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .print-document,
+  .print-document * {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .print-document {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
+  }
+
+  .print-document table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .print-document th,
+  .print-document td {
+    padding: 6px 8px !important;
+    text-align: right !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
