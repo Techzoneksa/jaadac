@@ -32,6 +32,37 @@ export interface RecordActionsProps {
   compact?: boolean;
 }
 
+const PRIMARY_LABELS = new Set([
+  "عرض", "تحرير", "طباعة",
+  "تنزيل PDF", "تنزيل CSV", "تصدير Excel",
+]);
+
+function isPrimary(a: ActionItem) {
+  return PRIMARY_LABELS.has(a.label);
+}
+
+function IconBtn({ action, noTooltip }: { action: ActionItem; noTooltip?: boolean }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={action.disabled}
+      onClick={() => { if (!action.disabled) action.onClick(); }}
+      title={noTooltip ? "" : (action.disabled ? (action.disabledReason || action.label) : action.label)}
+      aria-label={action.label}
+      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      style={{
+        color: action.variant === "danger" && !action.disabled ? "var(--danger)" : "var(--text-muted)",
+        backgroundColor: hover && !action.disabled ? "var(--surface)" : "transparent",
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {action.icon}
+    </button>
+  );
+}
+
 export function RecordActionsMenu({
   actions,
   onDelete,
@@ -42,12 +73,14 @@ export function RecordActionsMenu({
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleAction = (action: ActionItem) => {
-    if (action.disabled) return;
-    action.onClick();
-  };
+  const primary = actions.filter(isPrimary);
+  const secondary = actions.filter((a) => !isPrimary(a));
 
-  const confirmDelete = async () => {
+  const visiblePrimary = compact ? primary.slice(0, 2) : primary;
+  const overflowPrimary = primary.slice(visiblePrimary.length);
+  const hasDropdown = overflowPrimary.length > 0 || secondary.length > 0;
+
+  const handleDelete = async () => {
     if (!onDelete) return;
     try {
       const ok = await onDelete();
@@ -60,85 +93,39 @@ export function RecordActionsMenu({
     }
   };
 
-  if (compact) {
-    return (
-      <>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface)]"
-            style={{ color: "var(--text-muted)" }}
+  const renderDropdownItems = (items: ActionItem[], showSeparatorBeforeDanger: boolean) =>
+    items.map((action, i) => {
+      const isDanger = action.variant === "danger" || action.label === "حذف" || action.label === "إلغاء";
+      const showSep = showSeparatorBeforeDanger && isDanger && i > 0;
+      return (
+        <div key={i}>
+          {showSep && <DropdownMenuSeparator />}
+          <DropdownMenuItem
+            className={isDanger ? "text-red-600 focus:text-red-600 focus:bg-red-50" : ""}
+            disabled={action.disabled}
+            onClick={() => {
+              if (action.disabled) return;
+              if (isDanger && onDelete) {
+                setConfirmOpen(true);
+              } else {
+                action.onClick();
+              }
+            }}
+            title={action.disabled ? (action.disabledReason || "") : ""}
           >
-            <MoreHorizontal className="h-4 w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[160px]">
-            {actions.map((action, i) => (
-              <div key={i}>
-                {action.variant === "danger" || action.label === "حذف" || action.label === "إلغاء" ? (
-                  <>
-                    {i > 0 && <DropdownMenuSeparator />}
-                    <DropdownMenuItem
-                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                      disabled={action.disabled}
-                      onClick={() => {
-                        if (action.disabled) return;
-                        if (onDelete) {
-                          setConfirmOpen(true);
-                        } else {
-                          action.onClick();
-                        }
-                      }}
-                      title={action.disabled ? action.disabledReason : ""}
-                    >
-                      {action.icon}
-                      {action.label}
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem
-                    disabled={action.disabled}
-                    onClick={() => handleAction(action)}
-                    title={action.disabled ? action.disabledReason : ""}
-                  >
-                    {action.icon}
-                    {action.label}
-                  </DropdownMenuItem>
-                )}
-              </div>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <ConfirmDialog
-          open={confirmOpen}
-           onClose={() => setConfirmOpen(false)}
-          onConfirm={confirmDelete}
-          title={deleteConfirmTitle}
-          message={deleteConfirmMessage}
-          variant="danger"
-          confirmLabel="حذف"
-          cancelLabel="إلغاء"
-        />
-      </>
-    );
-  }
+            <span className="inline-flex items-center gap-2">{action.icon}{action.label}</span>
+          </DropdownMenuItem>
+        </div>
+      );
+    });
 
   return (
-    <div className="flex items-center gap-0.5">
-      {actions.slice(0, 3).map((action, i) => (
-        <button
-          key={i}
-          onClick={() => handleAction(action)}
-          disabled={action.disabled}
-          title={action.disabled ? action.disabledReason : action.label}
-          className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors disabled:opacity-30"
-          style={{ color: action.variant === "danger" ? "var(--danger)" : "var(--text-muted)" }}
-          onMouseEnter={(e) => { if (!action.disabled) e.currentTarget.style.backgroundColor = "var(--surface)"; }}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-        >
-          {action.icon}
-        </button>
+    <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+      {visiblePrimary.map((action, i) => (
+        <IconBtn key={i} action={action} />
       ))}
-      {actions.length > 3 && (
+
+      {hasDropdown && (
         <DropdownMenu>
           <DropdownMenuTrigger
             className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface)]"
@@ -147,20 +134,9 @@ export function RecordActionsMenu({
             <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[160px]">
-            {actions.slice(3).map((action, i) => (
-              <div key={i}>
-                {(action.variant === "danger" || action.label === "حذف") && i > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuItem
-                  className={action.variant === "danger" ? "text-red-600 focus:text-red-600 focus:bg-red-50" : ""}
-                  disabled={action.disabled}
-                  onClick={() => handleAction(action)}
-                  title={action.disabled ? action.disabledReason : ""}
-                >
-                  {action.icon}
-                  {action.label}
-                </DropdownMenuItem>
-              </div>
-            ))}
+            {overflowPrimary.length > 0 && renderDropdownItems(overflowPrimary, false)}
+            {overflowPrimary.length > 0 && secondary.length > 0 && <DropdownMenuSeparator />}
+            {secondary.length > 0 && renderDropdownItems(secondary, true)}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
@@ -168,7 +144,7 @@ export function RecordActionsMenu({
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={confirmDelete}
+        onConfirm={handleDelete}
         title={deleteConfirmTitle}
         message={deleteConfirmMessage}
         variant="danger"
@@ -251,7 +227,7 @@ export function pdfLinkAction(href: string): ActionItem {
 
 export function excelPlaceholderAction(): ActionItem {
   return {
-    label: "تنزيل Excel",
+    label: "تصدير Excel",
     icon: <FileSpreadsheet className="h-4 w-4" />,
     onClick: () => alert("تصدير Excel سيتم تفعيله قريبًا"),
     disabled: true,
