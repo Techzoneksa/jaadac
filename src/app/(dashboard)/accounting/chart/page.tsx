@@ -3,13 +3,11 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { useApi } from "@/lib/hooks/use-api";
 import type { Account } from "@/lib/types";
-import { useRouter } from "next/navigation";
 import { RecordActionsMenu, downloadCsvAction, futureAction, excelPlaceholderAction } from "@/components/ui/RecordActionsMenu";
 import { Eye, Pencil } from "lucide-react";
 
 export default function ChartOfAccountsPage() {
   const { data, loading } = useApi<Account>("/api/accounts");
-  const router = useRouter();
 
   const columns: Column<Account>[] = [
     { key: "number", header: "الرمز" },

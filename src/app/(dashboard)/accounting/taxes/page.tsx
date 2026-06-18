@@ -3,13 +3,11 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { useApi } from "@/lib/hooks/use-api";
 import type { TaxRate } from "@/lib/types";
-import { useRouter } from "next/navigation";
 import { RecordActionsMenu, downloadCsvAction, excelPlaceholderAction, disabledAction } from "@/components/ui/RecordActionsMenu";
 import { Eye, Pencil } from "lucide-react";
 
 export default function TaxesPage() {
   const { data, loading } = useApi<TaxRate>("/api/tax-rates");
-  const router = useRouter();
 
   const columns: Column<TaxRate>[] = [
     { key: "name_ar", header: "الاسم" },
