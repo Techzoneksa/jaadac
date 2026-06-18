@@ -22,8 +22,8 @@ export default function TaxesPage() {
       render: () => (
         <RecordActionsMenu
           actions={[
-            disabledAction("عرض", <Eye className="h-4 w-4" />),
-            disabledAction("تحرير", <Pencil className="h-4 w-4" />),
+            disabledAction("عرض", <Eye className="h-4 w-4" />, undefined, "view"),
+            disabledAction("تحرير", <Pencil className="h-4 w-4" />, undefined, "edit"),
             excelPlaceholderAction(),
             downloadCsvAction(data, "taxes", ["الاسم", "النسبة", "النوع", "الحالة"], (row) => [row.name_ar, String(row.rate), row.tax_type, row.is_active ? "نشط" : "غير نشط"]),
           ]}

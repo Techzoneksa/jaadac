@@ -43,8 +43,8 @@ function ActionsCell({ record }: { record: Quotation }) {
       ["الرقم", "التاريخ", "العميل", "الإجمالي", "الحالة"],
       (r) => [r.number, r.date, r.customer_name, String(r.total), r.status],
     ),
-    toastAction("تحويل إلى فاتورة", <ArrowLeftRight className="h-4 w-4" />, "سيتم تفعيله قريبًا"),
-    futureAction("نسخ", <Copy className="h-4 w-4" />),
+    toastAction("تحويل إلى فاتورة", <ArrowLeftRight className="h-4 w-4" />, "سيتم تفعيله قريبًا", "convert"),
+    futureAction("نسخ", <Copy className="h-4 w-4" />, "copy"),
     deleteConfig.action,
   ];
   return <RecordActionsMenu actions={actions} onDelete={deleteConfig.onDelete} compact />;

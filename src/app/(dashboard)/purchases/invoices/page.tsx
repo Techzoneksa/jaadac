@@ -43,7 +43,7 @@ export default function PurchasesInvoicesPage() {
               pdfLinkAction(`/purchases/invoices/${r.id}/print`),
               excelPlaceholderAction(),
               downloadCsvAction(data, "invoices", ["الرقم","التاريخ","المورد","الحالة","الإجمالي"], (row: PurchaseRec) => [row.number,row.date,row.supplier_name,row.status,String(row.total)]),
-              futureAction("تسجيل سند صرف", <Ban className="h-4 w-4" />),
+              futureAction("تسجيل سند صرف", <Ban className="h-4 w-4" />, "record-payment"),
               cancelAction(),
               deleteAction,
             ]}

@@ -43,7 +43,7 @@ function ActionsCell({ record }: { record: InvoiceRec }) {
       ["الرقم", "التاريخ", "العميل", "الإجمالي", "الحالة"],
       (r) => [r.number, r.date, r.customer_name, String(r.total), r.status],
     ),
-    futureAction("تسجيل قبض", <FileText className="h-4 w-4" />),
+    futureAction("تسجيل قبض", <FileText className="h-4 w-4" />, "record-payment"),
     cancelAction(),
     deleteConfig.action,
   ];

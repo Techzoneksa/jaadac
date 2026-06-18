@@ -43,7 +43,7 @@ export default function ReceiptsPage() {
               pdfLinkAction(`/cash/receipts/${r.id}/print`),
               excelPlaceholderAction(),
               downloadCsvAction(data, "receipts", ["الرقم","التاريخ","العميل","الحالة","المبلغ"], (row: Receipt) => [row.number,row.date,row.customer_name,row.status,String(row.amount)]),
-              futureAction("ربط بفاتورة", <Ban className="h-4 w-4" />),
+              futureAction("ربط بفاتورة", <Ban className="h-4 w-4" />, "link"),
               cancelAction(),
               deleteAction,
             ]}

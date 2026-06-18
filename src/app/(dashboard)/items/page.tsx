@@ -30,10 +30,10 @@ export default function ItemsPage() {
             actions={[
               viewLinkAction(`/items/${r.id}`, router),
               editLinkAction(`/items/${r.id}`, router),
-              { label: "حركة الصنف", icon: <ArrowLeftRight className="h-4 w-4" />, onClick: () => router.push(`/items/${r.id}/movements`) },
+              { type: "movement", label: "حركة الصنف", icon: <ArrowLeftRight className="h-4 w-4" />, onClick: () => router.push(`/items/${r.id}/movements`) },
               pdfLinkAction(`/items/${r.id}`),
               excelPlaceholderAction(),
-              futureAction("إنشاء فاتورة بهذا الصنف", <FileText className="h-4 w-4" />),
+                futureAction("إنشاء فاتورة بهذا الصنف", <FileText className="h-4 w-4" />, "create-invoice"),
               downloadCsvAction(data, "items", ["الاسم (عربي)", "SKU", "النوع", "سعر البيع", "الكمية", "خاضع للضريبة"], (row) => [row.name_ar, row.sku || "", row.type, String(row.sales_price), String(row.qty ?? 0), row.taxable ? "نعم" : "لا"]),
               deleteAction,
             ]}

@@ -43,8 +43,8 @@ export default function PurchaseOrdersPage() {
               pdfLinkAction(`/purchases/orders/${r.id}/print`),
               excelPlaceholderAction(),
               downloadCsvAction(data, "orders", ["الرقم","التاريخ","المورد","الحالة","الإجمالي"], (row: PORec) => [row.number,row.date,row.supplier_name,row.status,String(row.total)]),
-              futureAction("تحويل إلى فاتورة", <Ban className="h-4 w-4" />),
-              disabledAction("اعتماد", <XCircle className="h-4 w-4" />),
+              futureAction("تحويل إلى فاتورة", <Ban className="h-4 w-4" />, "convert"),
+              disabledAction("اعتماد", <XCircle className="h-4 w-4" />, undefined, "approve"),
               cancelAction(),
               deleteAction,
             ]}

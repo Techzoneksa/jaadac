@@ -43,7 +43,7 @@ function ActionsCell({ record }: { record: CNRec }) {
       ["الرقم", "التاريخ", "العميل", "الإجمالي", "الحالة"],
       (r) => [r.number, r.date, r.customer_name, String(r.total), r.status],
     ),
-    futureAction("إصدار", <CheckCircle className="h-4 w-4" />),
+    futureAction("إصدار", <CheckCircle className="h-4 w-4" />, "issue"),
     cancelAction(),
     deleteConfig.action,
   ];

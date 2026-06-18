@@ -229,11 +229,11 @@ export default function ReportsPage() {
                     </span>
                     <RecordActionsMenu
                       actions={[
-                        disabledAction("فتح التقرير", <BarChart3 className="h-4 w-4" />, "التقارير قيد التطوير"),
+                        disabledAction("فتح التقرير", <BarChart3 className="h-4 w-4" />, "التقارير قيد التطوير", "view"),
                         pdfLinkAction("#"),
                         excelPlaceholderAction(),
-                        toastAction("طباعة", <Printer className="h-4 w-4" />, "طباعة التقرير سيتم تفعيلها قريبًا"),
-                        toastAction("نسخ الرابط", <Link2 className="h-4 w-4" />, `تم نسخ رابط ${r.title}`),
+                        toastAction("طباعة", <Printer className="h-4 w-4" />, "طباعة التقرير سيتم تفعيلها قريبًا", "print"),
+                        toastAction("نسخ الرابط", <Link2 className="h-4 w-4" />, `تم نسخ رابط ${r.title}`, "copy"),
                       ]}
                       compact
                     />

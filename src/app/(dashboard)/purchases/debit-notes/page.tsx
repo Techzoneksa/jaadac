@@ -43,7 +43,7 @@ export default function DebitNotesPage() {
               pdfLinkAction(`/purchases/debit-notes/${r.id}/print`),
               excelPlaceholderAction(),
               downloadCsvAction(data, "debit-notes", ["الرقم","التاريخ","المورد","الحالة","الإجمالي"], (row: DNRec) => [row.number,row.date,row.supplier_name,row.status,String(row.total)]),
-              futureAction("إصدار", <Ban className="h-4 w-4" />),
+              futureAction("إصدار", <Ban className="h-4 w-4" />, "issue"),
               cancelAction(),
               deleteAction,
             ]}

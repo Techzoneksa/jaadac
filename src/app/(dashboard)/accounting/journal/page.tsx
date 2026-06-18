@@ -23,13 +23,13 @@ export default function JournalPage() {
         <RecordActionsMenu
           actions={[
             viewLinkAction(`/accounting/journal/${r.id}`, router),
-            futureAction("تحرير", <Pencil className="h-4 w-4" />),
+            futureAction("تحرير", <Pencil className="h-4 w-4" />, "edit"),
             printLinkAction(`/accounting/journal/${r.id}/print`, router),
             pdfLinkAction(`/accounting/journal/${r.id}/print`),
             excelPlaceholderAction(),
             downloadCsvAction(data, "journal", ["الرقم", "التاريخ", "البيان", "الحالة"], (row) => [row.number, row.date, row.description, row.status === "posted" ? "مرحّل" : "مسودة"]),
-            futureAction("ترحيل", <ArrowLeftRight className="h-4 w-4" />),
-            disabledAction("حذف", <ArrowLeftRight className="h-4 w-4" />, "الحذف غير متاح للقيود المرحّلة"),
+            futureAction("ترحيل", <ArrowLeftRight className="h-4 w-4" />, "post"),
+            disabledAction("حذف", <ArrowLeftRight className="h-4 w-4" />, "الحذف غير متاح للقيود المرحّلة", "delete"),
           ]}
           compact
         />

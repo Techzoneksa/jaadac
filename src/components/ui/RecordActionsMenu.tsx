@@ -15,7 +15,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
+export type ActionType =
+  | "view" | "edit" | "print" | "pdf" | "csv" | "excel"
+  | "delete" | "cancel" | "convert" | "copy"
+  | "create-invoice" | "create-quotation" | "create-order"
+  | "receipt" | "statement" | "record-payment"
+  | "movement" | "issue" | "post" | "approve" | "link"
+  | "other";
+
 export interface ActionItem {
+  type: ActionType;
   label: string;
   icon?: React.ReactNode;
   onClick: () => void;
@@ -32,13 +41,8 @@ export interface RecordActionsProps {
   compact?: boolean;
 }
 
-const PRIMARY_LABELS = new Set([
-  "عرض", "تحرير", "طباعة",
-  "تنزيل PDF", "تنزيل CSV", "تصدير Excel",
-]);
-
 function isPrimary(a: ActionItem) {
-  return PRIMARY_LABELS.has(a.label);
+  return ["view", "edit", "print", "pdf", "csv", "excel"].includes(a.type);
 }
 
 function IconBtn({ action, noTooltip }: { action: ActionItem; noTooltip?: boolean }) {
@@ -76,7 +80,7 @@ export function RecordActionsMenu({
   const primary = actions.filter(isPrimary);
   const secondary = actions.filter((a) => !isPrimary(a));
 
-  const visiblePrimary = compact ? primary.slice(0, 2) : primary;
+  const visiblePrimary = compact ? primary.slice(0, 3) : primary;
   const overflowPrimary = primary.slice(visiblePrimary.length);
   const hasDropdown = overflowPrimary.length > 0 || secondary.length > 0;
 
@@ -93,9 +97,11 @@ export function RecordActionsMenu({
     }
   };
 
+  const isDangerType = (t: ActionType) => t === "delete" || t === "cancel";
+
   const renderDropdownItems = (items: ActionItem[], showSeparatorBeforeDanger: boolean) =>
     items.map((action, i) => {
-      const isDanger = action.variant === "danger" || action.label === "حذف" || action.label === "إلغاء";
+      const isDanger = isDangerType(action.type) || action.variant === "danger";
       const showSep = showSeparatorBeforeDanger && isDanger && i > 0;
       return (
         <div key={i}>
@@ -157,6 +163,7 @@ export function RecordActionsMenu({
 
 export function viewAction(id: string, router: ReturnType<typeof useRouter>): ActionItem {
   return {
+    type: "view",
     label: "عرض",
     icon: <Eye className="h-4 w-4" />,
     onClick: () => router.push(`?id=${id}`),
@@ -165,6 +172,7 @@ export function viewAction(id: string, router: ReturnType<typeof useRouter>): Ac
 
 export function viewLinkAction(href: string, router: ReturnType<typeof useRouter>): ActionItem {
   return {
+    type: "view",
     label: "عرض",
     icon: <Eye className="h-4 w-4" />,
     onClick: () => router.push(href),
@@ -173,6 +181,7 @@ export function viewLinkAction(href: string, router: ReturnType<typeof useRouter
 
 export function editLinkAction(href: string, router: ReturnType<typeof useRouter>): ActionItem {
   return {
+    type: "edit",
     label: "تحرير",
     icon: <Pencil className="h-4 w-4" />,
     onClick: () => router.push(href),
@@ -181,6 +190,7 @@ export function editLinkAction(href: string, router: ReturnType<typeof useRouter
 
 export function printLinkAction(href: string, _router?: ReturnType<typeof useRouter>): ActionItem {
   return {
+    type: "print",
     label: "طباعة",
     icon: <Printer className="h-4 w-4" />,
     onClick: () => window.open(href, "_blank"),
@@ -194,6 +204,7 @@ export function downloadCsvAction<T>(
   mapFn: (row: T) => string[],
 ): ActionItem {
   return {
+    type: "csv",
     label: "تنزيل CSV",
     icon: <FileSpreadsheet className="h-4 w-4" />,
     onClick: () => {
@@ -219,6 +230,7 @@ export function downloadCsvAction<T>(
 
 export function pdfLinkAction(href: string): ActionItem {
   return {
+    type: "pdf",
     label: "تنزيل PDF",
     icon: <FileDown className="h-4 w-4" />,
     onClick: () => window.open(href, "_blank"),
@@ -227,6 +239,7 @@ export function pdfLinkAction(href: string): ActionItem {
 
 export function excelPlaceholderAction(): ActionItem {
   return {
+    type: "excel",
     label: "تصدير Excel",
     icon: <FileSpreadsheet className="h-4 w-4" />,
     onClick: () => alert("تصدير Excel سيتم تفعيله قريبًا"),
@@ -237,6 +250,7 @@ export function excelPlaceholderAction(): ActionItem {
 
 export function cancelAction(disabledReason?: string): ActionItem {
   return {
+    type: "cancel",
     label: "إلغاء",
     icon: <Ban className="h-4 w-4" />,
     onClick: () => {},
@@ -245,8 +259,9 @@ export function cancelAction(disabledReason?: string): ActionItem {
   };
 }
 
-export function disabledAction(label: string, icon: React.ReactNode, reason?: string): ActionItem {
+export function disabledAction(label: string, icon: React.ReactNode, reason?: string, actionType?: ActionType): ActionItem {
   return {
+    type: actionType || "other",
     label,
     icon,
     onClick: () => {},
@@ -255,8 +270,9 @@ export function disabledAction(label: string, icon: React.ReactNode, reason?: st
   };
 }
 
-export function futureAction(label: string, icon: React.ReactNode): ActionItem {
+export function futureAction(label: string, icon: React.ReactNode, actionType?: ActionType): ActionItem {
   return {
+    type: actionType || "other",
     label,
     icon,
     onClick: () => {},
@@ -265,8 +281,9 @@ export function futureAction(label: string, icon: React.ReactNode): ActionItem {
   };
 }
 
-export function toastAction(label: string, icon: React.ReactNode, message: string): ActionItem {
+export function toastAction(label: string, icon: React.ReactNode, message: string, actionType?: ActionType): ActionItem {
   return {
+    type: actionType || "other",
     label,
     icon,
     onClick: () => alert(message),
@@ -280,6 +297,7 @@ export function confirmDeleteAction(
 ): { action: ActionItem; onDelete: () => Promise<boolean> } {
   return {
     action: {
+      type: "delete",
       label: "حذف",
       icon: <Trash2 className="h-4 w-4" />,
       onClick: () => {},

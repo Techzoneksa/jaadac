@@ -22,8 +22,8 @@ export default function ChartOfAccountsPage() {
       render: () => (
         <RecordActionsMenu
           actions={[
-            futureAction("عرض", <Eye className="h-4 w-4" />),
-            futureAction("تحرير", <Pencil className="h-4 w-4" />),
+            futureAction("عرض", <Eye className="h-4 w-4" />, "view"),
+            futureAction("تحرير", <Pencil className="h-4 w-4" />, "edit"),
             excelPlaceholderAction(),
             downloadCsvAction(data, "accounts", ["الرمز", "اسم الحساب", "النوع", "الحالة"], (row) => [row.number, row.name_ar, row.type, row.status === "active" ? "نشط" : "غير نشط"]),
           ]}

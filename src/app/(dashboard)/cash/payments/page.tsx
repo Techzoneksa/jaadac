@@ -43,7 +43,7 @@ export default function PaymentsPage() {
               pdfLinkAction(`/cash/payments/${r.id}/print`),
               excelPlaceholderAction(),
               downloadCsvAction(data, "payments", ["الرقم","التاريخ","المورد","الحالة","المبلغ"], (row: Payment) => [row.number,row.date,row.supplier_name,row.status,String(row.amount)]),
-              futureAction("ربط بفاتورة مشتريات", <Ban className="h-4 w-4" />),
+              futureAction("ربط بفاتورة مشتريات", <Ban className="h-4 w-4" />, "link"),
               cancelAction(),
               deleteAction,
             ]}
