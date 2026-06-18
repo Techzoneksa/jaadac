@@ -6,6 +6,12 @@ const TABLES = [
   "tax_rates", "company_settings",
 ] as const;
 
+const REQUIRED_COLUMNS: Record<string, string[]> = {
+  receipts: ["invoice_id"],
+  invoices: ["paid_amount", "due_date"],
+  items: ["barcode", "category_id", "service_category_id", "current_stock", "status"],
+};
+
 interface TableResult {
   status: string;
   code?: string;
@@ -97,6 +103,22 @@ export async function GET() {
     }
   }
 
+  const columns: Record<string, Record<string, string>> = {};
+  for (const [tableName, colList] of Object.entries(REQUIRED_COLUMNS)) {
+    columns[tableName] = {};
+    for (const colName of colList) {
+      try {
+        const sqlUrl = new URL("/rest/v1/rpc/", rawUrl);
+        const resp = await fetch(new URL(`/rest/v1/${tableName}?select=${colName}&limit=1`, rawUrl).toString(), {
+          headers: { apikey: rawKey, Authorization: `Bearer ${rawKey}` },
+        });
+        columns[tableName][colName] = resp.status === 200 || resp.status === 406 ? "OK" : "MISSING";
+      } catch {
+        columns[tableName][colName] = "CHECK_FAILED";
+      }
+    }
+  }
+
   const okCount = Object.values(tables).filter((t) => t.status === "OK").length;
   const missingCount = Object.values(tables).filter((t) => t.status === "MISSING").length;
   const rlsCount = Object.values(tables).filter((t) => t.status === "RLS_DENIED").length;
@@ -131,6 +153,7 @@ export async function GET() {
       authMode: overallAuthStatus,
     },
     tables,
+    columns,
     summary: {
       total: TABLES.length,
       ok: okCount,

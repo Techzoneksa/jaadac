@@ -6,6 +6,17 @@ async function handle<T>(fn: () => Promise<Response | T>): Promise<Response> {
   catch (e) { console.error("API Error:", e); return NextResponse.json({ error: e instanceof Error ? e.message : "Internal server error" }, { status: 500 }); }
 }
 
+const QTN_COLUMNS = ["date", "status", "notes", "customer_id", "subtotal", "vat_total", "total", "lines", "tenant_id", "number"];
+
+function pickBody(body: Record<string, unknown>, insert?: boolean): Record<string, unknown> {
+  const safe: Record<string, unknown> = {};
+  for (const key of QTN_COLUMNS) {
+    if (key in body && key !== "tenant_id") safe[key] = body[key];
+    if (key === "tenant_id" && insert) safe.tenant_id = body.tenant_id;
+  }
+  return safe;
+}
+
 type QtnRow = Record<string, unknown> & { customers?: { name_ar: string } | null };
 
 export async function GET(req: NextRequest) {
@@ -52,7 +63,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { data, error } = await supabase
       .from("quotations")
-      .insert({ ...body, tenant_id: user.id })
+      .insert({ ...pickBody(body, true), tenant_id: user.id })
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
@@ -72,7 +83,7 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { data, error } = await supabase
       .from("quotations")
-      .update(body)
+      .update(pickBody(body))
       .eq("id", id)
       .eq("tenant_id", user.id)
       .select()
