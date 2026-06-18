@@ -17,6 +17,7 @@ import { Trash2, Plus } from "lucide-react";
 import type { Customer, Item } from "@/lib/types";
 import { QuickAddCustomer } from "@/components/quick-add/QuickAddCustomer";
 import { QuickAddItem } from "@/components/quick-add/QuickAddItem";
+import { formatCurrency } from "@/lib/format";
 
 interface LineItem {
   key: string;
@@ -171,7 +172,7 @@ export default function NewSalesInvoicePage() {
                       onChange={(e) => updateLine(line.key, "vat_rate", Number(e.target.value))} />
                   </div>
                   <div className="w-28 pt-1 text-left font-medium">
-                    {(line.qty * line.unit_price).toLocaleString()} ر.س
+                    {formatCurrency(line.qty * line.unit_price)}
                   </div>
                   <Button type="button" variant="ghost" size="sm" onClick={() => removeLine(line.key)}
                     className="mt-1 text-[#dc2626]">
@@ -195,9 +196,9 @@ export default function NewSalesInvoicePage() {
         <Card className="mb-4">
           <CardContent className="p-6">
             <div className="space-y-1 text-left">
-              <p className="text-sm text-[#64748b]">المجموع الفرعي: <span className="font-medium text-[#0f172a]">{subtotal.toLocaleString()} ر.س</span></p>
-              <p className="text-sm text-[#64748b]">الضريبة: <span className="font-medium text-[#0f172a]">{vatTotal.toLocaleString()} ر.س</span></p>
-              <p className="text-lg font-bold text-[#0f172a]">الإجمالي: {total.toLocaleString()} ر.س</p>
+              <p className="text-sm text-[#64748b]">المجموع الفرعي: <span className="font-medium text-[#0f172a]">{formatCurrency(subtotal)}</span></p>
+              <p className="text-sm text-[#64748b]">الضريبة: <span className="font-medium text-[#0f172a]">{formatCurrency(vatTotal)}</span></p>
+              <p className="text-lg font-bold text-[#0f172a]">الإجمالي: {formatCurrency(total)}</p>
             </div>
           </CardContent>
         </Card>

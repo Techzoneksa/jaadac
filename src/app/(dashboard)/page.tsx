@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 type SumResult = { total: number; vat?: number };
 
 function f(n: number) {
-  try { return new Intl.NumberFormat("ar-SA").format(n); }
+  try { return n.toLocaleString("en-US"); }
   catch { return String(n ?? 0); }
 }
 

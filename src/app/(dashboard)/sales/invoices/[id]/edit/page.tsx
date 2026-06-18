@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Loader2, Save, AlertCircle, ArrowRight } from "lucide-react";
 import type { Customer } from "@/lib/types";
+import { formatCurrency } from "@/lib/format";
 
 export default function EditSalesInvoicePage() {
   const router = useRouter(); const params = useParams();
@@ -92,15 +93,15 @@ export default function EditSalesInvoicePage() {
           {lines.length === 0 ? <p className="text-sm" style={{ color: "var(--text-muted)" }}>لا توجد بنود</p> : (
             <div className="overflow-x-auto"><table className="w-full text-sm">
               <thead><tr style={{ borderBottom: "1px solid var(--border)" }}><th className="py-2 text-right font-medium" style={{ color: "var(--text-muted)" }}>البيان</th><th className="py-2 text-center font-medium" style={{ color: "var(--text-muted)" }}>الكمية</th><th className="py-2 text-left font-medium" style={{ color: "var(--text-muted)" }}>السعر</th><th className="py-2 text-left font-medium" style={{ color: "var(--text-muted)" }}>الإجمالي</th></tr></thead>
-              <tbody>{lines.map((l, i) => (<tr key={i} style={{ borderBottom: "1px solid var(--border)" }}><td className="py-2">{String(l.description || "—")}</td><td className="py-2 text-center">{String(l.qty ?? "—")}</td><td className="py-2 text-left">{Number(l.unit_price || 0).toLocaleString()}</td><td className="py-2 text-left">{Number(l.total || 0).toLocaleString()}</td></tr>))}</tbody>
+              <tbody>{lines.map((l, i) => (<tr key={i} style={{ borderBottom: "1px solid var(--border)" }}><td className="py-2">{String(l.description || "—")}</td><td className="py-2 text-center">{String(l.qty ?? "—")}</td><td className="py-2 text-left">{formatCurrency(l.unit_price as number)}</td><td className="py-2 text-left">{formatCurrency(l.total as number)}</td></tr>))}</tbody>
             </table></div>
           )}
           <p className="text-xs mt-3" style={{ color: "var(--text-muted-light)" }}>تعديل البنود سيتم في المرحلة التالية</p>
         </div>
         <div className="rounded-2xl border p-5 text-left space-y-1" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>المجموع الفرعي: <span className="font-medium" style={{ color: "var(--fg)" }}>{Number(invoice?.subtotal || 0).toLocaleString()} ر.س</span></p>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>الضريبة: <span className="font-medium" style={{ color: "var(--fg)" }}>{Number(invoice?.vat_total || 0).toLocaleString()} ر.س</span></p>
-          <p className="text-lg font-bold" style={{ color: "var(--fg)" }}>الإجمالي: {Number(invoice?.total || 0).toLocaleString()} ر.س</p>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>المجموع الفرعي: <span className="font-medium" style={{ color: "var(--fg)" }}>{formatCurrency(invoice?.subtotal as number)}</span></p>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>الضريبة: <span className="font-medium" style={{ color: "var(--fg)" }}>{formatCurrency(invoice?.vat_total as number)}</span></p>
+          <p className="text-lg font-bold" style={{ color: "var(--fg)" }}>الإجمالي: {formatCurrency(invoice?.total as number)}</p>
         </div>
         {error && <div className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: "var(--danger-soft)", color: "var(--danger)" }}><AlertCircle className="h-4 w-4 shrink-0" />{error}</div>}
         <div className="flex justify-end gap-3">

@@ -408,13 +408,13 @@ export function useI18n() {
   return ctx;
 }
 
-export function fmtMoney(n: number, lang: Lang = "ar") {
-  // Always use Latin (Western Arabic) numerals regardless of UI language.
+export function fmtMoney(n: number, _lang: Lang = "ar") {
+  void _lang;
   const v = (n || 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  return lang === "ar" ? `${v} ر.س` : `SAR ${v}`;
+  return `${v} ر.س`;
 }
 
 /** Format any number with Latin numerals and thousands separator. */

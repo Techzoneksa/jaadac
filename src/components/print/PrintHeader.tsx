@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { getStatusLabel } from "@/lib/format";
 
 interface CompanyInfo {
   name_ar?: string;
@@ -37,7 +38,7 @@ export function PrintHeader({ company, title, number, date, status, showQR }: Pr
         <h2 style={{ fontSize: "16pt", fontWeight: 700, color: "#1e293b", margin: "0 0 8px" }}>{title}</h2>
         <p style={{ fontSize: "10pt", color: "#475569", margin: "2px 0" }}>رقم: {number}</p>
         <p style={{ fontSize: "10pt", color: "#475569", margin: "2px 0" }}>تاريخ: {date}</p>
-        {status && <p style={{ fontSize: "10pt", color: "#475569", margin: "2px 0" }}>الحالة: {status}</p>}
+        {status && <p style={{ fontSize: "10pt", color: "#475569", margin: "2px 0" }}>الحالة: {getStatusLabel(status)}</p>}
         {showQR && (
           <div style={{ marginTop: 12, textAlign: "center" }}>
             <div style={{ display: "inline-block", border: "1px solid #e2e8f0", borderRadius: 4, padding: 4, background: "#fff" }}>

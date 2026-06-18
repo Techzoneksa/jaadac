@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { toast } from "sonner";
-
-function f(v: number) { return v.toLocaleString("en-US", { minimumFractionDigits: 2 }); }
+import { getStatusLabel, getPaymentMethodLabel, formatCurrency } from "@/lib/format";
 
 type InvoiceData = Record<string, unknown> & {
   number?: string; date?: string; status?: string; subtotal?: number;
@@ -62,7 +62,7 @@ export default function InvoiceViewPage() {
   async function submitPayment() {
     const amount = Number(payAmount);
     if (!amount || amount <= 0) { toast.error("المبلغ غير صالح"); return; }
-    if (amount > remaining) { toast.error(`المبلغ يتجاوز المتبقي (${f(remaining)} ر.س)`); return; }
+    if (amount > remaining) { toast.error(`المبلغ يتجاوز المتبقي (${formatCurrency(remaining)})`); return; }
     setPaySaving(true);
     const res = await fetch(`/api/invoices/${params.id}/payments`, {
       method: "POST",
@@ -80,7 +80,7 @@ export default function InvoiceViewPage() {
   if (loading) return <p className="text-center py-8" style={{ color: "var(--text-muted)" }}>جار التحميل...</p>;
   if (!invoice) return <p className="text-center py-8" style={{ color: "var(--danger)" }}>لم يتم العثور على الفاتورة</p>;
 
-  const payments: Array<{ id: string; amount: number; payment_method: string; date: string; number: string }> = (invoice?.payments || []) as Array<{ id: string; amount: number; payment_method: string; date: string; number: string }>;
+  const payments = (invoice?.payments || []) as Array<{ id: string; amount: number; payment_method: string; date: string; number: string }>;
 
   return (
     <div className="space-y-6">
@@ -99,7 +99,7 @@ export default function InvoiceViewPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div><Label>رقم الفاتورة</Label><p className="font-medium">{invoice.number}</p></div>
             <div><Label>التاريخ</Label><p className="font-medium">{invoice.date}</p></div>
-            <div><Label>الحالة</Label><p className="font-medium">{invoice.status}</p></div>
+            <div><Label>الحالة</Label><p className="font-medium"><StatusBadge status={invoice.status || ""} /></p></div>
             <div><Label>العميل</Label><p className="font-medium">{invoice.customers?.name_ar || "—"}</p></div>
             {invoice.customers?.vat && <div><Label>الرقم الضريبي</Label><p className="font-medium">{invoice.customers.vat}</p></div>}
           </div>
@@ -107,9 +107,9 @@ export default function InvoiceViewPage() {
         <Card><CardContent className="p-6">
           <h3 className="font-semibold mb-3">حالة الدفع</h3>
           <div className="space-y-2">
-            <div className="flex justify-between text-sm"><span>إجمالي الفاتورة</span><span className="font-medium">{f(total)} ر.س</span></div>
-            <div className="flex justify-between text-sm"><span>المدفوع</span><span className="font-medium" style={{ color: "#16a34a" }}>{f(paid)} ر.س</span></div>
-            <div className="flex justify-between text-sm font-bold"><span>المتبقي</span><span style={{ color: remaining > 0 ? "#dc2626" : "#16a34a" }}>{f(remaining)} ر.س</span></div>
+            <div className="flex justify-between text-sm"><span>إجمالي الفاتورة</span><span className="font-medium">{formatCurrency(total)}</span></div>
+            <div className="flex justify-between text-sm"><span>المدفوع</span><span className="font-medium" style={{ color: "#16a34a" }}>{formatCurrency(paid)}</span></div>
+            <div className="flex justify-between text-sm font-bold"><span>المتبقي</span><span style={{ color: remaining > 0 ? "#dc2626" : "#16a34a" }}>{formatCurrency(remaining)}</span></div>
             {isFullyPaid && <p className="text-sm font-bold" style={{ color: "#16a34a" }}>✓ مدفوعة بالكامل</p>}
           </div>
         </CardContent></Card>
@@ -123,14 +123,14 @@ export default function InvoiceViewPage() {
             <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>الإجمالي</th>
           </tr></thead>
           <tbody>{(invoice.invoice_lines || []).map((l, i) => (
-            <tr key={i} className="border-b"><td className="px-4 py-2.5">{l.description}</td><td className="px-4 py-2.5 text-center">{l.qty}</td><td className="px-4 py-2.5 text-left">{f(l.unit_price || 0)} ر.س</td><td className="px-4 py-2.5 text-left">{f(l.total || 0)} ر.س</td></tr>
+            <tr key={i} className="border-b"><td className="px-4 py-2.5">{l.description}</td><td className="px-4 py-2.5 text-center">{l.qty}</td><td className="px-4 py-2.5 text-left">{formatCurrency(l.unit_price || 0)}</td><td className="px-4 py-2.5 text-left">{formatCurrency(l.total || 0)}</td></tr>
           ))}</tbody>
         </table></div>
       </CardContent></Card>
       <div className="text-left space-y-1 px-1">
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>المجموع الفرعي: <span className="font-medium" style={{ color: "var(--fg)" }}>{f(invoice.subtotal || 0)} ر.س</span></p>
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>الضريبة: <span className="font-medium" style={{ color: "var(--fg)" }}>{f(invoice.vat_total || 0)} ر.س</span></p>
-        <p className="text-lg font-bold" style={{ color: "var(--fg)" }}>الإجمالي: {f(total)} ر.س</p>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>المجموع الفرعي: <span className="font-medium" style={{ color: "var(--fg)" }}>{formatCurrency(invoice.subtotal || 0)}</span></p>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>الضريبة: <span className="font-medium" style={{ color: "var(--fg)" }}>{formatCurrency(invoice.vat_total || 0)}</span></p>
+        <p className="text-lg font-bold" style={{ color: "var(--fg)" }}>الإجمالي: {formatCurrency(total)}</p>
       </div>
       {invoice.notes && <Card><CardContent className="p-4"><p className="text-sm" style={{ color: "var(--text-muted)" }}>{invoice.notes}</p></CardContent></Card>}
       <Card><CardHeader><CardTitle className="text-base">المدفوعات</CardTitle></CardHeader><CardContent>
@@ -148,8 +148,8 @@ export default function InvoiceViewPage() {
               <tr key={i} className="border-b">
                 <td className="px-4 py-2.5">{p.number}</td>
                 <td className="px-4 py-2.5">{p.date}</td>
-                <td className="px-4 py-2.5 text-left font-medium" style={{ color: "#16a34a" }}>{f(p.amount)} ر.س</td>
-                <td className="px-4 py-2.5">{p.payment_method}</td>
+                <td className="px-4 py-2.5 text-left font-medium" style={{ color: "#16a34a" }}>{formatCurrency(p.amount)}</td>
+                <td className="px-4 py-2.5">{getPaymentMethodLabel(p.payment_method)}</td>
               </tr>
             ))}</tbody>
           </table></div>
@@ -164,8 +164,8 @@ export default function InvoiceViewPage() {
               <Select value={payMethod} onValueChange={setPayMethod}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cash">نقد</SelectItem>
-                  <SelectItem value="bank">بنك</SelectItem>
+                  <SelectItem value="cash">نقدًا</SelectItem>
+                  <SelectItem value="bank">تحويل بنكي</SelectItem>
                   <SelectItem value="transfer">تحويل</SelectItem>
                   <SelectItem value="card">بطاقة</SelectItem>
                   <SelectItem value="other">أخرى</SelectItem>
@@ -174,7 +174,7 @@ export default function InvoiceViewPage() {
             </div>
             <div className="space-y-1"><Label>التاريخ</Label><Input type="date" value={payDate} onChange={(e) => setPayDate(e.target.value)} /></div>
             <div className="space-y-1"><Label>ملاحظات</Label><Input value={payNotes} onChange={(e) => setPayNotes(e.target.value)} /></div>
-            {remaining > 0 && <p className="text-sm" style={{ color: "var(--text-muted)" }}>المتبقي: {f(remaining)} ر.س</p>}
+            {remaining > 0 && <p className="text-sm" style={{ color: "var(--text-muted)" }}>المتبقي: {formatCurrency(remaining)}</p>}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPayment(false)} disabled={paySaving}>إلغاء</Button>

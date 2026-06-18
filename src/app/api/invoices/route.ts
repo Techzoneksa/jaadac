@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       const { data, error } = await supabase
         .from("invoices")
-        .select("*, invoice_lines(*)")
+        .select("*, invoice_lines(*), customers!invoices_customer_id_fkey(name_ar), suppliers!invoices_supplier_id_fkey(name_ar)")
         .eq("id", id)
         .single();
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });

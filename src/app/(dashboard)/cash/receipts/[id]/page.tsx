@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { MoneyDisplay } from "@/components/ui/MoneyDisplay";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatCurrency, getPaymentMethodLabel } from "@/lib/format";
 
 type ReceiptData = Record<string, unknown> & {
   number?: string; date?: string; amount?: number; payment_method?: string; status?: string; notes?: string;
@@ -37,9 +38,9 @@ export default function EditReceiptPage() {
           <div className="grid gap-4 sm:grid-cols-3 mb-4">
             <div><Label>الرقم</Label><p className="font-medium">{receipt.number}</p></div>
             <div><Label>التاريخ</Label><p className="font-medium">{receipt.date}</p></div>
-            <div><Label>المبلغ</Label><p className="font-medium"><MoneyDisplay amount={receipt.amount ?? 0} /></p></div>
-            <div><Label>طريقة الدفع</Label><p className="font-medium">{receipt.payment_method}</p></div>
-            <div><Label>الحالة</Label><p className="font-medium">{receipt.status}</p></div>
+            <div><Label>المبلغ</Label><p className="font-medium">{formatCurrency(receipt.amount ?? 0)}</p></div>
+            <div><Label>طريقة الدفع</Label><p className="font-medium">{getPaymentMethodLabel(receipt.payment_method || "")}</p></div>
+            <div><Label>الحالة</Label><p className="font-medium"><StatusBadge status={receipt.status || ""} /></p></div>
           </div>
           {receipt.notes && <p className="text-sm text-[#64748b]">{receipt.notes}</p>}
         </CardContent>
