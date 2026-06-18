@@ -32,7 +32,7 @@ export default function NewPurchaseInvoicePage() {
   const [supplierId, setSupplierId] = useState("");
   const [showAddSupplier, setShowAddSupplier] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineItem[]>([
     { key: "1", item_id: "", description: "", qty: 1, unit_price: 0, vat_rate: 15 },
@@ -78,11 +78,12 @@ export default function NewPurchaseInvoicePage() {
     if (!lines.length || !lines[0].description) { setError("الرجاء إضافة صنف واحد على الأقل"); return; }
     setSaving(true);
     setError("");
+    const invDate = date || new Date().toISOString().slice(0, 10);
     const res = await fetch("/api/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "purchase", number: $$num("PINV-"), date,
+        type: "purchase", number: $$num("PINV-"), date: invDate,
         supplier_id: supplierId, subtotal, vat_total: vatTotal, total,
         notes, status: "draft",
         lines: lines.map((l) => { const { key: $k, ...r } = l; void $k; return r; }),

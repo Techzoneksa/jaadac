@@ -32,7 +32,7 @@ export default function NewQuotationPage() {
   const [customerId, setCustomerId] = useState("");
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineItem[]>([
     { key: "1", item_id: "", description: "", qty: 1, unit_price: 0, vat_rate: 15 },
@@ -78,11 +78,12 @@ export default function NewQuotationPage() {
     if (!lines.length || !lines[0].description) { setError("الرجاء إضافة صنف واحد على الأقل"); return; }
     setSaving(true);
     setError("");
+    const invDate = date || new Date().toISOString().slice(0, 10);
     const res = await fetch("/api/quotations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        number: $$num("QTN-"), date,
+        number: $$num("QTN-"), date: invDate,
         customer_id: customerId, subtotal, vat_total: vatTotal, total,
         notes, status: "draft",
       }),

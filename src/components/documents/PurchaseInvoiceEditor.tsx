@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DocumentEditorLayout, DocumentSection } from "@/components/documents/DocumentEditorLayout";
@@ -27,13 +27,19 @@ export function PurchaseInvoiceEditor({ editing }: { editing: PurchaseInvoice | 
       id: newId(),
       number: PurchaseInvoiceService.nextNumber(),
       supplier_id: suppliers[0]?.id || "",
-      date: new Date().toISOString().slice(0, 10),
-      due: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      date: "",
+      due: "",
       lines: [{ id: newId(), description: "", qty: 1, unit_cost: 0, vat_rate: 15 }],
       status: "draft",
       paid: 0,
     },
   );
+
+  useEffect(() => {
+    if (!editing) {
+      setForm((f) => f.date ? f : { ...f, date: new Date().toISOString().slice(0, 10), due: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) });
+    }
+  }, [editing]);
 
   const locked =
     !!editing &&

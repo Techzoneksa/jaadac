@@ -34,15 +34,16 @@ export default function NewPaymentPage() {
   const [showAddSupplier, setShowAddSupplier] = useState(false);
 
   const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<FormData>({
-    defaultValues: { date: new Date().toISOString().slice(0, 10), payment_method: "cash", status: "draft" },
+    defaultValues: { date: "", payment_method: "cash", status: "draft" },
   });
 
   useEffect(() => {
+    setValue("date", new Date().toISOString().slice(0, 10));
     fetch("/api/suppliers")
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d)) setSuppliers(d); })
       .catch(() => {});
-  }, []);
+  }, [setValue]);
 
   async function onSubmit(data: FormData) {
     setError("");

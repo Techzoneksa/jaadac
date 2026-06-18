@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DocumentEditorLayout, DocumentSection } from "@/components/documents/DocumentEditorLayout";
@@ -16,6 +16,8 @@ import { useAudit } from "@/hooks/useAudit";
 import { toast } from "sonner";
 import { Save, Send, Stamp, Printer, ArrowDownCircle } from "lucide-react";
 
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
 export function SalesInvoiceEditor({ editing }: { editing: Invoice | null }) {
   const { t, lang } = useI18n();
   const router = useRouter();
@@ -27,14 +29,20 @@ export function SalesInvoiceEditor({ editing }: { editing: Invoice | null }) {
       id: newId(),
       number: NumberingService.next("invoice"),
       customer_id: customers[0]?.id || "",
-      date: new Date().toISOString().slice(0, 10),
-      due: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      date: "",
+      due: "",
       lines: [{ id: newId(), description: "", qty: 1, unit_price: 0, vat_rate: 15 }],
       discount: 0,
       status: "draft",
       paid: 0,
     },
   );
+
+  useEffect(() => {
+    if (!editing) {
+      setForm((f) => f.date ? f : { ...f, date: todayStr(), due: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) });
+    }
+  }, [editing]);
 
   const locked = !!editing && (editing.status === "official" || editing.status === "fully_paid" || editing.status === "partially_paid");
   const totals = docTotals(form.lines, form.discount);

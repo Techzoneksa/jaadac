@@ -29,7 +29,7 @@ export default function InvoiceViewPage() {
   const [showPayment, setShowPayment] = useState(false);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
-  const [payDate, setPayDate] = useState(new Date().toISOString().slice(0, 10));
+  const [payDate, setPayDate] = useState("");
   const [payNotes, setPayNotes] = useState("");
   const [paySaving, setPaySaving] = useState(false);
 
@@ -51,11 +51,13 @@ export default function InvoiceViewPage() {
 
   async function handleFullPayment() {
     setPayAmount(String(remaining));
+    setPayDate(new Date().toISOString().slice(0, 10));
     setShowPayment(true);
   }
 
   async function handlePartialPayment() {
     setPayAmount("");
+    setPayDate(new Date().toISOString().slice(0, 10));
     setShowPayment(true);
   }
 

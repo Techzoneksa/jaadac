@@ -72,7 +72,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const { error: updErr } = await supabase
       .from("invoices")
-      .update({ paid_amount: newPaid })
+      .update({ paid_amount: newPaid, status: newStatus })
       .eq("id", invoiceId)
       .eq("tenant_id", user.id);
 

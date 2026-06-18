@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DocumentEditorLayout, DocumentSection } from "@/components/documents/DocumentEditorLayout";
@@ -27,13 +27,19 @@ export function QuotationEditor({ editing }: { editing: Quotation | null }) {
       id: newId(),
       number: NumberingService.next("quotation"),
       customer_id: customers[0]?.id || "",
-      date: new Date().toISOString().slice(0, 10),
-      expiry: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      date: "",
+      expiry: "",
       lines: [{ id: newId(), description: "", qty: 1, unit_price: 0, vat_rate: 15 }],
       discount: 0,
       status: "draft",
     },
   );
+
+  useEffect(() => {
+    if (!editing) {
+      setForm((f) => f.date ? f : { ...f, date: new Date().toISOString().slice(0, 10), expiry: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) });
+    }
+  }, [editing]);
 
   const save = (afterSave?: () => void) => {
     const v = ValidationService.quotation(form);

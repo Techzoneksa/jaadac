@@ -191,9 +191,9 @@ function LoadingSkeleton() {
         <tbody>
           {Array.from({ length: 8 }).map((_, i) => (
             <tr key={i} className="border-b border-border">
-              {Array.from({ length: 8 }).map((_, j) => (
+              {[65, 70, 75, 68, 72, 78, 63, 71].map((w, j) => (
                 <td key={j} className="px-4 py-3">
-                  <div className="h-4 bg-gray-200 rounded animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" style={{ width: `${w}%` }} />
                 </td>
               ))}
             </tr>

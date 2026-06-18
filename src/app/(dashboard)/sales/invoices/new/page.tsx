@@ -37,7 +37,7 @@ export default function NewSalesInvoicePage() {
   const [customerId, setCustomerId] = useState("");
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineItem[]>([
     { key: "1", item_id: "", description: "", qty: 1, unit_price: 0, vat_rate: 15 },
@@ -84,11 +84,12 @@ export default function NewSalesInvoicePage() {
     setSaving(true);
     setError("");
 
+    const invDate = date || new Date().toISOString().slice(0, 10);
     const res = await fetch("/api/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "sale", number: $$num("INV-"), date: date,
+        type: "sale", number: $$num("INV-"), date: invDate,
         customer_id: customerId, subtotal, vat_total: vatTotal, total,
         notes, status: "draft",
         lines: lines.map((l) => { const { key: $k, ...r } = l; void $k; return r; }),
