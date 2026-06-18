@@ -158,7 +158,7 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-1">
               {ri.map((inv) => (
-                <div key={String(inv?.id ?? "")} className="flex items-center justify-between py-2.5 px-3 rounded-xl transition-colors -mx-3" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--surface)"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                <div key={String(inv?.id ?? "")} className="flex items-center justify-between py-2.5 px-3 rounded-xl -mx-3">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)" }}>{String(inv?.number || "FT").slice(-3)}</div>
                     <div className="min-w-0"><p className="text-sm font-medium truncate" style={{ color: "var(--fg)" }}>{String(inv?.number || "—")}</p><p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>{String(inv?.date || "—")}</p></div>
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
               {rc.map((c) => {
                 const name = String(c?.name_ar || c?.name_en || "?");
                 return (
-                  <div key={String(c?.id ?? "")} className="flex items-center gap-3 py-2.5 px-3 rounded-xl transition-colors -mx-3" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--surface)"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                  <div key={String(c?.id ?? "")} className="flex items-center gap-3 py-2.5 px-3 rounded-xl -mx-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, #10b981, #34d399)" }}>{name.charAt(0)}</div>
                     <div className="min-w-0"><p className="text-sm font-medium truncate" style={{ color: "var(--fg)" }}>{name}</p><p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>{c?.created_at ? new Date(c.created_at as string).toLocaleDateString("ar-SA") : "—"}</p></div>
                   </div>
