@@ -1,70 +1,99 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 interface POData {
   number?: string; date?: string; status?: string; subtotal?: number;
   vat_total?: number; total?: number; notes?: string;
-  suppliers?: { name_ar?: string } | null;
-  purchase_order_lines?: Array<{ description?: string; qty?: number; unit_price?: number; total?: number }>;
+  suppliers?: { name_ar?: string; vat?: string } | null;
+  purchase_order_lines?: Array<{ description?: string; qty?: number; unit_price?: number; vat_rate?: number; total?: number }>;
+}
+
+interface CompanyData {
+  name_ar?: string; name_en?: string; vat?: string; cr?: string;
+  phone?: string; email?: string; address?: string;
 }
 
 export default function PurchaseOrderPrintPage() {
   const params = useParams();
   const [data, setData] = useState<POData | null>(null);
+  const [company, setCompany] = useState<CompanyData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/purchase-orders?id=${params.id}`)
-      .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch(`/api/purchase-orders?id=${params.id}`).then((r) => r.json()),
+      fetch("/api/company-settings").then((r) => r.json()),
+    ]).then(([d, c]) => { setData(d); setCompany(c); setLoading(false); }).catch(() => setLoading(false));
   }, [params.id]);
 
   const handlePrint = () => window.print();
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen"><p className="text-[#64748b]">جار التحميل...</p></div>;
-  if (!data) return <div className="flex items-center justify-center min-h-screen"><p className="text-[#dc2626]">لم يتم العثور على أمر الشراء</p></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><p className="text-muted">جار التحميل...</p></div>;
+  if (!data) return <div className="flex items-center justify-center min-h-screen"><p className="text-danger">لم يتم العثور على أمر الشراء</p></div>;
+
+  const f = (v?: number) => (v ?? 0).toLocaleString("ar-SA", { minimumFractionDigits: 2 });
 
   return (
     <div className="min-h-screen bg-white" dir="rtl">
       <div className="no-print flex justify-center p-4 border-b print:hidden">
         <button onClick={handlePrint} className="bg-[#0f172a] text-white px-6 py-2 rounded hover:bg-[#1e293b] transition-colors">طباعة</button>
       </div>
-      <div className="max-w-[210mm] mx-auto p-8 print:p-4">
-        <div className="border-b-2 border-[#0f172a] pb-4 mb-6">
-          <h1 className="text-2xl font-bold text-[#0f172a]">أمر شراء</h1>
-          <p className="text-sm text-[#64748b]">رقم: {data.number}</p>
-          <p className="text-sm text-[#64748b]">تاريخ: {data.date}</p>
-          {data.suppliers?.name_ar && <p className="text-sm text-[#64748b]">المورد: {data.suppliers.name_ar}</p>}
+      <div className="print-document">
+        <div className="flex justify-between items-start border-b-2 border-[#0f172a] pb-4 mb-6">
+          <div>
+            <h1 className="text-xl font-bold">{company?.name_ar || company?.name_en || ""}</h1>
+            {company?.vat && <p className="text-xs text-muted">الرقم الضريبي: {company.vat}</p>}
+            {company?.cr && <p className="text-xs text-muted">السجل التجاري: {company.cr}</p>}
+            {company?.phone && <p className="text-xs text-muted">هاتف: {company.phone}</p>}
+            {company?.address && <p className="text-xs text-muted">{company.address}</p>}
+          </div>
+          <div className="text-left">
+            <h2 className="text-lg font-bold">أمر شراء</h2>
+            <p className="text-xs text-muted">رقم: {data.number}</p>
+            <p className="text-xs text-muted">تاريخ: {data.date}</p>
+            <p className="text-xs text-muted">الحالة: {data.status}</p>
+          </div>
         </div>
+        {data.suppliers?.name_ar && (
+          <div className="mb-4">
+            <p className="text-sm font-medium">المورد: {data.suppliers.name_ar}</p>
+            {data.suppliers.vat && <p className="text-xs text-muted">الرقم الضريبي: {data.suppliers.vat}</p>}
+          </div>
+        )}
         <table className="w-full text-sm mb-6">
-          <thead><tr className="bg-[#f8fafc] border-y-2 border-[#0f172a]">
-            <th className="px-3 py-2 text-right">البيان</th>
-            <th className="px-3 py-2 text-center">الكمية</th>
-            <th className="px-3 py-2 text-left">سعر الوحدة</th>
-            <th className="px-3 py-2 text-left">الإجمالي</th>
-          </tr></thead>
+          <thead>
+            <tr className="bg-[#f8fafc] border-y-2 border-[#0f172a]">
+              <th className="px-3 py-2 text-right">البيان</th>
+              <th className="px-3 py-2 text-center">الكمية</th>
+              <th className="px-3 py-2 text-left">سعر الوحدة</th>
+              <th className="px-3 py-2 text-left">ضريبة</th>
+              <th className="px-3 py-2 text-left">الإجمالي</th>
+            </tr>
+          </thead>
           <tbody>
             {(data.purchase_order_lines || []).map((line, i) => (
               <tr key={i} className="border-b">
                 <td className="px-3 py-2">{line.description}</td>
                 <td className="px-3 py-2 text-center">{line.qty}</td>
-                <td className="px-3 py-2 text-left">{line.unit_price?.toLocaleString()}</td>
-                <td className="px-3 py-2 text-left">{line.total?.toLocaleString()}</td>
+                <td className="px-3 py-2 text-left">{f(line.unit_price)}</td>
+                <td className="px-3 py-2 text-left">{line.vat_rate != null ? `${line.vat_rate}%` : "—"}</td>
+                <td className="px-3 py-2 text-left">{f(line.total)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <div className="text-left space-y-1">
-          <p className="text-sm">المجموع الفرعي: <span className="font-medium">{data.subtotal?.toLocaleString()} ر.س</span></p>
-          <p className="text-sm">الضريبة: <span className="font-medium">{data.vat_total?.toLocaleString()} ر.س</span></p>
-          <p className="text-lg font-bold text-[#0f172a]">الإجمالي: {data.total?.toLocaleString()} ر.س</p>
+          <p className="text-sm">المجموع الفرعي: <span className="font-medium">{f(data.subtotal)} ر.س</span></p>
+          <p className="text-sm">الضريبة: <span className="font-medium">{f(data.vat_total)} ر.س</span></p>
+          <p className="text-lg font-bold">الإجمالي: {f(data.total)} ر.س</p>
         </div>
-        {data.notes && <p className="mt-6 text-sm text-[#64748b] border-t pt-4">{data.notes}</p>}
+        {data.notes && <p className="mt-6 text-sm text-muted border-t pt-4">{data.notes}</p>}
+        <div className="mt-8 pt-4 border-t text-xs text-muted text-center">
+          <p>—— توقيع ———</p>
+        </div>
       </div>
-      <style>{`@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { margin: 10mm; size: A4; } }`}</style>
     </div>
   );
 }
