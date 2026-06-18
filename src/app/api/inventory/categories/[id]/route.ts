@@ -6,6 +6,19 @@ async function handle<T>(fn: () => Promise<Response | T>): Promise<Response> {
   catch (e) { console.error("API Error:", e); return NextResponse.json({ error: e instanceof Error ? e.message : "Internal server error" }, { status: 500 }); }
 }
 
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  return handle(async () => {
+    const { id } = await params;
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { data, error } = await supabase.from("inventory_categories").select("*").eq("id", id).eq("tenant_id", user.id).single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: "الفئة غير موجودة" }, { status: 404 });
+    return NextResponse.json(data);
+  });
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return handle(async () => {
     const { id } = await params;

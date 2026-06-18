@@ -1,22 +1,23 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Building2, Save, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Building2, Save, Loader2, CheckCircle2, AlertCircle, Upload, Trash2, ImageIcon } from "lucide-react";
 
 interface CompanySettings {
   name_ar: string; name_en: string; vat: string; cr: string;
   phone: string; email: string; city: string; address: string;
+  logo_url?: string;
 }
 
 const DEFAULTS: CompanySettings = {
   name_ar: "", name_en: "", vat: "", cr: "",
-  phone: "", email: "", city: "", address: "",
+  phone: "", email: "", city: "", address: "", logo_url: "",
 };
 
 export default function SettingsPage() {
@@ -24,6 +25,9 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, reset } = useForm<CompanySettings>({ defaultValues: DEFAULTS });
 
@@ -32,6 +36,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/settings");
       const data = await res.json();
       if (res.ok && data && !data.error) {
+        setLogoUrl(data.logo_url || "");
         reset({ ...DEFAULTS, ...data });
       }
     } catch {
@@ -45,6 +50,7 @@ export default function SettingsPage() {
 
   async function onSubmit(data: CompanySettings) {
     setSaving(true); setError(""); setSuccess("");
+    data.logo_url = logoUrl || undefined;
     try {
       const res = await fetch("/api/settings", {
         method: "PUT",
@@ -115,6 +121,70 @@ export default function SettingsPage() {
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>العنوان</Label>
                 <Textarea {...register("address")} className="rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
+          <div className="flex items-center gap-3 px-6 py-4 border-b" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)" }}>
+              <ImageIcon className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold" style={{ color: "var(--fg)" }}>شعار المنشأة</h3>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>يظهر في الفواتير والتقارير</p>
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="flex items-center gap-6">
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed overflow-hidden"
+                style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
+                {logoUrl ? (
+                  <img src={logoUrl} alt="Logo" className="h-full w-full object-contain" />
+                ) : (
+                  <Upload className="h-8 w-8" style={{ color: "var(--text-muted)" }} />
+                )}
+              </div>
+              <div className="space-y-2">
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploadingLogo(true);
+                    try {
+                      const fd = new FormData();
+                      fd.append("file", file);
+                      const res = await fetch("/api/settings/logo", { method: "POST", body: fd });
+                      const json = await res.json();
+                      if (res.ok && json.url) {
+                        setLogoUrl(json.url);
+                        setSuccess("تم رفع الشعار بنجاح. احفظ الإعدادات لتأكيد التغيير.");
+                      } else {
+                        setError(json.error || "فشل رفع الشعار");
+                      }
+                    } catch {
+                      setError("فشل رفع الشعار");
+                    } finally {
+                      setUploadingLogo(false);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }
+                  }} />
+                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploadingLogo}>
+                  {uploadingLogo ? <Loader2 className="h-4 w-4 ml-1 animate-spin" /> : <Upload className="h-4 w-4 ml-1" />}
+                  {uploadingLogo ? "جاري الرفع..." : "اختيار شعار"}
+                </Button>
+                {logoUrl && (
+                  <Button type="button" variant="outline" size="sm" style={{ color: "var(--danger)" }}
+                    onClick={async () => {
+                      try {
+                        await fetch("/api/settings/logo", { method: "DELETE" });
+                        setLogoUrl("");
+                      } catch { setError("فشل حذف الشعار"); }
+                    }}>
+                    <Trash2 className="h-4 w-4 ml-1" /> حذف الشعار
+                  </Button>
+                )}
               </div>
             </div>
           </div>

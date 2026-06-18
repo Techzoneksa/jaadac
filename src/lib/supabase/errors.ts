@@ -12,7 +12,7 @@ export interface DbError {
   detail?: string;
 }
 
-const TABLE_NOT_FOUND = /relation ".*" does not exist|does not exist/i;
+const TABLE_NOT_FOUND = /relation ".*" does not exist|could not find the table|schema cache|does not exist/i;
 const PERMISSION_DENIED = /permission denied|policy|violates row-level security/i;
 const AUTH_FAILED = /auth|unauthorized|not authenticated|jwt/i;
 const NETWORK_ERR = /fetch|network|connect|timeout|econnrefused|econnreset|enotfound/i;

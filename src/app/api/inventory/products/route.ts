@@ -14,10 +14,14 @@ export async function GET(req: NextRequest) {
     const category_id = req.nextUrl.searchParams.get("category_id");
     const status = req.nextUrl.searchParams.get("status");
     const search = req.nextUrl.searchParams.get("search");
-    let query = supabase.from("items").select("*").eq("tenant_id", user.id).in("type", ["stock", "non_stock"]).order("name_ar");
+    const limitParam = req.nextUrl.searchParams.get("limit");
+    const offsetParam = req.nextUrl.searchParams.get("offset");
+    let query = supabase.from("items").select("*", { count: "exact" }).eq("tenant_id", user.id).in("type", ["stock", "non_stock"]).order("name_ar");
     if (category_id) query = query.eq("category_id", category_id);
     if (status) query = query.eq("status", status);
     if (search) query = query.or(`name_ar.ilike.%${search}%,sku.ilike.%${search}%`);
+    if (limitParam) query = query.limit(parseInt(limitParam));
+    if (offsetParam) { const off = parseInt(offsetParam); const lim = limitParam ? parseInt(limitParam) : 20; query = query.range(off, off + lim - 1); }
     const { data, error } = await query;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);

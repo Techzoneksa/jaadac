@@ -55,11 +55,24 @@ export default function InventoryCategoriesPage() {
     },
   ];
 
+  const isDbInitError = error && (error.includes("تهيئة") || error.includes("migrations") || error.includes("schema cache") || error.includes("does not exist"));
+
   return (
     <div>
       <PageHeader title="فئات المنتجات" description="تصنيف المنتجات المخزنية" action={<Button onClick={openAdd}>إضافة فئة</Button>} />
-      <DataTable columns={columns} data={data} keyExtractor={(r) => r.id} isLoading={loading} error={error}
-        emptyTitle="لا توجد فئات" emptyDescription="أضف فئة جديدة للبدء" searchPlaceholder="بحث عن فئة..." />
+      {isDbInitError ? (
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <div className="h-12 w-12 rounded-xl bg-warning/10 text-warning flex items-center justify-center mx-auto mb-3">
+            <span className="text-xl font-bold">!</span>
+          </div>
+          <p className="text-sm font-medium text-foreground mb-2">لم يتم تهيئة قاعدة بيانات المخزون بعد</p>
+          <p className="text-xs text-muted mb-6">الرجاء تطبيق التحديثات أولاً.</p>
+          <Button onClick={() => router.push("/api/health/inventory")}>تحديث قاعدة البيانات</Button>
+        </div>
+      ) : (
+        <DataTable columns={columns} data={data} keyExtractor={(r) => r.id} isLoading={loading} error={error}
+          emptyTitle="لا توجد فئات" emptyDescription="أضف فئة جديدة للبدء" searchPlaceholder="بحث عن فئة..." />
+      )}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>{editItem ? "تعديل الفئة" : "إضافة فئة جديدة"}</DialogTitle></DialogHeader>
