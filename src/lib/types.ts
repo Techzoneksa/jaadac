@@ -90,7 +90,12 @@ export interface Account {
   payment_enabled?: boolean;
   purpose?: string;
   locked?: boolean;
+  is_system?: boolean;
+  expense_claim_category?: string;
+  notes?: string;
   created_at?: string;
+  updated_at?: string;
+  children?: Account[];
 }
 
 export interface JournalLine {
