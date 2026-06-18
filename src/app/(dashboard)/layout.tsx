@@ -3,13 +3,18 @@
 import { usePathname } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { Toaster } from "@/components/ui/sonner";
+import { useEffect, useState } from "react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isPrint = pathname?.split("/").includes("print");
+  const [isPrintRoute, setIsPrintRoute] = useState(false);
 
-  if (isPrint) {
-    return <><div className="print-document">{children}</div><Toaster /></>;
+  useEffect(() => {
+    setIsPrintRoute(pathname?.includes("/print") ?? false);
+  }, [pathname]);
+
+  if (isPrintRoute) {
+    return <>{children}</>;
   }
 
   return <><AppShell>{children}</AppShell><Toaster /></>;

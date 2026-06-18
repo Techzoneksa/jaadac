@@ -78,6 +78,8 @@ export async function POST(req: Request) {
   });
 }
 
+const UPDATE_ALLOWED = ["date", "status", "notes", "customer_id", "supplier_id", "due_date", "subtotal", "vat_total", "total", "paid_amount"];
+
 export async function PUT(req: NextRequest) {
   return handle(async () => {
     const supabase = await createClient();
@@ -89,9 +91,15 @@ export async function PUT(req: NextRequest) {
 
     const { lines, ...body } = await req.json();
 
+    // Only allow known columns
+    const safe: Record<string, unknown> = {};
+    for (const key of UPDATE_ALLOWED) {
+      if (key in body) safe[key] = body[key];
+    }
+
     const { data, error } = await supabase
       .from("invoices")
-      .update(body)
+      .update(safe)
       .eq("id", id)
       .eq("tenant_id", user.id)
       .select()

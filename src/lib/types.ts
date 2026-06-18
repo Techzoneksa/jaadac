@@ -48,6 +48,106 @@ export interface Item {
   low_stock?: number;
   archived?: boolean;
   created_at?: string;
+  // New inventory/service fields
+  category_id?: string;
+  service_category_id?: string;
+  barcode?: string;
+  unit?: string;
+  cost?: number;
+  track_inventory?: boolean;
+  reorder_level?: number;
+  current_stock?: number;
+  is_active?: boolean;
+  status?: string;
+  updated_at?: string;
+}
+
+export interface InventoryBranch {
+  id: string;
+  tenant_id: string;
+  name: string;
+  code?: string;
+  address?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface InventoryCategory {
+  id: string;
+  tenant_id: string;
+  name: string;
+  parent_id?: string;
+  description?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ServiceCategory {
+  id: string;
+  tenant_id: string;
+  name: string;
+  description?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface InventoryMovement {
+  id: string;
+  tenant_id: string;
+  item_id?: string;
+  branch_id?: string;
+  movement_type: "opening" | "purchase" | "sale" | "adjustment" | "transfer_in" | "transfer_out" | "manufacturing_in" | "manufacturing_out";
+  qty: number;
+  unit_cost?: number;
+  reference_type?: string;
+  reference_id?: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface InventoryCount {
+  id: string;
+  tenant_id: string;
+  branch_id?: string;
+  number: string;
+  date: string;
+  status: "draft" | "counted" | "posted" | "cancelled";
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface InventoryCountLine {
+  id?: string;
+  count_id?: string;
+  item_id: string;
+  system_qty?: number;
+  counted_qty?: number;
+  difference_qty?: number;
+  notes?: string;
+}
+
+export interface ManufacturingCard {
+  id: string;
+  tenant_id: string;
+  product_id?: string;
+  number: string;
+  name: string;
+  status: "draft" | "active" | "cancelled";
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ManufacturingCardLine {
+  id?: string;
+  manufacturing_card_id?: string;
+  component_item_id: string;
+  qty: number;
+  cost?: number;
 }
 
 export interface Invoice {

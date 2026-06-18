@@ -1,34 +1,50 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save, AlertCircle, ArrowRight } from "lucide-react";
-
-interface FormData { date: string; status: string; notes: string; supplier_name: string; }
+import type { Supplier } from "@/lib/types";
 
 export default function EditPurchaseInvoicePage() {
   const router = useRouter(); const params = useParams();
   const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false);
   const [error, setError] = useState(""); const [doc, setDoc] = useState<Record<string, unknown> | null>(null);
-  const { register, handleSubmit, reset } = useForm<FormData>({ defaultValues: { date: "", status: "draft", notes: "", supplier_name: "" } });
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [supplierId, setSupplierId] = useState("");
+  const [date, setDate] = useState("");
+  const [status, setStatus] = useState("draft");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    fetch(`/api/invoices?id=${params.id}`).then((r) => r.json()).then((data) => {
-      if (data.error) { setError(data.error); setLoading(false); return; }
-      setDoc(data); reset({ date: data.date || "", status: data.status || "draft", notes: data.notes || "", supplier_name: data.supplier_name || "" }); setLoading(false);
+    Promise.all([
+      fetch(`/api/invoices?id=${params.id}`).then((r) => r.json()),
+      fetch("/api/suppliers").then((r) => r.json()),
+    ]).then(([invData, supData]) => {
+      if (invData.error) { setError(invData.error); setLoading(false); return; }
+      setDoc(invData);
+      setSupplierId(invData.supplier_id || "");
+      setDate(invData.date || "");
+      setStatus(invData.status || "draft");
+      setNotes(invData.notes || "");
+      if (Array.isArray(supData)) setSuppliers(supData);
+      setLoading(false);
     }).catch(() => { setError("فشل تحميل البيانات"); setLoading(false); });
-  }, [params.id, reset]);
+  }, [params.id]);
 
-  async function onSubmit(data: FormData) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setSaving(true); setError("");
     try {
-      const res = await fetch(`/api/invoices?id=${params.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const res = await fetch(`/api/invoices/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ supplier_id: supplierId || null, date, status, notes }),
+      });
       const json = await res.json();
       if (!res.ok) { setError(json.error || "فشل الحفظ"); return; }
       router.push(`/purchases/invoices/${params.id}`);
@@ -43,19 +59,32 @@ export default function EditPurchaseInvoicePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title={doc?.number ? `تعديل فاتورة مشتريات #${doc.number}` : "تعديل فاتورة مشتريات"} action={<Button variant="outline" onClick={() => router.back()}><ArrowRight className="h-4 w-4 ml-1" /> رجوع</Button>} />
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--fg)" }}>معلومات الفاتورة</h3>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-1.5"><Label className="text-xs font-medium">المورد</Label><Input {...register("supplier_name")} className="h-10 rounded-xl" /></div>
-            <div className="space-y-1.5"><Label className="text-xs font-medium">التاريخ</Label><Input type="date" {...register("date")} className="h-10 rounded-xl" /></div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">المورد</Label>
+              <Select value={supplierId} onValueChange={setSupplierId}>
+                <SelectTrigger><SelectValue placeholder="اختر مورداً" /></SelectTrigger>
+                <SelectContent>
+                  {suppliers.map((s) => <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium">التاريخ</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-10 rounded-xl" /></div>
             <div className="space-y-1.5"><Label className="text-xs font-medium">الحالة</Label>
-              <select {...register("status")} className="flex h-10 w-full rounded-xl border px-3 text-sm" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--fg)" }}>
-                <option value="draft">مسودة</option><option value="sent">مرسل</option><option value="paid">مدفوع</option><option value="cancelled">ملغي</option>
-              </select>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">مسودة</SelectItem>
+                  <SelectItem value="confirmed">مؤكدة</SelectItem>
+                  <SelectItem value="cancelled">ملغية</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div className="space-y-1.5 mt-4"><Label className="text-xs font-medium">ملاحظات</Label><Textarea {...register("notes")} className="rounded-xl" rows={3} /></div>
+          <div className="space-y-1.5 mt-4"><Label className="text-xs font-medium">ملاحظات</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="rounded-xl" rows={3} /></div>
         </div>
         <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
           <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--fg)" }}>البنود</h3>

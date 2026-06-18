@@ -1,34 +1,51 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save, AlertCircle, ArrowRight } from "lucide-react";
-
-interface InvoiceForm { date: string; status: string; notes: string; customer_name: string; }
+import type { Customer } from "@/lib/types";
 
 export default function EditSalesInvoicePage() {
   const router = useRouter(); const params = useParams();
   const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(""); const [invoice, setInvoice] = useState<Record<string, unknown> | null>(null);
-  const { register, handleSubmit, reset } = useForm<InvoiceForm>({ defaultValues: { date: "", status: "draft", notes: "", customer_name: "" } });
+  const [error, setError] = useState("");
+  const [invoice, setInvoice] = useState<Record<string, unknown> | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customerId, setCustomerId] = useState("");
+  const [date, setDate] = useState("");
+  const [status, setStatus] = useState("draft");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    fetch(`/api/invoices?id=${params.id}`).then((r) => r.json()).then((data) => {
-      if (data.error) { setError(data.error); setLoading(false); return; }
-      setInvoice(data); reset({ date: data.date || "", status: data.status || "draft", notes: data.notes || "", customer_name: data.customer_name || "" }); setLoading(false);
+    Promise.all([
+      fetch(`/api/invoices?id=${params.id}`).then((r) => r.json()),
+      fetch("/api/customers").then((r) => r.json()),
+    ]).then(([invData, custData]) => {
+      if (invData.error) { setError(invData.error); setLoading(false); return; }
+      setInvoice(invData);
+      setCustomerId(invData.customer_id || "");
+      setDate(invData.date || "");
+      setStatus(invData.status || "draft");
+      setNotes(invData.notes || "");
+      if (Array.isArray(custData)) setCustomers(custData);
+      setLoading(false);
     }).catch(() => { setError("فشل تحميل البيانات"); setLoading(false); });
-  }, [params.id, reset]);
+  }, [params.id]);
 
-  async function onSubmit(data: InvoiceForm) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setSaving(true); setError("");
     try {
-      const res = await fetch(`/api/invoices?id=${params.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const res = await fetch(`/api/invoices/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customer_id: customerId || null, date, status, notes }),
+      });
       const json = await res.json();
       if (!res.ok) { setError(json.error || "فشل الحفظ"); return; }
       router.push(`/sales/invoices/${params.id}`);
@@ -43,19 +60,32 @@ export default function EditSalesInvoicePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title={invoice?.number ? `تعديل فاتورة #${invoice.number}` : "تعديل فاتورة"} action={<Button variant="outline" onClick={() => router.back()}><ArrowRight className="h-4 w-4 ml-1" /> رجوع</Button>} />
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--fg)" }}>معلومات الفاتورة</h3>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-1.5"><Label className="text-xs font-medium">العميل</Label><Input {...register("customer_name")} className="h-10 rounded-xl" /></div>
-            <div className="space-y-1.5"><Label className="text-xs font-medium">التاريخ</Label><Input type="date" {...register("date")} className="h-10 rounded-xl" /></div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">العميل</Label>
+              <Select value={customerId} onValueChange={setCustomerId}>
+                <SelectTrigger><SelectValue placeholder="اختر عميلاً" /></SelectTrigger>
+                <SelectContent>
+                  {customers.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_ar}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5"><Label className="text-xs font-medium">التاريخ</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-10 rounded-xl" /></div>
             <div className="space-y-1.5"><Label className="text-xs font-medium">الحالة</Label>
-              <select {...register("status")} className="flex h-10 w-full rounded-xl border px-3 text-sm" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--fg)" }}>
-                <option value="draft">مسودة</option><option value="sent">مرسل</option><option value="paid">مدفوع</option><option value="overdue">متأخر</option><option value="cancelled">ملغي</option>
-              </select>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">مسودة</SelectItem>
+                  <SelectItem value="confirmed">مؤكدة</SelectItem>
+                  <SelectItem value="cancelled">ملغية</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div className="space-y-1.5 mt-4"><Label className="text-xs font-medium">ملاحظات</Label><Textarea {...register("notes")} className="rounded-xl" rows={3} /></div>
+          <div className="space-y-1.5 mt-4"><Label className="text-xs font-medium">ملاحظات</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="rounded-xl" rows={3} /></div>
         </div>
         <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
           <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--fg)" }}>البنود</h3>

@@ -7,7 +7,9 @@ import {
   LayoutDashboard, Package, BarChart3, Settings,
   ChevronLeft, FileText, Receipt, Banknote, Network, Tags,
   ScrollText, Menu, Users, Store, ShoppingCart, LogOut,
-  CreditCard, ArrowLeftRight, Building2,
+  CreditCard, ArrowLeftRight, Building2, Warehouse,
+  FolderTree, ClipboardList, Factory, Boxes, PackageCheck,
+  Tags as ServiceTags, Layers, ConciergeBell,
 } from "lucide-react";
 
 interface NavItem {
@@ -47,9 +49,24 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "المخزون والخدمات",
+    label: "المخزون",
     items: [
-      { label: "المنتجات والخدمات", href: "/items", icon: <Package className="h-5 w-5" /> },
+      { label: "الفروع", href: "/inventory/branches", icon: <Warehouse className="h-5 w-5" /> },
+      { label: "الفئات", href: "/inventory/categories", icon: <FolderTree className="h-5 w-5" /> },
+      { label: "المنتجات", href: "/inventory/products", icon: <Package className="h-5 w-5" /> },
+      { label: "بطاقة الصنف", href: "/inventory/item-card", icon: <ClipboardList className="h-5 w-5" /> },
+      { label: "بطاقة تصنيع", href: "/inventory/manufacturing-cards", icon: <Factory className="h-5 w-5" /> },
+      { label: "الجرد", href: "/inventory/counts", icon: <Boxes className="h-5 w-5" /> },
+      { label: "كشف المخزون", href: "/inventory/stock-report", icon: <PackageCheck className="h-5 w-5" /> },
+      { label: "حركة المخزون", href: "/inventory/movements", icon: <ArrowLeftRight className="h-5 w-5" /> },
+      { label: "المخزون حسب الفروع", href: "/inventory/by-branch", icon: <Layers className="h-5 w-5" /> },
+    ],
+  },
+  {
+    label: "الخدمات",
+    items: [
+      { label: "فئات الخدمات", href: "/services/categories", icon: <ServiceTags className="h-5 w-5" /> },
+      { label: "الخدمات", href: "/services", icon: <ConciergeBell className="h-5 w-5" /> },
     ],
   },
   {
