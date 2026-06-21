@@ -164,7 +164,7 @@ export function ZATCAInvoiceTemplate({ invoice, company }: Props) {
   ].filter(Boolean).join(" ") : "";
 
   return (
-    <div className="invoice-print-area" style={{ fontFamily: "'IBM Plex Sans Arabic', Arial, sans-serif", direction: "rtl", color: "#1e293b", fontSize: "11px", lineHeight: "1.5", maxWidth: "210mm", margin: "0 auto", background: "#fff", padding: "16mm 18mm" }}>
+    <div className="invoice-print-area" style={{ fontFamily: "'IBM Plex Sans Arabic', Arial, sans-serif", direction: "rtl", color: "#1e293b", fontSize: "11px", lineHeight: "1.5", maxWidth: "210mm", margin: "0 auto", background: "#fff", padding: "16mm 18mm", position: "relative" }}>
       {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "3px solid #1e293b", paddingBottom: "16px", marginBottom: "16px" }}>
         <div style={{ flex: 1 }}>
@@ -354,7 +354,7 @@ export function ZATCAInvoiceTemplate({ invoice, company }: Props) {
       {invoice.qr_value && (
         <div style={{ textAlign: "center", marginBottom: "16px" }}>
           <div style={{ display: "inline-block", border: "2px solid #1e293b", borderRadius: "4px", padding: "8px", background: "#fff" }}>
-            <img src={`data:image/png;base64,${invoice.qr_value}`} alt="QR Code" style={{ width: "120px", height: "120px" }} />
+            <img src={invoice.qr_value} alt="QR Code" style={{ width: "120px", height: "120px" }} />
           </div>
           <p style={{ fontSize: "9px", color: "#94a3b8", margin: "4px 0 0" }}>رمز الاستجابة السريعة / ZATCA QR Code</p>
         </div>
@@ -410,9 +410,9 @@ export function ZATCAInvoiceTemplate({ invoice, company }: Props) {
 
       {/* PAID STAMP */}
       {isPaid && (
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%) rotate(-15deg)", pointerEvents: "none" }}>
-          <div style={{ border: "4px solid #16a34a", borderRadius: "8px", padding: "12px 24px", opacity: 0.3 }}>
-            <span style={{ fontSize: "48px", fontWeight: 800, color: "#16a34a" }}>PAID / مدفوعة</span>
+        <div style={{ position: "absolute", top: "16px", left: "16px", transform: "rotate(-8deg)", pointerEvents: "none", opacity: 0.18 }}>
+          <div style={{ border: "3px solid #16a34a", borderRadius: "6px", padding: "6px 16px" }}>
+            <span style={{ fontSize: "26px", fontWeight: 800, color: "#16a34a" }}>PAID / مدفوعة</span>
           </div>
         </div>
       )}

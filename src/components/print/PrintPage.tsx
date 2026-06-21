@@ -12,7 +12,7 @@ interface Props {
 export function PrintPage({ children, backHref }: Props) {
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6", padding: "24px" }}>
-      <div className="print-toolbar" style={{ display: "flex", justifyContent: "center", gap: "12px", padding: "0 0 24px 0", flexWrap: "wrap" }}>
+      <div className="print-toolbar no-print" style={{ display: "flex", justifyContent: "center", gap: "12px", padding: "0 0 24px 0", flexWrap: "wrap" }}>
         {backHref && (
           <Link href={backHref}>
             <button className="print-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "10px 20px", borderRadius: "10px", fontSize: "14px", fontWeight: 600, color: "#fff", background: "#475569", border: "none", cursor: "pointer" }}>
