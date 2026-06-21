@@ -18,6 +18,7 @@ export interface Customer {
   additional_no?: string;
   postal_code?: string;
   address?: string;
+  national_short_address?: string;
   project_name?: string;
   contact_person?: string;
   customer_number?: string;
@@ -345,6 +346,7 @@ export interface CompanySettings {
   additional_no?: string;
   district?: string;
   postal_code?: string;
+  national_short_address?: string;
   branch_name?: string;
   address?: string;
   logo_url?: string;

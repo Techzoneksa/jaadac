@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Building2, Save, Loader2, CheckCircle2, AlertCircle, Upload, Trash2, ImageIcon, CreditCard, Settings2 } from "lucide-react";
+import { Building2, Save, Loader2, CheckCircle2, AlertCircle, Upload, Trash2, ImageIcon, CreditCard, Settings2, MapPin, ShieldCheck } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 interface CompanySettings {
@@ -15,6 +15,7 @@ interface CompanySettings {
   phone: string; email: string; city: string; country: string;
   street: string; building_no: string; additional_no: string;
   district: string; postal_code: string; address: string;
+  national_short_address: string;
   branch_name: string; logo_url?: string;
   show_logo?: boolean; show_stamp?: boolean; show_bank?: boolean;
   show_amount_text?: boolean; show_customer_address?: boolean;
@@ -34,6 +35,7 @@ const DEFAULTS: CompanySettings = {
   phone: "", email: "", city: "", country: "المملكة العربية السعودية",
   street: "", building_no: "", additional_no: "",
   district: "", postal_code: "", address: "",
+  national_short_address: "",
   branch_name: "", logo_url: "",
   show_logo: true, show_stamp: true, show_bank: true,
   show_amount_text: true, show_customer_address: true,
@@ -149,18 +151,6 @@ export default function SettingsPage() {
                 <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>البريد الإلكتروني</Label>
                 <Input type="email" {...register("email")} className="h-10 rounded-xl" />
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الدولة</Label>
-                <Input {...register("country")} className="h-10 rounded-xl" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>المدينة</Label>
-                <Input {...register("city")} className="h-10 rounded-xl" />
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>العنوان الوطني</Label>
-                <Textarea {...register("address")} className="rounded-xl" />
-              </div>
             </div>
           </div>
         </div>
@@ -168,34 +158,70 @@ export default function SettingsPage() {
         <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
           <div className="flex items-center gap-3 px-6 py-4 border-b" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)" }}>
-              <Settings2 className="h-4 w-4 text-white" />
+              <MapPin className="h-4 w-4 text-white" />
             </div>
             <div>
               <h3 className="text-sm font-semibold" style={{ color: "var(--fg)" }}>العنوان الوطني</h3>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>البيانات التفصيلية للعنوان الوطني</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>بيانات العنوان الوطني للمنشأة</p>
             </div>
           </div>
           <div className="p-6">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الشارع</Label>
-                <Input {...register("street")} className="h-10 rounded-xl" />
+            <div className="space-y-5">
+              <div className="flex items-end justify-between">
+                <div className="space-y-1.5 flex-1">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>العنوان المختصر</Label>
+                  <Input {...register("national_short_address")} className="h-10 rounded-xl" placeholder="مثال: JEDB1234" />
+                </div>
+                <div className="ml-4">
+                  <Button type="button" variant="outline" size="sm" disabled className="h-10 rounded-xl" title="سيتم ربط خدمة العنوان الوطني لاحقًا">
+                    <ShieldCheck className="h-4 w-4 ml-1" />التحقق من العنوان الوطني
+                  </Button>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>رقم المبنى</Label>
-                <Input {...register("building_no")} className="h-10 rounded-xl" />
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>المدينة</Label>
+                  <Input {...register("city")} className="h-10 rounded-xl" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الحي / المنطقة</Label>
+                  <Input {...register("district")} className="h-10 rounded-xl" />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الرقم الإضافي</Label>
-                <Input {...register("additional_no")} className="h-10 rounded-xl" />
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الشارع</Label>
+                  <Input {...register("street")} className="h-10 rounded-xl" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>رقم المبنى</Label>
+                  <Input {...register("building_no")} className="h-10 rounded-xl" />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الحي / المنطقة</Label>
-                <Input {...register("district")} className="h-10 rounded-xl" />
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الرقم الإضافي</Label>
+                  <Input {...register("additional_no")} className="h-10 rounded-xl" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الرمز البريدي</Label>
+                  <Input {...register("postal_code")} className="h-10 rounded-xl" />
+                </div>
               </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الدولة</Label>
+                  <Input {...register("country")} className="h-10 rounded-xl" />
+                </div>
+              </div>
+
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>الرمز البريدي</Label>
-                <Input {...register("postal_code")} className="h-10 rounded-xl" />
+                <Label className="text-xs font-medium" style={{ color: "var(--fg)" }}>العنوان التفصيلي</Label>
+                <Textarea {...register("address")} className="rounded-xl" placeholder="العنوان التفصيلي الكامل للمنشأة" />
               </div>
             </div>
           </div>

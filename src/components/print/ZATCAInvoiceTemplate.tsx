@@ -20,6 +20,7 @@ interface Customer {
   additional_no?: string;
   postal_code?: string;
   address?: string;
+  national_short_address?: string;
   project_name?: string;
   contact_person?: string;
   customer_number?: string;
@@ -40,6 +41,7 @@ interface Company {
   additional_no?: string;
   district?: string;
   postal_code?: string;
+  national_short_address?: string;
   branch_name?: string;
   address?: string;
   logo_url?: string;
@@ -144,21 +146,22 @@ export function ZATCAInvoiceTemplate({ invoice, company }: Props) {
   const statusLabel = isPaid ? "مدفوعة بالكامل / Fully Paid" : invoice.status === "draft" ? "مسودة / Draft" : invoice.status === "cancelled" ? "ملغية / Cancelled" : "";
 
   const companyAddress = [
-    company?.building_no ? `مبنى ${company.building_no}` : "",
-    company?.street ? `شارع ${company.street}` : "",
-    company?.district ? `حي ${company.district}` : "",
-    company?.city || "",
-    company?.postal_code ? `ص.ب ${company.postal_code}` : "",
-  ].filter(Boolean).join("، ");
+    company?.national_short_address ? `العنوان المختصر: ${company.national_short_address}` : "",
+    company?.city ? `${company.city}` : "",
+    company?.district ? `— حي ${company.district}` : "",
+    company?.street ? `— شارع ${company.street}` : "",
+    company?.building_no ? `— مبنى ${company.building_no}` : "",
+    company?.postal_code ? `— ${company.postal_code}` : "",
+  ].filter(Boolean).join(" ");
 
   const customerAddress = customer ? [
-    customer.building_no ? `مبنى ${customer.building_no}` : "",
-    customer.street ? `شارع ${customer.street}` : "",
-    customer.district ? `حي ${customer.district}` : "",
-    customer.city || "",
-    customer.postal_code ? `رمز بريدي ${customer.postal_code}` : "",
-    customer.country || "",
-  ].filter(Boolean).join("، ") : "";
+    customer.national_short_address ? `العنوان المختصر: ${customer.national_short_address}` : "",
+    customer.city ? `${customer.city}` : "",
+    customer.district ? `— حي ${customer.district}` : "",
+    customer.street ? `— شارع ${customer.street}` : "",
+    customer.building_no ? `— مبنى ${customer.building_no}` : "",
+    customer.postal_code ? `— ${customer.postal_code}` : "",
+  ].filter(Boolean).join(" ") : "";
 
   return (
     <div className="invoice-print-area" style={{ fontFamily: "'IBM Plex Sans Arabic', Arial, sans-serif", direction: "rtl", color: "#1e293b", fontSize: "11px", lineHeight: "1.5", maxWidth: "210mm", margin: "0 auto", background: "#fff", padding: "16mm 18mm" }}>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { MapPin, ShieldCheck } from "lucide-react";
 
 interface FormData {
   name_ar: string;
@@ -35,6 +36,7 @@ interface FormData {
   additional_no: string;
   postal_code: string;
   address: string;
+  national_short_address: string;
   project_name: string;
   contact_person: string;
   customer_number: string;
@@ -165,31 +167,66 @@ export default function NewCustomerPage() {
             </div>
 
             <div className="rounded-xl border p-4" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--fg)" }}>العنوان الوطني</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <Label>الدولة</Label>
-                  <Input {...register("country")} />
+              <div className="flex items-center gap-2 mb-4">
+                <MapPin className="h-4 w-4" style={{ color: "var(--primary)" }} />
+                <h3 className="text-sm font-semibold" style={{ color: "var(--fg)" }}>العنوان الوطني</h3>
+              </div>
+              <div className="space-y-5">
+                <div className="flex items-end justify-between">
+                  <div className="space-y-1 flex-1">
+                    <Label>العنوان المختصر</Label>
+                    <Input {...register("national_short_address")} placeholder="مثال: JEDB1234" />
+                  </div>
+                  <div className="ml-4">
+                    <Button type="button" variant="outline" size="sm" disabled className="h-10 rounded-xl" title="سيتم ربط خدمة العنوان الوطني لاحقًا">
+                      <ShieldCheck className="h-4 w-4 ml-1" />التحقق من العنوان الوطني
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <Label>المنطقة / الحي</Label>
-                  <Input {...register("district")} />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label>الدولة</Label>
+                    <Input {...register("country")} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>المدينة</Label>
+                    <Input {...register("city")} />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <Label>الشارع</Label>
-                  <Input {...register("street")} />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label>الحي / المنطقة</Label>
+                    <Input {...register("district")} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>الشارع</Label>
+                    <Input {...register("street")} />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <Label>رقم المبنى</Label>
-                  <Input {...register("building_no")} />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label>رقم المبنى</Label>
+                    <Input {...register("building_no")} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>الرقم الإضافي</Label>
+                    <Input {...register("additional_no")} />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <Label>الرقم الإضافي</Label>
-                  <Input {...register("additional_no")} />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label>الرمز البريدي</Label>
+                    <Input {...register("postal_code")} />
+                  </div>
                 </div>
+
                 <div className="space-y-1">
-                  <Label>الرمز البريدي</Label>
-                  <Input {...register("postal_code")} />
+                  <Label>العنوان التفصيلي</Label>
+                  <Textarea {...register("address")} placeholder="العنوان التفصيلي الكامل للعميل" />
                 </div>
               </div>
             </div>
