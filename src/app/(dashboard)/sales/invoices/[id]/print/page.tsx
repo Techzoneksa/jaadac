@@ -37,7 +37,8 @@ export default async function SalesInvoicePrintPage({ params }: { params: Promis
         name_ar, name_en, type, vat, cr, unified_no,
         mobile, phone, email, city, country, district,
         street, building_no, additional_no, postal_code,
-        address, project_name, contact_person, customer_number
+        address, project_name, contact_person, customer_number,
+        national_short_address
       )
     `)
     .eq("id", id)
