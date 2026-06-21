@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 export function PrintLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <div className="min-h-screen" style={{ backgroundColor: "var(--bg)" }}>
+      <div style={{ background: "#f3f4f6", minHeight: "100vh" }}>
         {children}
       </div>
       <Toaster />

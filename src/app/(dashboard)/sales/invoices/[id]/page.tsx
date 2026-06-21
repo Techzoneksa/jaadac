@@ -10,16 +10,29 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { toast } from "sonner";
-import { getStatusLabel, getPaymentMethodLabel, formatCurrency } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
+import { Printer, Edit2, ArrowRight } from "lucide-react";
 
-type InvoiceData = Record<string, unknown> & {
-  number?: string; date?: string; status?: string; subtotal?: number;
-  vat_total?: number; total?: number; paid_amount?: number; notes?: string;
+interface InvoiceData {
+  number?: string; date?: string; status?: string;
+  subtotal?: number; vat_total?: number; total?: number;
+  paid_amount?: number; notes?: string; discount?: number;
   customer_id?: string;
-  customers?: { name_ar?: string; vat?: string; mobile?: string; email?: string } | null;
-  invoice_lines?: Array<{ description?: string; qty?: number; unit_price?: number; total?: number }>;
+  customers?: {
+    name_ar?: string; name_en?: string; vat?: string;
+    cr?: string; mobile?: string; phone?: string;
+    email?: string; city?: string; country?: string;
+    district?: string; street?: string; building_no?: string;
+    additional_no?: string; postal_code?: string;
+    address?: string; project_name?: string;
+  } | null;
+  invoice_lines?: Array<{
+    description?: string; qty?: number;
+    unit_price?: number; vat_rate?: number; total?: number;
+    unit?: string; sku?: string;
+  }>;
   payments?: Array<{ id: string; amount: number; payment_method: string; date: string; number: string }>;
-};
+}
 
 export default function InvoiceViewPage() {
   const router = useRouter();
@@ -83,6 +96,7 @@ export default function InvoiceViewPage() {
   if (!invoice) return <p className="text-center py-8" style={{ color: "var(--danger)" }}>لم يتم العثور على الفاتورة</p>;
 
   const payments = (invoice?.payments || []) as Array<{ id: string; amount: number; payment_method: string; date: string; number: string }>;
+  const customer = invoice.customers;
 
   return (
     <div className="space-y-6">
@@ -91,72 +105,115 @@ export default function InvoiceViewPage() {
           <div className="flex gap-2 flex-wrap">
             {!isDraft && !isFullyPaid && remaining > 0 && <Button onClick={handleFullPayment}>دفع كامل</Button>}
             {!isDraft && !isFullyPaid && remaining > 0 && <Button variant="outline" onClick={handlePartialPayment}>دفع جزئي</Button>}
-            <Button variant="outline" onClick={() => router.push(`/sales/invoices/${params.id}/print`)}>طباعة</Button>
-            <Button variant="outline" onClick={() => router.push(`/sales/invoices/${params.id}/edit`)}>تعديل</Button>
-            <Button variant="outline" onClick={() => router.back()}>رجوع</Button>
+            <Button variant="outline" onClick={() => window.open(`/sales/invoices/${params.id}/print`, "_blank")}>
+              <Printer className="h-4 w-4 ml-1" />طباعة
+            </Button>
+            <Button variant="outline" onClick={() => router.push(`/sales/invoices/${params.id}/edit`)}>
+              <Edit2 className="h-4 w-4 ml-1" />تعديل
+            </Button>
+            <Button variant="outline" onClick={() => router.back()}>
+              <ArrowRight className="h-4 w-4 ml-1" />رجوع
+            </Button>
           </div>
         } />
+
       <div className="grid gap-6 sm:grid-cols-2">
         <Card><CardContent className="p-6">
           <div className="grid gap-3 sm:grid-cols-2">
             <div><Label>رقم الفاتورة</Label><p className="font-medium">{invoice.number}</p></div>
             <div><Label>التاريخ</Label><p className="font-medium">{invoice.date}</p></div>
             <div><Label>الحالة</Label><p className="font-medium"><StatusBadge status={invoice.status || ""} /></p></div>
-            <div><Label>العميل</Label><p className="font-medium">{invoice.customers?.name_ar || "—"}</p></div>
-            {invoice.customers?.vat && <div><Label>الرقم الضريبي</Label><p className="font-medium">{invoice.customers.vat}</p></div>}
+            <div><Label>العميل</Label><p className="font-medium">{customer?.name_ar || "—"}</p></div>
+            {customer?.vat && <div><Label>الرقم الضريبي</Label><p className="font-medium">{customer.vat}</p></div>}
+            {customer?.cr && <div><Label>السجل التجاري</Label><p className="font-medium">{customer.cr}</p></div>}
+            {(customer?.mobile || customer?.phone) && <div><Label>الجوال</Label><p className="font-medium">{customer.mobile || customer.phone}</p></div>}
+            {customer?.city && <div><Label>المدينة</Label><p className="font-medium">{customer.city}</p></div>}
           </div>
         </CardContent></Card>
+
         <Card><CardContent className="p-6">
           <h3 className="font-semibold mb-3">حالة الدفع</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm"><span>إجمالي الفاتورة</span><span className="font-medium">{formatCurrency(total)}</span></div>
+            <div className="flex justify-between text-sm"><span>الضريبة</span><span className="font-medium">{formatCurrency(invoice.vat_total || 0)}</span></div>
+            {(invoice.discount || 0) > 0 && <div className="flex justify-between text-sm"><span>الخصم</span><span className="font-medium" style={{ color: "var(--danger)" }}>-{formatCurrency(invoice.discount)}</span></div>}
             <div className="flex justify-between text-sm"><span>المدفوع</span><span className="font-medium" style={{ color: "#16a34a" }}>{formatCurrency(paid)}</span></div>
-            <div className="flex justify-between text-sm font-bold"><span>المتبقي</span><span style={{ color: remaining > 0 ? "#dc2626" : "#16a34a" }}>{formatCurrency(remaining)}</span></div>
+            <div className="flex justify-between text-sm font-bold"><span>المتبقي</span><span style={{ color: remaining > 0 ? "var(--danger)" : "#16a34a" }}>{formatCurrency(remaining)}</span></div>
             {isFullyPaid && <p className="text-sm font-bold" style={{ color: "#16a34a" }}>✓ مدفوعة بالكامل</p>}
           </div>
         </CardContent></Card>
       </div>
+
       <Card><CardHeader><CardTitle className="text-base">البنود</CardTitle></CardHeader><CardContent className="p-0">
-        <div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead><tr className="border-b" style={{ backgroundColor: "var(--surface)" }}>
-            <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>البيان</th>
-            <th className="px-4 py-2.5 text-center font-medium" style={{ color: "var(--text-muted)" }}>الكمية</th>
-            <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>سعر الوحدة</th>
-            <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>الإجمالي</th>
-          </tr></thead>
-          <tbody>{(invoice.invoice_lines || []).map((l, i) => (
-            <tr key={i} className="border-b"><td className="px-4 py-2.5">{l.description}</td><td className="px-4 py-2.5 text-center">{l.qty}</td><td className="px-4 py-2.5 text-left">{formatCurrency(l.unit_price || 0)}</td><td className="px-4 py-2.5 text-left">{formatCurrency(l.total || 0)}</td></tr>
-          ))}</tbody>
-        </table></div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b" style={{ backgroundColor: "var(--surface)" }}>
+                <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>#</th>
+                <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>البيان</th>
+                <th className="px-4 py-2.5 text-center font-medium" style={{ color: "var(--text-muted)" }}>الكمية</th>
+                <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>سعر الوحدة</th>
+                <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>الضريبة</th>
+                <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(invoice.invoice_lines || []).map((l, i) => (
+                <tr key={i} className="border-b">
+                  <td className="px-4 py-2.5">{i + 1}</td>
+                  <td className="px-4 py-2.5">
+                    {l.description}
+                    {l.sku && <span className="block text-xs" style={{ color: "var(--text-muted)" }}>SKU: {l.sku}</span>}
+                  </td>
+                  <td className="px-4 py-2.5 text-center">{l.qty}</td>
+                  <td className="px-4 py-2.5 text-left">{formatCurrency(l.unit_price || 0)}</td>
+                  <td className="px-4 py-2.5 text-left">{l.vat_rate || 0}%</td>
+                  <td className="px-4 py-2.5 text-left">{formatCurrency(l.total || 0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </CardContent></Card>
+
       <div className="text-left space-y-1 px-1">
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>المجموع الفرعي: <span className="font-medium" style={{ color: "var(--fg)" }}>{formatCurrency(invoice.subtotal || 0)}</span></p>
+        {(invoice.discount || 0) > 0 && <p className="text-sm" style={{ color: "var(--danger)" }}>الخصم: <span className="font-medium">-{formatCurrency(invoice.discount)}</span></p>}
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>الضريبة: <span className="font-medium" style={{ color: "var(--fg)" }}>{formatCurrency(invoice.vat_total || 0)}</span></p>
         <p className="text-lg font-bold" style={{ color: "var(--fg)" }}>الإجمالي: {formatCurrency(total)}</p>
       </div>
+
       {invoice.notes && <Card><CardContent className="p-4"><p className="text-sm" style={{ color: "var(--text-muted)" }}>{invoice.notes}</p></CardContent></Card>}
+
       <Card><CardHeader><CardTitle className="text-base">المدفوعات</CardTitle></CardHeader><CardContent>
         {payments.length === 0 ? (
           <p className="text-sm py-4 text-center" style={{ color: "var(--text-muted)" }}>لا توجد دفعات مسجلة لهذه الفاتورة</p>
         ) : (
-          <div className="overflow-x-auto"><table className="w-full text-sm">
-            <thead><tr className="border-b" style={{ backgroundColor: "var(--surface)" }}>
-              <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>رقم السند</th>
-              <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>التاريخ</th>
-              <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>المبلغ</th>
-              <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>طريقة الدفع</th>
-            </tr></thead>
-            <tbody>{payments.map((p, i) => (
-              <tr key={i} className="border-b">
-                <td className="px-4 py-2.5">{p.number}</td>
-                <td className="px-4 py-2.5">{p.date}</td>
-                <td className="px-4 py-2.5 text-left font-medium" style={{ color: "#16a34a" }}>{formatCurrency(p.amount)}</td>
-                <td className="px-4 py-2.5">{getPaymentMethodLabel(p.payment_method)}</td>
-              </tr>
-            ))}</tbody>
-          </table></div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b" style={{ backgroundColor: "var(--surface)" }}>
+                  <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>رقم السند</th>
+                  <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>التاريخ</th>
+                  <th className="px-4 py-2.5 text-left font-medium" style={{ color: "var(--text-muted)" }}>المبلغ</th>
+                  <th className="px-4 py-2.5 text-right font-medium" style={{ color: "var(--text-muted)" }}>طريقة الدفع</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((p, i) => (
+                  <tr key={i} className="border-b">
+                    <td className="px-4 py-2.5">{p.number}</td>
+                    <td className="px-4 py-2.5">{p.date}</td>
+                    <td className="px-4 py-2.5 text-left font-medium" style={{ color: "#16a34a" }}>{formatCurrency(p.amount)}</td>
+                    <td className="px-4 py-2.5">{p.payment_method}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </CardContent></Card>
+
       <Dialog open={showPayment} onOpenChange={setShowPayment}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>تسجيل دفعة</DialogTitle></DialogHeader>
@@ -167,8 +224,7 @@ export default function InvoiceViewPage() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cash">نقدًا</SelectItem>
-                  <SelectItem value="bank">تحويل بنكي</SelectItem>
-                  <SelectItem value="transfer">تحويل</SelectItem>
+                  <SelectItem value="bank_transfer">تحويل بنكي</SelectItem>
                   <SelectItem value="card">بطاقة</SelectItem>
                   <SelectItem value="other">أخرى</SelectItem>
                 </SelectContent>
