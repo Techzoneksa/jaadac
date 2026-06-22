@@ -35,11 +35,10 @@ interface FormData {
   building_no: string;
   additional_no: string;
   postal_code: string;
-  address: string;
   national_short_address: string;
   project_name: string;
   contact_person: string;
-  customer_number: string;
+  customer_number?: string;
   opening_balance: number;
   notes: string;
   status: "active" | "inactive";
@@ -93,15 +92,11 @@ export default function NewCustomerPage() {
                   <Label>النوع *</Label>
                   <Select defaultValue="individual" onValueChange={(v) => setValue("type", v as FormData["type"])}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="individual">فرد</SelectItem>
+<SelectContent>
+                    <SelectItem value="individual">فرد</SelectItem>
                       <SelectItem value="company">شركة</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>رقم العميل</Label>
-                  <Input {...register("customer_number")} />
                 </div>
                 <div className="space-y-1">
                   <Label>الجوال</Label>
@@ -120,10 +115,6 @@ export default function NewCustomerPage() {
                   <Input {...register("contact_person")} />
                 </div>
                 <div className="space-y-1">
-                  <Label>المدينة</Label>
-                  <Input {...register("city")} />
-                </div>
-                <div className="space-y-1">
                   <Label>الرصيد الافتتاحي</Label>
                   <Input type="number" step="0.01" {...register("opening_balance", { valueAsNumber: true })} />
                 </div>
@@ -136,10 +127,6 @@ export default function NewCustomerPage() {
                       <SelectItem value="inactive">غير نشط</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                  <Label>العنوان</Label>
-                  <Textarea {...register("address")} />
                 </div>
               </div>
             </div>
@@ -222,11 +209,6 @@ export default function NewCustomerPage() {
                     <Label>الرمز البريدي</Label>
                     <Input {...register("postal_code")} />
                   </div>
-                </div>
-
-                <div className="space-y-1">
-                  <Label>العنوان التفصيلي</Label>
-                  <Textarea {...register("address")} placeholder="العنوان التفصيلي الكامل للعميل" />
                 </div>
               </div>
             </div>

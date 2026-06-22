@@ -78,10 +78,6 @@ export default function EditCustomerPage() {
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>رقم العميل</Label>
-                  <Input {...register("customer_number")} />
-                </div>
-                <div className="space-y-1">
                   <Label>الجوال</Label>
                   <Input {...register("mobile")} />
                 </div>
@@ -98,10 +94,6 @@ export default function EditCustomerPage() {
                   <Input {...register("contact_person")} />
                 </div>
                 <div className="space-y-1">
-                  <Label>المدينة</Label>
-                  <Input {...register("city")} />
-                </div>
-                <div className="space-y-1">
                   <Label>الرصيد الافتتاحي</Label>
                   <Input type="number" step="0.01" {...register("opening_balance", { valueAsNumber: true })} />
                 </div>
@@ -114,10 +106,6 @@ export default function EditCustomerPage() {
                       <SelectItem value="inactive">غير نشط</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                  <Label>العنوان</Label>
-                  <Textarea {...register("address")} />
                 </div>
               </div>
             </div>
@@ -200,11 +188,6 @@ export default function EditCustomerPage() {
                     <Label>الرمز البريدي</Label>
                     <Input {...register("postal_code")} />
                   </div>
-                </div>
-
-                <div className="space-y-1">
-                  <Label>العنوان التفصيلي</Label>
-                  <Textarea {...register("address")} placeholder="العنوان التفصيلي الكامل للعميل" />
                 </div>
               </div>
             </div>

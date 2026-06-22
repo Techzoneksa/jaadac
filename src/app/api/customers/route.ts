@@ -36,9 +36,29 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
+
+    let customer_number = body.customer_number;
+    if (!customer_number) {
+      const { data: existing } = await supabase
+        .from("customers")
+        .select("customer_number")
+        .eq("tenant_id", user.id)
+        .not("customer_number", "is", null)
+        .order("customer_number", { ascending: false })
+        .limit(1);
+
+      let nextNum = 1;
+      if (existing && existing.length > 0 && existing[0].customer_number) {
+        const last = existing[0].customer_number;
+        const match = last.match(/CUS-(\d+)/);
+        if (match) nextNum = parseInt(match[1], 10) + 1;
+      }
+      customer_number = `CUS-${String(nextNum).padStart(6, "0")}`;
+    }
+
     const { data, error } = await supabase
       .from("customers")
-      .insert({ ...body, tenant_id: user.id })
+      .insert({ ...body, customer_number, tenant_id: user.id })
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
